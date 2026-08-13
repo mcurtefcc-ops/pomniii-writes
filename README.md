@@ -1,25 +1,49 @@
 # pomniii.writes
 
-Publica un texto al día en Instagram, con su tarjeta diseñada, **sin que tengas
-que hacer nada**.
+Publica un texto propio en Instagram, con su tarjeta diseñada, **cuando tú se lo
+pides por Telegram**.
 
 ```
-08:00 (hora de España)
+le escribes /post al bot
    │
-   ├─→  elige el siguiente texto del banco, en orden
+   ├─→  coge el siguiente texto del banco, en orden
    ├─→  monta la tarjeta 1080x1350
    ├─→  la publica en Instagram
-   └─→  te avisa por Telegram de lo que ha salido
+   └─→  te devuelve la tarjeta y el enlace al post
 ```
 
-Todo corre en GitHub Actions. No necesitas el ordenador ni un solo día, y el
-token de Instagram se renueva solo cada mes.
+Órdenes del bot:
 
-> **También hay modo con aprobación**, que es como estaba antes: la tarjeta te
-> llega a Telegram con botones (`✅ Publicar` · `⏭ Saltar` · `🔄 Otra` ·
-> `🚫 No usar nunca`) y no se publica hasta que pulsas. Para volver a él, cambia
-> el comando de `proponer.yml` por `proponer --respetar-hora` y descomenta el
-> cron de `recoger.yml`.
+| Orden | Qué hace |
+|---|---|
+| `/post` | Publica ahora el siguiente texto |
+| `/probar` | Te manda la tarjeta **sin publicar** nada |
+| `/saltar` | Descarta el siguiente sin publicarlo |
+| `/estado` | Cuántos textos quedan |
+
+Todo corre en GitHub Actions: no necesitas el ordenador encendido, y el token de
+Instagram se renueva solo cada mes.
+
+> **Tarda unos minutos.** El bot se consulta cada 5 minutos, que es el intervalo
+> mínimo del cron de GitHub, y Actions además retrasa las tareas cuando hay cola.
+> Ninguna orden se pierde —Telegram las guarda hasta que alguien las recoge—,
+> pero entre el `/post` y el post pueden pasar de 5 a 20 minutos. Para respuesta
+> instantánea haría falta un webhook con URL pública siempre encendida.
+
+> **El bot solo te obedece a ti.** Cualquiera puede encontrarlo y escribirle,
+> así que se comprueba el `chat_id` en cada orden y las de cualquier otro chat se
+> ignoran. Sin esa comprobación, un desconocido podría publicar en tu Instagram.
+
+### Otros dos modos, si los quieres
+
+- **Post diario automático a una hora fija:** descomenta el cron de
+  `proponer.yml`. Se lanza a las 06:00 y 07:00 UTC y un guardián en el código
+  descarta la que no toca, para que salga a las 08:00 de España tanto en verano
+  como en invierno.
+- **Con aprobación por botones:** cambia el comando de `proponer.yml` por
+  `proponer --respetar-hora` y descomenta el cron de `recoger.yml`. La tarjeta
+  llega con `✅ Publicar` · `⏭ Saltar` · `🔄 Otra` · `🚫 No usar nunca` y no sale
+  hasta que pulsas.
 
 **La numeración del post no depende del texto.** El `#` que sale en la tarjeta
 es un contador de publicaciones: el primero que salga será el `#0001` aunque
@@ -271,46 +295,43 @@ workflows se encargan del resto.
 
 ## El día a día
 
-Nada. A las 8:00 sale el post y te llega el aviso por Telegram con la tarjeta y
-el enlace a la publicación. Si algún día falla, también te avisa.
+Abres Telegram, escribes `/post`, y en unos minutos está publicado. Nada más.
 
-Lo único que conviene hacer de vez en cuando es **podar el banco**: abre la
-lista de textos, mira los que no te gustan y márcalos para que no salgan.
+Si quieres ver antes qué va a salir, `/probar` te manda la tarjeta sin publicar
+nada, y `/saltar` descarta ese texto y pasa al siguiente.
+
+Lo único que conviene hacer de vez en cuando es **podar el banco**: mirar los
+textos que no te gustan y marcarlos para que no salgan nunca.
 
 ```bash
 python -m src.cli descartar 0007 0031 0244
 ```
 
-Y si quieres publicar fuera de hora, desde la app de GitHub en el móvil →
-*Actions* → *Publicación diaria* → *Run workflow*.
+Cada orden nueva del bot hay que registrarla una vez para que aparezca en el
+menú del `/` de Telegram:
 
-### La hora
-
-El objetivo son las **08:00 de España**. El cron de GitHub solo entiende UTC y
-no ajusta el horario de verano, así que el workflow se lanza a las 06:00 y a las
-07:00 UTC y un guardián en el código descarta la que no toca según la fecha.
-Verificado en las cuatro épocas del año: nunca se queda un día sin post.
-
-Se cambia en `config.json` → `programacion`. La `ventana_horas` es la tolerancia
-al retraso de Actions (que puede ser de 5 a 30 minutos): con 2 horas nunca se
-pierde un día; con 1 es más preciso pero un retraso grande te deja sin post.
+```bash
+python -m src.cli comandos
+```
 
 ---
 
 ## Comandos
 
 ```bash
+python -m src.cli escuchar               # atiende las órdenes del bot (/post...)
+python -m src.cli comandos               # registra el menú de órdenes del bot
 python -m src.cli estado                 # cuántos textos quedan, próximo número
 python -m src.cli verificar              # comprueba que las claves funcionan
 python -m src.cli probar 0001 0042       # genera tarjetas en local, sin publicar
 python -m src.cli descartar 0007 0031    # marca textos para no usarlos nunca
-python -m src.cli automatico             # publica el post del día ahora
+python -m src.cli automatico             # publica el siguiente post ahora mismo
 python -m src.cli logos                  # genera los avatares y sellos de marca
 python -m src.cli chatid                 # averigua tu TELEGRAM_CHAT_ID
 python -m src.cli renovar                # renueva el token y lo imprime
 ```
 
-Modo con aprobación (si vuelves a él):
+Modo con aprobación por botones (si vuelves a él):
 
 ```bash
 python -m src.cli proponer               # manda la propuesta con botones
