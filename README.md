@@ -21,14 +21,31 @@ le escribes /post al bot
 | `/saltar` | Descarta el siguiente sin publicarlo |
 | `/estado` | Cuántos textos quedan |
 
-Todo corre en GitHub Actions: no necesitas el ordenador encendido, y el token de
+Todo corre en la nube: no necesitas el ordenador encendido, y el token de
 Instagram se renueva solo cada mes.
 
-> **Tarda unos minutos.** El bot se consulta cada 5 minutos, que es el intervalo
-> mínimo del cron de GitHub, y Actions además retrasa las tareas cuando hay cola.
-> Ninguna orden se pierde —Telegram las guarda hasta que alguien las recoge—,
-> pero entre el `/post` y el post pueden pasar de 5 a 20 minutos. Para respuesta
-> instantánea haría falta un webhook con URL pública siempre encendida.
+### Cómo llega la orden, en 15 segundos
+
+```
+tocas /post en Telegram
+   │
+   ├─→  Telegram avisa al Worker de Cloudflare      (instantáneo)
+   ├─→  el Worker comprueba que la orden es tuya y dispara GitHub Actions
+   └─→  el workflow monta la tarjeta, publica y te contesta
+```
+
+El Worker (`cloudflare/worker.js`) hace **solo de timbre**: valida el secreto que
+Telegram manda en la cabecera, comprueba el `chat_id` y llama a
+`repository_dispatch`. No toca Instagram ni publica nada; toda la lógica sigue
+en este repositorio.
+
+Se descartó el sondeo con cron porque el mínimo de GitHub son 5 minutos por
+diseño y, en la práctica, el cron de este repositorio no llegó a dispararse.
+
+> **Los dos modos son excluyentes.** Con webhook activo, Telegram deja de
+> encolar las órdenes para `getUpdates` y `escuchar` responde 409. Para volver
+> al sondeo: `python -m herramientas.configurar_webhook --quitar` y descomentar
+> el cron de `escuchar.yml`.
 
 > **El bot solo te obedece a ti.** Cualquiera puede encontrarlo y escribirle,
 > así que se comprueba el `chat_id` en cada orden y las de cualquier otro chat se
@@ -329,6 +346,22 @@ python -m src.cli automatico             # publica el siguiente post ahora mismo
 python -m src.cli logos                  # genera los avatares y sellos de marca
 python -m src.cli chatid                 # averigua tu TELEGRAM_CHAT_ID
 python -m src.cli renovar                # renueva el token y lo imprime
+```
+
+Webhook (el disparador actual):
+
+```bash
+python -m herramientas.configurar_webhook                 # ver estado
+python -m herramientas.configurar_webhook https://...     # conectar el Worker
+python -m herramientas.configurar_webhook --quitar        # volver al sondeo
+```
+
+Si al conectar responde *"Failed to resolve host"*, no hay nada roto: los DNS de
+Telegram cachearon que el dominio no existía y esa caché tarda entre 10 y 30
+minutos en caducar. Para insistir sin estar pendiente:
+
+```bash
+python -m herramientas.reintentar_webhook https://... <secreto> 30
 ```
 
 Modo con aprobación por botones (si vuelves a él):
