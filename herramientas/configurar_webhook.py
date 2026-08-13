@@ -71,7 +71,9 @@ def main() -> int:
     if not url.startswith("https://"):
         raise SystemExit("La URL del Worker tiene que empezar por https://")
 
-    secreto = secrets.token_urlsafe(32)
+    # Se puede pasar un secreto ya elegido, para poder configurar el Worker
+    # antes de registrar el webhook y no tener que volver a tocarlo despues.
+    secreto = args[1] if len(args) > 1 else secrets.token_urlsafe(32)
     _llamar(
         token,
         "setWebhook",

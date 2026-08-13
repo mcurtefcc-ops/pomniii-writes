@@ -1,0 +1,19 @@
+# Configuracion del Worker de Cloudflare.
+#
+# Vive en la raiz porque es donde Cloudflare la busca al desplegar desde el
+# repositorio, aunque el codigo del Worker este en cloudflare/. Con esto, cada
+# vez que se sube algo a main, Cloudflare redespliega el Worker solo.
+#
+# Las variables de aqui son las que NO son secretas: al desplegar, wrangler
+# sustituye las variables de texto por estas, asi que si se pusieran solo en el
+# panel se perderian en el siguiente despliegue. Los secretos (GITHUB_PAT,
+# TELEGRAM_TOKEN, TELEGRAM_SECRET) van en el panel de Cloudflare y sobreviven a
+# los despliegues: nunca deben acabar en el repositorio.
+
+name = "pomniii-bot"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+GITHUB_REPO = "mcurtefcc-ops/pomniii-writes"
+CHAT_AUTORIZADO = "8179045821"
