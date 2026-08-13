@@ -16,6 +16,14 @@ import requests
 
 BASE = "https://api.telegram.org/bot"
 
+# OJO: allowed_updates NO es un filtro por llamada, Telegram lo MEMORIZA hasta
+# que se lo cambias. Si una sola llamada pide solo ["callback_query"], Telegram
+# se queda descartando los mensajes de texto de todas las llamadas siguientes,
+# aunque estas no pasen el parametro: los tira antes de encolarlos y ni siquiera
+# aparecen en pending_update_count. Por eso todas las llamadas a getUpdates de
+# este modulo mandan la misma lista completa.
+TIPOS = ["message", "edited_message", "callback_query"]
+
 
 class ErrorTelegram(RuntimeError):
     pass
@@ -152,11 +160,8 @@ def leer_acciones(token: str, offset: int, espera_s: int = 0) -> tuple[list[dict
     {"tipo": "pub"|"salta"|"otra", "id_texto", "callback_id", "chat_id",
      "message_id"}.
     """
-    datos = {"offset": offset, "timeout": espera_s, "allowed_updates": ["callback_query"]}
-    try:
-        actualizaciones = _llamar(token, "getUpdates", datos, espera=espera_s)
-    except ErrorTelegram:
-        raise
+    datos = {"offset": offset, "timeout": espera_s, "allowed_updates": TIPOS}
+    actualizaciones = _llamar(token, "getUpdates", datos, espera=espera_s)
 
     acciones = []
     nuevo_offset = offset
@@ -192,7 +197,10 @@ def leer_ordenes(token: str, offset: int, espera_s: int = 0) -> tuple[list[dict]
     {"orden", "argumento", "chat_id", "message_id", "de"}.
     """
     actualizaciones = _llamar(
-        token, "getUpdates", {"offset": offset, "timeout": espera_s}, espera=espera_s
+        token,
+        "getUpdates",
+        {"offset": offset, "timeout": espera_s, "allowed_updates": TIPOS},
+        espera=espera_s,
     )
 
     ordenes = []
@@ -264,7 +272,9 @@ def averiguar_chat_id(token: str) -> list[str]:
 
     Se usa una sola vez, para saber que valor poner en TELEGRAM_CHAT_ID.
     """
-    actualizaciones = _llamar(token, "getUpdates", {"timeout": 0})
+    actualizaciones = _llamar(
+        token, "getUpdates", {"timeout": 0, "allowed_updates": TIPOS}
+    )
     vistos = []
     for act in actualizaciones:
         for clave in ("message", "callback_query"):
