@@ -1,0 +1,89 @@
+name: Publicacion diaria
+
+# Modo desatendido: publica el post del dia en Instagram sin pedir permiso y
+# luego te avisa por Telegram de lo que ha salido.
+#
+# Para volver al modo con aprobacion (te llega la tarjeta con botones y no se
+# publica hasta que pulsas), cambia el comando de abajo por:
+#     python -m src.cli proponer --respetar-hora
+# y reactiva el cron de recoger.yml, que es quien lee los botones.
+
+on:
+  schedule:
+    # Objetivo: publicar siempre a las 08:00 de España.
+    # El cron de Actions solo entiende UTC y no ajusta el horario de verano,
+    # asi que se lanza a las dos horas posibles y el guardian de
+    # "--respetar-hora" descarta la que no toca segun la fecha.
+    - cron: "0 6 * * *" # 08:00 en verano (CEST, UTC+2)
+    - cron: "0 7 * * *" # 08:00 en invierno (CET, UTC+1)
+  workflow_dispatch:
+    inputs:
+      forzar:
+        description: "Publicar ahora aunque ya se haya publicado hoy"
+        type: boolean
+        default: false
+
+# Un solo workflow tocando el estado a la vez.
+concurrency:
+  group: pomniii-estado
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Publicar el post del dia
+        env:
+          IG_MODO: ${{ vars.IG_MODO || 'instagram' }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
+        run: |
+          # Lanzado a mano se publica al momento; programado se respeta la hora.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python -m src.cli automatico --respetar-hora
+          else
+            python -m src.cli automatico ${{ inputs.forzar && '--forzar' || '' }}
+          fi
+
+      - name: Guardar el estado en el repositorio
+        # Se ejecuta aunque el paso anterior falle: si el post salio pero algo
+        # posterior se rompio, el registro tiene que quedar guardado igual o
+        # manana se republicaria el mismo texto.
+        if: always()
+        run: |
+          git config user.name "pomniii-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A data/
+          if git diff --staged --quiet; then
+            echo "Nada que guardar."
+          else
+            git commit -m "post del dia [skip ci]"
+            git pull --rebase --autostash
+            git push
+          fi
+
+      - name: Avisar por Telegram si algo ha fallado
+        if: failure()
+        env:
+          TG: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TG}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT}" \
+            --data-urlencode "text=La publicacion diaria ha fallado y hoy no ha salido nada. Detalle: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

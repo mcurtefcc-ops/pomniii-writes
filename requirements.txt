@@ -1,0 +1,9 @@
+pillow>=10.0
+requests>=2.31
+python-dotenv>=1.0
+# Windows no trae la base de datos de zonas horarias IANA, y sin ella
+# zoneinfo no puede resolver "Europe/Madrid" para el guardian de la hora.
+tzdata>=2024.1; sys_platform == "win32"
+# Cifra el token nuevo al escribirlo como secret de GitHub: la API solo acepta
+# valores cifrados con la clave publica del repositorio.
+pynacl>=1.5

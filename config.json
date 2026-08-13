@@ -1,0 +1,59 @@
+{
+  "marca": {
+    "handle": "pomniii.writes",
+    "wordmark": "POMNIII WRITES",
+    "firma": "pomniii",
+    "lema": "escribo para no gritar",
+    "logo": "monograma",
+    "monograma": "P"
+  },
+  "paleta": {
+    "fondo": "#0B0B10",
+    "fondo_alto": "#16161F",
+    "texto": "#F4F0E6",
+    "texto_suave": "#8E8A9B",
+    "acento": "#E63946",
+    "acento2": "#4CC9F0"
+  },
+  "_nota_tipografias": "Cada rol es una lista de candidatas y se usa la primera que exista. Delante van las fuentes libres de assets/fonts (licencia OFL, se pueden redistribuir) para que la tarjeta salga identica en Windows y en el servidor; detras, las de Windows como red de seguridad.",
+  "tipografias": {
+    "cita": [
+      "assets/fonts/CrimsonText-Italic.ttf",
+      "assets/fonts/EBGaramond-Italic.ttf",
+      "C:/Windows/Fonts/georgiai.ttf"
+    ],
+    "ui": ["assets/fonts/Barlow-Regular.ttf", "C:/Windows/Fonts/segoeui.ttf"],
+    "ui_bold": ["assets/fonts/Barlow-Bold.ttf", "C:/Windows/Fonts/segoeuib.ttf"],
+    "mono": ["assets/fonts/SpaceMono-Regular.ttf", "C:/Windows/Fonts/consola.ttf"],
+    "firma": ["assets/fonts/Parisienne-Regular.ttf", "C:/Windows/Fonts/segoesc.ttf"]
+  },
+  "programacion": {
+    "_nota": "Hora local a la que quieres la propuesta. El cron de GitHub solo entiende UTC y no ajusta el horario de verano, asi que proponer.yml se lanza a dos horas UTC y este guardian decide cual de las dos es la buena segun la fecha.",
+    "zona": "Europe/Madrid",
+    "hora": 8,
+    "ventana_horas": 2
+  },
+  "lienzo": {
+    "ancho": 1080,
+    "alto": 1350,
+    "supersampling": 2
+  },
+  "pie_de_foto": {
+    "cierre": "\u2014\u2014\u2014",
+    "cta": "Si te ha llegado, gu\u00e1rdalo para el d\u00eda en que lo necesites.\nCada d\u00eda una frase nueva por aqu\u00ed \u2192 @pomniii.writes",
+    "hashtags": [
+      "#frasesqueinspiran",
+      "#microcuentos",
+      "#poesiacorta",
+      "#escribirparasanar",
+      "#reflexionesdiarias",
+      "#frasesdeldia",
+      "#pensamientos",
+      "#letrasypoesia",
+      "#saludmental",
+      "#motivaciondiaria",
+      "#textospoeticos",
+      "#poesiaenespanol"
+    ]
+  }
+}

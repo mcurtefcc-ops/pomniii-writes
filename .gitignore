@@ -1,0 +1,21 @@
+# Claves. Nunca, bajo ningun concepto.
+.env
+
+__pycache__/
+*.pyc
+.venv/
+
+# Preferencias locales de esta maquina, no del proyecto.
+.claude/settings.local.json
+
+# Tarjetas generadas: se regeneran solas y pesan.
+salida/
+
+# Logos y avatares: los genera "pomniii logos".
+assets/logo_*.png
+assets/avatar_*.png
+
+# OJO: data/estado.json y data/pendiente.json SI se versionan.
+# Son la memoria de que se ha publicado y de que esta esperando respuesta.
+# Si se ignoraran, cada ejecucion en el servidor empezaria de cero y
+# republicaria el #0001 todos los dias.
