@@ -40,7 +40,7 @@ from .frases import (
 )
 from .imagen import construir_pie_de_foto, crear_post
 from .marca import guardar_logos
-from .subir import subir
+from .subir import hospedar
 from .util import cargar_config
 
 PENDIENTE = RAIZ / "data" / "pendiente.json"
@@ -61,6 +61,12 @@ def _entorno() -> dict:
         # "facebook"  = con Facebook Login y token de pagina.
         "modo": os.environ.get("IG_MODO", "instagram").strip().lower(),
         "imgbb": os.environ.get("IMGBB_API_KEY", ""),
+        # Donde se cuelga la tarjeta para que Instagram pueda descargarla.
+        # Vacio = github si hay credenciales, imgbb si no.
+        "hosting": os.environ.get("HOSTING", ""),
+        "gh_pat": os.environ.get("GH_PAT", ""),
+        # En GitHub Actions viene puesta sola; en local se pone en el .env.
+        "gh_repo": os.environ.get("GITHUB_REPOSITORY") or os.environ.get("GITHUB_REPO", ""),
         "tg_token": os.environ.get("TELEGRAM_TOKEN", ""),
         "tg_chat": os.environ.get("TELEGRAM_CHAT_ID", ""),
     }
@@ -130,9 +136,9 @@ def borrar_pendiente() -> None:
 def _preparar(item: dict, cfg: dict, env: dict, fecha: dt.date, numero: int) -> dict:
     """Monta la tarjeta, la deja colgada en un host publico y devuelve el pendiente."""
     ruta = crear_post(item, cfg, fecha, numero)
-    print(f"  tarjeta: {ruta.name} (post #{numero:04d})")
-    url = subir(ruta, env["imgbb"])
-    print(f"  subida:  {url}")
+    print(f"  tarjeta: {ruta.name} (post #{numero:04d}, {ruta.stat().st_size // 1024} KB)")
+    url = hospedar(ruta, env)
+    print(f"  colgada: {url}")
     return {
         "id": item["id"],
         "numero": numero,
