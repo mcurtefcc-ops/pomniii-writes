@@ -181,6 +181,62 @@ def leer_acciones(token: str, offset: int, espera_s: int = 0) -> tuple[list[dict
     return acciones, nuevo_offset
 
 
+def leer_ordenes(token: str, offset: int, espera_s: int = 0) -> tuple[list[dict], int]:
+    """Recoge las ordenes de texto que le has mandado al bot (/post, /estado...).
+
+    No se filtra por allowed_updates a proposito: ese filtro descarta del todo
+    los updates que no encajan cuando el offset avanza, y asi no se pierde nada
+    si algun dia se vuelve a usar los botones.
+
+    Devuelve (ordenes, nuevo_offset). Cada orden es
+    {"orden", "argumento", "chat_id", "message_id", "de"}.
+    """
+    actualizaciones = _llamar(
+        token, "getUpdates", {"offset": offset, "timeout": espera_s}, espera=espera_s
+    )
+
+    ordenes = []
+    nuevo_offset = offset
+    for act in actualizaciones:
+        nuevo_offset = max(nuevo_offset, act["update_id"] + 1)
+        msg = act.get("message") or act.get("edited_message")
+        if not msg:
+            continue
+        texto = (msg.get("text") or "").strip()
+        if not texto.startswith("/"):
+            continue
+        # Telegram manda /post@mi_bot en los grupos; se queda solo la orden.
+        cuerpo = texto[1:].split(maxsplit=1)
+        orden = cuerpo[0].split("@")[0].lower()
+        ordenes.append(
+            {
+                "orden": orden,
+                "argumento": cuerpo[1].strip() if len(cuerpo) > 1 else "",
+                "chat_id": str(msg["chat"]["id"]),
+                "message_id": msg["message_id"],
+                "de": (msg.get("from") or {}).get("username")
+                or (msg.get("from") or {}).get("first_name", "?"),
+            }
+        )
+    return ordenes, nuevo_offset
+
+
+def registrar_comandos(token: str) -> None:
+    """Da de alta el menu de ordenes del bot, para que salgan al escribir "/"."""
+    _llamar(
+        token,
+        "setMyCommands",
+        {
+            "commands": [
+                {"command": "post", "description": "Publicar ahora el siguiente texto"},
+                {"command": "probar", "description": "Ver la tarjeta sin publicar nada"},
+                {"command": "saltar", "description": "Descartar el siguiente sin publicarlo"},
+                {"command": "estado", "description": "Cuantos textos quedan"},
+            ]
+        },
+    )
+
+
 def averiguar_chat_id(token: str) -> list[str]:
     """Ayuda de instalacion: lista los chats que han escrito al bot.
 

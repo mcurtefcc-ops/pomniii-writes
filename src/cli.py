@@ -258,6 +258,14 @@ def cmd_verificar(args) -> int:
     return 1 if fallos else 0
 
 
+def cmd_comandos(args) -> int:
+    """Da de alta el menu de ordenes del bot para que salgan al escribir '/'."""
+    env = _entorno()
+    telegram.registrar_comandos(env["tg_token"])
+    print("Menu del bot registrado: /post, /probar, /saltar, /estado")
+    return 0
+
+
 def cmd_renovar(args) -> int:
     """Renueva el token de Instagram Login por 60 dias mas.
 
@@ -335,6 +343,131 @@ def cmd_proponer(args) -> int:
     return 0
 
 
+def _publicar_ahora(cfg: dict, env: dict, fecha: dt.date) -> dict:
+    """Elige el siguiente texto, monta la tarjeta, la sube y la publica.
+
+    Marca el texto como usado SOLO despues de que Instagram confirme. Si algo
+    falla antes, el texto sigue disponible y se reintentara la proxima vez.
+    """
+    estado = cargar_estado()
+    item, _ = elegir()
+    numero = numero_siguiente(estado)
+    print(f"Post #{numero:04d} · texto {item['id']} [{item.get('voz')}/{item.get('tipo')}]")
+    print(f"  {item['texto'][:70]}")
+
+    listo = _preparar(item, cfg, env, fecha, numero)
+    post_id = _publicar_pendiente(listo, env)
+    enlace = instagram.obtener_enlace(post_id, env["ig_token"], env["modo"], env["graph"])
+
+    marcar_usado(
+        cargar_estado(), item,
+        {
+            "fecha": fecha.isoformat(),
+            "numero": numero,
+            "ig_post_id": post_id,
+            "url": listo["url"],
+            "enlace": enlace,
+        },
+    )
+    print(f"  publicado: {post_id}  {enlace}")
+    return {"item": item, "numero": numero, "url": listo["url"], "enlace": enlace}
+
+
+def cmd_escuchar(args) -> int:
+    """Atiende las ordenes que le mandas al bot: /post, /probar, /saltar, /estado.
+
+    Se llama desde una tarea programada cada pocos minutos. Telegram guarda las
+    ordenes en una cola, asi que da igual que el bot no este "escuchando" en el
+    momento exacto en que escribes: cuando toque la pasada, la orden esta ahi.
+    """
+    cfg, env = cargar_config(), _entorno()
+    hoy = dt.date.today()
+    tg = env["tg_token"]
+
+    estado = cargar_estado()
+    offset = int(estado.get("telegram_offset", 0))
+    ordenes, nuevo_offset = telegram.leer_ordenes(tg, offset, args.espera)
+    if nuevo_offset != offset:
+        # Se guarda antes de actuar: si la publicacion falla, la orden no debe
+        # volver a entregarse y publicar dos veces sin que lo pidas.
+        estado["telegram_offset"] = nuevo_offset
+        guardar_estado(estado)
+
+    if not ordenes:
+        print("Sin ordenes nuevas.")
+        return 0
+
+    # Solo se atiende un /post por pasada: si mandaste la orden dos veces por
+    # impaciencia, no se publican dos posts.
+    posts = [o for o in ordenes if o["orden"] == "post"]
+    if len(posts) > 1:
+        print(f"{len(posts)} ordenes /post en la cola; se atiende solo la ultima.")
+        ordenes = [o for o in ordenes if o["orden"] != "post"] + posts[-1:]
+
+    for o in ordenes:
+        # El bot es publico: cualquiera que lo encuentre puede escribirle. Sin
+        # esta comprobacion, un desconocido podria publicar en tu Instagram.
+        if o["chat_id"] != str(env["tg_chat"]):
+            print(f"Ignorada /{o['orden']} de un chat no autorizado ({o['chat_id']}, {o['de']})")
+            try:
+                telegram.enviar_texto(tg, o["chat_id"], "Este bot es privado.")
+            except telegram.ErrorTelegram:
+                pass
+            continue
+
+        chat = o["chat_id"]
+        print(f"Orden /{o['orden']}")
+
+        if o["orden"] == "post":
+            try:
+                res = _publicar_ahora(cfg, env, hoy)
+            except (instagram.ErrorInstagram, Exception) as e:
+                telegram.enviar_texto(tg, chat, f"No se pudo publicar:\n{e}")
+                print(f"FALLO al publicar: {e}", file=sys.stderr)
+                return 1
+            telegram.enviar_publicado(
+                tg, chat, res["url"], res["item"], res["numero"],
+                hoy.strftime("%d.%m.%Y"), res["enlace"],
+            )
+
+        elif o["orden"] == "probar":
+            item, _ = elegir()
+            numero = numero_siguiente(cargar_estado())
+            listo = _preparar(item, cfg, env, hoy, numero)
+            telegram.enviar_texto(
+                tg, chat,
+                f"Vista previa del proximo post (#{numero:04d}, texto {item['id']}). "
+                "No se ha publicado nada.",
+            )
+            telegram.enviar_publicado(
+                tg, chat, listo["url"], item, numero, hoy.strftime("%d.%m.%Y")
+            )
+
+        elif o["orden"] == "saltar":
+            item, _ = elegir()
+            marcar_usado(cargar_estado(), item, {"fecha": hoy.isoformat(), "saltado": True})
+            telegram.enviar_texto(
+                tg, chat,
+                f"Saltado el texto {item['id']} sin publicarlo:\n\n{item['texto']}\n\n"
+                "El siguiente /post cogera el que va detras.",
+            )
+
+        elif o["orden"] == "estado":
+            telegram.enviar_texto(tg, chat, resumen())
+
+        else:
+            telegram.enviar_texto(
+                tg, chat,
+                "No conozco esa orden. Las que entiendo:\n\n"
+                "/post — publicar ahora el siguiente texto\n"
+                "/probar — ver la tarjeta sin publicar\n"
+                "/saltar — descartar el siguiente sin publicarlo\n"
+                "/estado — cuantos textos quedan",
+            )
+
+    return 0
+
+
 def cmd_automatico(args) -> int:
     """Publica el texto del dia sin pedir permiso a nadie.
 
@@ -364,33 +497,12 @@ def cmd_automatico(args) -> int:
     # Si habia una propuesta a medias de una epoca con aprobacion manual, se
     # descarta: en modo automatico no hay nada esperando respuesta.
     borrar_pendiente()
-
-    item, _ = elegir()
-    numero = numero_siguiente(estado)
-    print(f"Post #{numero:04d} · texto {item['id']} [{item.get('voz')}/{item.get('tipo')}]")
-    print(f"  {item['texto'][:70]}")
-
-    listo = _preparar(item, cfg, env, hoy, numero)
-    post_id = _publicar_pendiente(listo, env)
-    enlace = instagram.obtener_enlace(post_id, env["ig_token"], env["modo"], env["graph"])
-
-    marcar_usado(
-        cargar_estado(), item,
-        {
-            "fecha": hoy.isoformat(),
-            "numero": numero,
-            "ig_post_id": post_id,
-            "url": listo["url"],
-            "enlace": enlace,
-            "automatico": True,
-        },
-    )
-    print(f"  publicado: {post_id}  {enlace}")
+    res = _publicar_ahora(cfg, env, hoy)
 
     try:
         telegram.enviar_publicado(
-            env["tg_token"], env["tg_chat"], listo["url"], item, numero,
-            hoy.strftime("%d.%m.%Y"), enlace,
+            env["tg_token"], env["tg_chat"], res["url"], res["item"], res["numero"],
+            hoy.strftime("%d.%m.%Y"), res["enlace"],
         )
     except telegram.ErrorTelegram as e:
         # El post ya esta publicado. Que falle el aviso no debe tumbar la tarea.
@@ -536,6 +648,14 @@ def main(argv: list[str] | None = None) -> int:
         help="salir sin hacer nada si no es la hora local de config.json (lo usa GitHub Actions)",
     )
     pp.set_defaults(func=cmd_proponer)
+
+    es = sub.add_parser("escuchar", help="atiende las ordenes del bot (/post, /probar...)")
+    es.add_argument("--espera", type=int, default=0, help="segundos de long polling (max 50)")
+    es.set_defaults(func=cmd_escuchar)
+
+    sub.add_parser("comandos", help="registra el menu de ordenes del bot").set_defaults(
+        func=cmd_comandos
+    )
 
     au = sub.add_parser("automatico", help="publica el post del dia sin pedir permiso")
     au.add_argument("--forzar", action="store_true", help="aunque ya se publicara hoy")
