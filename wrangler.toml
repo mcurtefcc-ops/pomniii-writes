@@ -14,6 +14,11 @@ name = "pomniii-bot"
 main = "cloudflare/worker.js"
 compatibility_date = "2026-01-01"
 
+# Sin esto el Worker se despliega sin direccion publica ("No URLs enabled") y
+# Telegram no tendria adonde llamar. Es justo lo que hace falta aqui: una URL
+# https gratuita del tipo pomniii-bot.<cuenta>.workers.dev
+workers_dev = true
+
 [vars]
 GITHUB_REPO = "mcurtefcc-ops/pomniii-writes"
 CHAT_AUTORIZADO = "8179045821"
