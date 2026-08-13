@@ -7,15 +7,23 @@ name: Escuchar al bot
 #   /saltar   descarta el siguiente sin publicarlo
 #   /estado   cuantos textos quedan
 #
-# Va por sondeo cada 5 minutos, que es el intervalo minimo que permite el cron
-# de GitHub. Eso significa que entre que escribes /post y que sale el post
-# pueden pasar unos minutos: Actions ademas retrasa las tareas programadas
-# cuando hay cola. No se pierde ninguna orden, porque Telegram las guarda en una
-# cola hasta que alguien las recoge; solo tardan un rato en atenderse.
+# El cron de GitHub no baja de 5 minutos: esta documentado y no hay forma de
+# saltarselo. Para que la respuesta no tarde 5 minutos, cada ejecucion no da una
+# sola pasada, sino que se queda escuchando 4 minutos con long polling: Telegram
+# mantiene la peticion abierta y contesta en el INSTANTE en que escribes la
+# orden. Asi la respuesta es de segundos casi siempre, y en el peor caso (si la
+# orden cae en el hueco entre dos ejecuciones) esperas lo que tarde la siguiente.
 #
-# Si algun dia quieres respuesta instantanea, hace falta un webhook, y eso pide
-# un servicio con URL publica siempre encendido (un Cloudflare Worker gratuito,
-# por ejemplo). Con sondeo no hay nada que mantener.
+# Ninguna orden se pierde: Telegram las guarda en una cola hasta que alguien las
+# recoge.
+#
+# Esto tiene una contrapartida honesta: el trabajo esta corriendo casi todo el
+# rato, y eso se parece a usar Actions como un servidor, algo que las condiciones
+# de GitHub no contemplan. En un repositorio publico los minutos son ilimitados y
+# gratis, pero si quieres estar del lado seguro, quita el --bucle y acepta los
+# 5 minutos de espera. La alternativa correcta para respuesta instantanea es un
+# webhook de Telegram apuntando a un Cloudflare Worker gratuito que dispare el
+# workflow, y entonces esto no haria falta.
 
 on:
   schedule:
@@ -31,6 +39,9 @@ concurrency:
 jobs:
   escuchar:
     runs-on: ubuntu-latest
+    # Red de seguridad: si algo se quedara colgado, el trabajo muere solo en vez
+    # de comerse minutos indefinidamente.
+    timeout-minutes: 10
     permissions:
       contents: write
 
@@ -53,7 +64,9 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
-        run: python -m src.cli escuchar
+        # 4 minutos de escucha con el cron cada 5: cobertura casi continua.
+        # --espera 50 es el maximo de long polling que admite Telegram.
+        run: python -m src.cli escuchar --bucle 4 --espera 50
 
       - name: Guardar el estado en el repositorio
         # Aunque el paso anterior falle: el offset de Telegram pudo avanzar y si

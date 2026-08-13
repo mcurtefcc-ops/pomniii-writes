@@ -21,6 +21,7 @@ import datetime as dt
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -374,12 +375,28 @@ def _publicar_ahora(cfg: dict, env: dict, fecha: dt.date) -> dict:
 
 
 def cmd_escuchar(args) -> int:
-    """Atiende las ordenes que le mandas al bot: /post, /probar, /saltar, /estado.
+    """Atiende las ordenes del bot: /post, /probar, /saltar, /estado.
 
-    Se llama desde una tarea programada cada pocos minutos. Telegram guarda las
-    ordenes en una cola, asi que da igual que el bot no este "escuchando" en el
-    momento exacto en que escribes: cuando toque la pasada, la orden esta ahi.
+    Con --bucle se queda escuchando esos minutos en vez de dar una sola pasada.
+    Combinado con --espera (long polling de Telegram) la respuesta es de
+    segundos: el servidor de Telegram mantiene la peticion abierta y contesta en
+    el instante en que escribes la orden, sin que haya que preguntar en bucle.
     """
+    if not args.bucle:
+        return _atender(args)
+
+    fin = time.monotonic() + args.bucle * 60
+    pasadas = 0
+    while time.monotonic() < fin:
+        codigo = _atender(args)
+        pasadas += 1
+        if codigo != 0:
+            return codigo
+    print(f"Fin del turno de escucha ({args.bucle} min, {pasadas} pasadas).")
+    return 0
+
+
+def _atender(args) -> int:
     cfg, env = cargar_config(), _entorno()
     hoy = dt.date.today()
     tg = env["tg_token"]
@@ -650,7 +667,14 @@ def main(argv: list[str] | None = None) -> int:
     pp.set_defaults(func=cmd_proponer)
 
     es = sub.add_parser("escuchar", help="atiende las ordenes del bot (/post, /probar...)")
-    es.add_argument("--espera", type=int, default=0, help="segundos de long polling (max 50)")
+    es.add_argument(
+        "--espera", type=int, default=0,
+        help="segundos que Telegram mantiene la peticion abierta esperando una orden (max 50)",
+    )
+    es.add_argument(
+        "--bucle", type=int, default=0,
+        help="quedarse escuchando estos minutos en vez de dar una sola pasada",
+    )
     es.set_defaults(func=cmd_escuchar)
 
     sub.add_parser("comandos", help="registra el menu de ordenes del bot").set_defaults(
