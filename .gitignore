@@ -8,6 +8,10 @@ __pycache__/
 # Preferencias locales de esta maquina, no del proyecto.
 .claude/settings.local.json
 
+# GitHub CLI descomprimido aqui para no necesitar permisos de administrador.
+# Son 40 MB de binario que no tienen nada que ver con el proyecto.
+.herramientas/
+
 # Tarjetas generadas: se regeneran solas y pesan.
 salida/
 
