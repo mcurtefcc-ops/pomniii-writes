@@ -376,8 +376,16 @@ def crear_post(
     # --- reducir y guardar ---
     final = base.convert("RGB").resize((ancho_final, alto_final), Image.LANCZOS)
     SALIDA.mkdir(parents=True, exist_ok=True)
-    ruta = SALIDA / f"{fecha.isoformat()}_{item['id']}.png"
-    final.save(ruta, "PNG", optimize=True)
+
+    # JPEG y no PNG porque la API de Instagram solo acepta JPEG para las
+    # publicaciones del feed: con un PNG responde error 9004 diciendo que no ha
+    # podido recuperar el contenido multimedia, que despista bastante.
+    #
+    # subsampling=0 mantiene el croma sin reducir (4:4:4). Importa aqui mas que
+    # en una foto normal: con el submuestreo por defecto, el texto claro sobre
+    # fondo oscuro y el rojo del acento salen con halos sucios en los bordes.
+    ruta = SALIDA / f"{fecha.isoformat()}_{item['id']}.jpg"
+    final.save(ruta, "JPEG", quality=93, subsampling=0, optimize=True, progressive=True)
     return ruta
 
 

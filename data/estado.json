@@ -1,6 +1,15 @@
 {
-  "usados": [],
+  "usados": [
+    "0001"
+  ],
   "rondas": 0,
-  "historial": [],
-  "telegram_offset": 84805313
+  "historial": [
+    {
+      "id": "0001",
+      "texto": "No te falta tiempo. Te falta decirlo en voz alta.",
+      "fecha": "2026-08-13",
+      "saltado": true
+    }
+  ],
+  "telegram_offset": 84805322
 }
