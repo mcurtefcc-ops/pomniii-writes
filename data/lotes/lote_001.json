@@ -1,0 +1,1686 @@
+{
+  "lote": 1,
+  "nota": "Cuatro voces entrelazadas: directa, literaria, nocturna, intima. Los saltos de linea se respetan tal cual en la tarjeta.",
+  "items": [
+    {
+      "id": "0001",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "No te falta tiempo. Te falta decirlo en voz alta."
+    },
+    {
+      "id": "0002",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "El insomnio es la casa donde viven las cosas que no dije."
+    },
+    {
+      "id": "0003",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "Duermo con la luz encendida por si vuelven las ganas."
+    },
+    {
+      "id": "0004",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "descanso",
+      "texto": "Si hoy solo has respirado, ya has hecho bastante. Te lo digo yo, que tampoco pude más."
+    },
+    {
+      "id": "0005",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Te quedaste por miedo y lo llamaste amor."
+    },
+    {
+      "id": "0006",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "identidad",
+      "texto": "Hay puertas que solo abren por dentro. Llevaba la llave en el bolsillo."
+    },
+    {
+      "id": "0007",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "Te pienso a las tres de la mañana, que es cuando no tengo abogados."
+    },
+    {
+      "id": "0008",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Te dejo esto aquí por si mañana lo necesitas: sigues a tiempo."
+    },
+    {
+      "id": "0009",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "libertad",
+      "texto": "Nadie te está esperando. Por eso puedes ir donde quieras."
+    },
+    {
+      "id": "0010",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "cambio",
+      "texto": "Me mudé de ciudad para no mudarme de mí. No funcionó, y fue lo mejor que hice."
+    },
+    {
+      "id": "0011",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Lo peor no fue perderte. Fue lo bien que se me dio acostumbrarme."
+    },
+    {
+      "id": "0012",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "resistencia",
+      "texto": "No te pido que estés bien. Te pido que no te vayas del todo."
+    },
+    {
+      "id": "0013",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "excusas",
+      "texto": "No estabas cansado. Estabas fingiendo."
+    },
+    {
+      "id": "0014",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "olvido",
+      "texto": "Guardo tu nombre\nen la parte del mapa\ndonde ya no voy."
+    },
+    {
+      "id": "0015",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "insomnio",
+      "texto": "A las tres de la mañana\ntodos somos honestos\ny nadie está despierto\npara oírlo."
+    },
+    {
+      "id": "0016",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "cansancio",
+      "texto": "Sé que estás cansado. No hace falta que lo expliques, no hoy."
+    },
+    {
+      "id": "0017",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "decisiones",
+      "texto": "Lo que no eliges, se elige solo. Y elige mal."
+    },
+    {
+      "id": "0018",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "silencio",
+      "texto": "Aprendí a leer los silencios y desde entonces leo menos libros."
+    },
+    {
+      "id": "0019",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "costumbre",
+      "texto": "Sigo poniendo dos tazas. La costumbre tarda más en irse que la gente."
+    },
+    {
+      "id": "0020",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Si has llegado hasta aquí leyendo, es que aún te queda algo. Y con algo se empieza."
+    },
+    {
+      "id": "0021",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "excusas",
+      "texto": "Dijiste que era complicado. Era que no querías."
+    },
+    {
+      "id": "0022",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "memoria",
+      "texto": "La memoria es un perro que solo obedece de noche."
+    },
+    {
+      "id": "0023",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "identidad",
+      "texto": "No te echo de menos. Echo de menos quién era yo cuando estabas."
+    },
+    {
+      "id": "0024",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Ojalá pudiera decirte que se pasa rápido. Se pasa, y eso ya es mucho."
+    },
+    {
+      "id": "0025",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "vinculos",
+      "texto": "No te ignoran. Te contestan justo lo suficiente."
+    },
+    {
+      "id": "0026",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "volver",
+      "texto": "Me fui sin cerrar la puerta,\npor si el que volvía\nera yo."
+    },
+    {
+      "id": "0027",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "Hay noches en las que el techo y yo tenemos mucho de qué hablar."
+    },
+    {
+      "id": "0028",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "presion",
+      "texto": "No tienes que ser inspiración de nadie. Solo tienes que llegar al jueves."
+    },
+    {
+      "id": "0029",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "miedo",
+      "texto": "Lo llamas paciencia. Se llama miedo a buscar otra cosa."
+    },
+    {
+      "id": "0030",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "paciencia",
+      "texto": "Los inviernos no matan las raíces: las obligan a hablar bajito."
+    },
+    {
+      "id": "0031",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "ausencia",
+      "texto": "Me acostumbré a tu ausencia igual que a un dolor de espalda: ya ni lo nombro."
+    },
+    {
+      "id": "0032",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "perdon",
+      "texto": "Perdónate. En serio. Estabas haciendo lo que podías con lo que sabías."
+    },
+    {
+      "id": "0033",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "Te acostumbraste a pedir migas y ahora te asusta el pan."
+    },
+    {
+      "id": "0034",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "escribir",
+      "texto": "Escribo para que las cosas quepan. Fuera del papel no cabían."
+    },
+    {
+      "id": "0035",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "costumbre",
+      "texto": "Dejé la luz del pasillo encendida\ntantos años\nque ya no sé\nsi era por ti\no por mí."
+    },
+    {
+      "id": "0036",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "calma",
+      "texto": "Ven, siéntate. No hay que arreglar nada ahora mismo."
+    },
+    {
+      "id": "0037",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "autonomia",
+      "texto": "Nadie va a venir. Levántate igual."
+    },
+    {
+      "id": "0038",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "vinculos",
+      "texto": "Hay gente que pasa por tu vida como pasa el agua por un cesto: no se queda, pero te deja limpio."
+    },
+    {
+      "id": "0039",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Te bloqueé para no escribirte y ahora escribo sobre ti. Muy listo, todo."
+    },
+    {
+      "id": "0040",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "reconocimiento",
+      "texto": "Estoy orgulloso de ti por cosas que nadie vio."
+    },
+    {
+      "id": "0041",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "No perdiste el tiempo. Lo regalaste."
+    },
+    {
+      "id": "0042",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "esperanza",
+      "texto": "La luz de las siete\nno pregunta\nsi merezco la mañana.\nEntra igual."
+    },
+    {
+      "id": "0043",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Lo superé. Solo que a veces suena una canción."
+    },
+    {
+      "id": "0044",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "dias malos",
+      "texto": "Te has levantado. Ya está. Eso hoy era la meta."
+    },
+    {
+      "id": "0045",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Si tienes que preguntarte si te quiere, ya lo sabes."
+    },
+    {
+      "id": "0046",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "prisa",
+      "texto": "Tenía tantas ganas de llegar que me perdí todos los paisajes."
+    },
+    {
+      "id": "0047",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Nadie te avisa de que se puede echar de menos un futuro que no pasó."
+    },
+    {
+      "id": "0048",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Si nadie te lo ha dicho hoy: me alegro de que sigas aquí."
+    },
+    {
+      "id": "0049",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Te trataron mal y lo llamaste carácter."
+    },
+    {
+      "id": "0050",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "heridas",
+      "texto": "El corazón es el único músculo que se entrena rompiéndolo."
+    },
+    {
+      "id": "0051",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "memoria",
+      "texto": "No me dueles.\nMe recuerdas.\nQue es peor,\nporque no se cura con tiempo."
+    },
+    {
+      "id": "0052",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "cuidarse",
+      "texto": "Come algo. Bebe agua. Lo demás puede esperar media hora."
+    },
+    {
+      "id": "0053",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "estancamiento",
+      "texto": "No estás perdido. Estás quieto."
+    },
+    {
+      "id": "0054",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Me habitaron sin pagar y aún encuentro muebles suyos."
+    },
+    {
+      "id": "0055",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "memoria",
+      "texto": "Ojalá las canciones vinieran con aviso."
+    },
+    {
+      "id": "0056",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "comparacion",
+      "texto": "No te compares conmigo, ni con nadie. Yo también finjo a ratos."
+    },
+    {
+      "id": "0057",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "verdad",
+      "texto": "Lo que te da vergüenza contar es exactamente lo que tienes que cambiar."
+    },
+    {
+      "id": "0058",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "soltar",
+      "texto": "Se me cayó el mundo.\nLo recogí despacio.\nPesaba menos\nsin lo que sobraba."
+    },
+    {
+      "id": "0059",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "costumbre",
+      "texto": "Me despierto a las cuatro por costumbre. Ya ni sé de quién era la costumbre."
+    },
+    {
+      "id": "0060",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "identidad",
+      "texto": "Sé que hoy no te reconoces. Mañana tampoco, pero pasado igual sí."
+    },
+    {
+      "id": "0061",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "verdad",
+      "texto": "Tu problema no es no saber. Es no querer enterarte."
+    },
+    {
+      "id": "0062",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "costumbre",
+      "texto": "La costumbre es una manta corta: te tapa, pero nunca entera."
+    },
+    {
+      "id": "0063",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Aprendí a dormir en el centro de la cama. Tardé más de lo que voy a admitir."
+    },
+    {
+      "id": "0064",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Puedes decirme que no estás bien. No voy a intentar arreglarte."
+    },
+    {
+      "id": "0065",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "No es que no te valoren. Es que se lo pusiste muy fácil."
+    },
+    {
+      "id": "0066",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "ausencia",
+      "texto": "Hay ausencias que hacen ruido al andar por la casa."
+    },
+    {
+      "id": "0067",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "olvido",
+      "texto": "Tu nombre\nya no me tiembla en la boca.\nSolo pesa un poco\nal decirlo."
+    },
+    {
+      "id": "0068",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "reconocimiento",
+      "texto": "Lo estás haciendo mejor de lo que te cuentas."
+    },
+    {
+      "id": "0069",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "vinculos",
+      "texto": "Te sabes de memoria sus excusas. Eso también es una respuesta."
+    },
+    {
+      "id": "0070",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "olvido",
+      "texto": "Aprendí que el olvido no borra: archiva."
+    },
+    {
+      "id": "0071",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "ausencia",
+      "texto": "Hay gente que se va y se lleva ciudades enteras."
+    },
+    {
+      "id": "0072",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "descanso",
+      "texto": "Descansa. Te doy permiso, si es que hacía falta que alguien te lo diera."
+    },
+    {
+      "id": "0073",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "soltar",
+      "texto": "Dejar de esperar es la única venganza que funciona."
+    },
+    {
+      "id": "0074",
+      "voz": "literaria",
+      "tipo": "prosa",
+      "tema": "curarse",
+      "texto": "Volví al bar donde nos conocimos y estaba lleno de gente que no eras. Pedí lo mismo. Sabía distinto. Supongo que eso es curarse: que el mismo vaso ya no traiga a nadie."
+    },
+    {
+      "id": "0075",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "memoria",
+      "texto": "Sigo teniendo tu número de memoria y eso es lo único que me guardo."
+    },
+    {
+      "id": "0076",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "No hace falta que te guste tu vida entera. Con un rato del día vale para empezar."
+    },
+    {
+      "id": "0077",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "soltar",
+      "texto": "No necesitas cerrar el ciclo. Necesitas dejar de abrirlo tú."
+    },
+    {
+      "id": "0078",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "identidad",
+      "texto": "Los espejos no mienten, pero tampoco cuentan lo que costó llegar hasta ellos."
+    },
+    {
+      "id": "0079",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "tristeza",
+      "texto": "No estoy triste. Estoy en esa cosa parecida que no tiene nombre."
+    },
+    {
+      "id": "0080",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Si tienes que llorar, llora. Yo espero aquí."
+    },
+    {
+      "id": "0081",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Si te tienen que pensar, no te quieren."
+    },
+    {
+      "id": "0082",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "comienzos",
+      "texto": "Vuelvo a empezar.\nNo desde cero:\ndesde todo lo que ya sé\nque no funciona."
+    },
+    {
+      "id": "0083",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "ausencia",
+      "texto": "La casa está igual.\nSoy yo\nel que suena distinto\nal andar por ella."
+    },
+    {
+      "id": "0084",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Te quiero también los días en que no te aguantas."
+    },
+    {
+      "id": "0085",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "conformismo",
+      "texto": "Estás cómodo, no bien. No es lo mismo."
+    },
+    {
+      "id": "0086",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "pasado",
+      "texto": "Me pesaba el pasado hasta que aprendí a leerlo como una novela ajena."
+    },
+    {
+      "id": "0087",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "nostalgia",
+      "texto": "Volví a pasar por allí. Ya no era allí."
+    },
+    {
+      "id": "0088",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "fracaso",
+      "texto": "No estás fallando. Estás aprendiendo en público, que es más difícil."
+    },
+    {
+      "id": "0089",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Nadie te debe una explicación, y tú tampoco."
+    },
+    {
+      "id": "0090",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "paciencia",
+      "texto": "Las cosas importantes crecen donde no las riegas."
+    },
+    {
+      "id": "0091",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Me duele menos, sí. Pero me duele en más sitios."
+    },
+    {
+      "id": "0092",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Ojalá te vieras como te veo cuando te olvidas de vigilarte."
+    },
+    {
+      "id": "0093",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Lo dejaste todo por alguien que no dejó ni el móvil."
+    },
+    {
+      "id": "0094",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "ansiedad",
+      "texto": "Tengo la casa ordenada y la cabeza como el trastero."
+    },
+    {
+      "id": "0095",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Nos quisimos a destiempo, que es la forma más elegante de no quererse."
+    },
+    {
+      "id": "0096",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "resistencia",
+      "texto": "Ya has sobrevivido a cosas peores que hoy. Pregúntate cómo lo hiciste."
+    },
+    {
+      "id": "0097",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "soltar",
+      "texto": "Te pidieron tiempo. Dales todo el que quieran, pero sin ti."
+    },
+    {
+      "id": "0098",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "paciencia",
+      "texto": "El invierno no descansa.\nTrabaja en las raíces,\ndonde nadie\nle da las gracias."
+    },
+    {
+      "id": "0099",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "duelo",
+      "texto": "Guardo tus cosas\nen una caja\nque no abro\ny no tiro.\nEso también es querer."
+    },
+    {
+      "id": "0100",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "perdon",
+      "texto": "No tienes que perdonar a nadie para estar en paz. Solo dejar de esperar."
+    },
+    {
+      "id": "0101",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "soltar",
+      "texto": "Deja de escribir borradores a gente que no te contesta."
+    },
+    {
+      "id": "0102",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "cierres",
+      "texto": "Hay conversaciones que se quedan a medias durante años y un día se cierran solas."
+    },
+    {
+      "id": "0103",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "Dicen que el tiempo lo cura todo. El tiempo solo lo aleja."
+    },
+    {
+      "id": "0104",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "ayuda",
+      "texto": "Sé que pediste ayuda y no vino. Vuelve a pedirla, aunque duela otra vez."
+    },
+    {
+      "id": "0105",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "paz",
+      "texto": "Tu paz vale más que tener razón."
+    },
+    {
+      "id": "0106",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "El amor propio es la única obra que nunca se termina y siempre se habita."
+    },
+    {
+      "id": "0107",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "dias malos",
+      "texto": "Hay lunes que duran toda la semana."
+    },
+    {
+      "id": "0108",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Guárdate un poco de ti. No lo des todo, que luego hace falta."
+    },
+    {
+      "id": "0109",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "vinculos",
+      "texto": "No es indiferencia. Es que ya te contó quién es y no le creíste."
+    },
+    {
+      "id": "0110",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Me enseñaron a resistir y tuve que aprender solo a marcharme."
+    },
+    {
+      "id": "0111",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "memoria",
+      "texto": "Me acuerdo de ti en los sitios más tontos. En el pan, por ejemplo."
+    },
+    {
+      "id": "0112",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "foco",
+      "texto": "Si hoy solo puedes con una cosa, que sea la más pequeña."
+    },
+    {
+      "id": "0113",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Cuando alguien quiere, se nota sin traducir."
+    },
+    {
+      "id": "0114",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "soledad",
+      "texto": "Aprendí a estar solo\ncomo se aprende un idioma:\nequivocándome\nen voz alta."
+    },
+    {
+      "id": "0115",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "nostalgia",
+      "texto": "Llueve.\nAntes eso significaba quedarse.\nAhora solo\nsignifica que llueve."
+    },
+    {
+      "id": "0116",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "silencio",
+      "texto": "Está bien no querer hablarlo. Está bien no tener palabras todavía."
+    },
+    {
+      "id": "0117",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "tristeza",
+      "texto": "Estás triste, no roto. Y triste se cura andando."
+    },
+    {
+      "id": "0118",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "nostalgia",
+      "texto": "La nostalgia es un cristal que solo aumenta lo bueno."
+    },
+    {
+      "id": "0119",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Te fuiste bien. Eso es lo que no perdono."
+    },
+    {
+      "id": "0120",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "merecer",
+      "texto": "Te mereces que las cosas te salgan bien sin tener que sufrirlas antes."
+    },
+    {
+      "id": "0121",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "Te querían disponible, no querida."
+    },
+    {
+      "id": "0122",
+      "voz": "literaria",
+      "tipo": "prosa",
+      "tema": "cuidar",
+      "texto": "Mi abuela decía que las plantas se mueren de dos cosas: de sed y de tanto mirarlas. Con las personas es igual. Hay que regar y luego apartarse, y esa segunda parte es la difícil."
+    },
+    {
+      "id": "0123",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "soledad",
+      "texto": "Aprendí a estar bien solo y ahora no sé cómo desaprenderlo."
+    },
+    {
+      "id": "0124",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "resistencia",
+      "texto": "No te vayas hoy. Mañana es otro día y a veces es verdad."
+    },
+    {
+      "id": "0125",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "responsabilidad",
+      "texto": "No fue tu culpa, pero sí es tu turno."
+    },
+    {
+      "id": "0126",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Los días buenos no avisan. Por eso hay que dejar la puerta sin cerrar."
+    },
+    {
+      "id": "0127",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "espera",
+      "texto": "Sigo mirando la puerta cuando suena el ascensor. Doce meses ya."
+    },
+    {
+      "id": "0128",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Sé amable contigo, que llevas mucho rato aguantándote."
+    },
+    {
+      "id": "0129",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Lo que hoy toleras, mañana te lo cobran."
+    },
+    {
+      "id": "0130",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "dias malos",
+      "texto": "Tengo un cajón de días malos. Caben todos. Eso ya me dice algo."
+    },
+    {
+      "id": "0131",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "duelo",
+      "texto": "No fue de golpe.\nFue una tarde,\ny otra,\ny otra."
+    },
+    {
+      "id": "0132",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Estoy aquí. No puedo hacer más, pero eso ya es algo."
+    },
+    {
+      "id": "0133",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "No madures a base de decepciones si puedes hacerlo a base de límites."
+    },
+    {
+      "id": "0134",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "tiempo",
+      "texto": "Le pedí al tiempo que corriera.\nCorrió.\nAhora le pido que se siente\nun rato conmigo."
+    },
+    {
+      "id": "0135",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "ausencia",
+      "texto": "La echo de menos los martes, que es cuando no tengo nada que hacer."
+    },
+    {
+      "id": "0136",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "No te disculpes por ocupar espacio. Te lo has ganado estando."
+    },
+    {
+      "id": "0137",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "identidad",
+      "texto": "Te aprendiste su versión y olvidaste la tuya."
+    },
+    {
+      "id": "0138",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "heridas",
+      "texto": "Nada de lo que me rompió sabía que estaba construyendo algo."
+    },
+    {
+      "id": "0139",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "despedidas",
+      "texto": "Me quedé con la última frase y tú con la última palabra."
+    },
+    {
+      "id": "0140",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Si te sirve: yo también tuve un año así, y aquí sigo escribiéndote."
+    },
+    {
+      "id": "0141",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "Si tienes que encogerte para caber, ese no es tu sitio."
+    },
+    {
+      "id": "0142",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "miedo",
+      "texto": "El miedo es un inquilino ruidoso, pero paga el alquiler en avisos."
+    },
+    {
+      "id": "0143",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Nunca supe si me querías o si te daba pena irte."
+    },
+    {
+      "id": "0144",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "cansancio",
+      "texto": "No tienes que estar agradecido todo el rato. Puedes estar cansado."
+    },
+    {
+      "id": "0145",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Empieza feo. Ya lo arreglarás bonito."
+    },
+    {
+      "id": "0146",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "heridas",
+      "texto": "Hay heridas que no cierran: se vuelven puerta."
+    },
+    {
+      "id": "0147",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "duelo",
+      "texto": "Me dejaste el invierno\ny te llevaste\nel abrigo."
+    },
+    {
+      "id": "0148",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Cuéntamelo cuando puedas. No hay prisa y no me voy."
+    },
+    {
+      "id": "0149",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "verguenza",
+      "texto": "Nadie recuerda tu peor día. Solo tú."
+    },
+    {
+      "id": "0150",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "crecer",
+      "texto": "Me quisieron pequeña\ny crecí sin avisar,\ncomo crecen las cosas\na las que no riegan."
+    },
+    {
+      "id": "0151",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "espera",
+      "texto": "Ya no espero tu mensaje. Solo miro el móvil por si acaso, que es distinto."
+    },
+    {
+      "id": "0152",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "validacion",
+      "texto": "Lo que sientes es real, aunque a los demás les parezca poco."
+    },
+    {
+      "id": "0153",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "habitos",
+      "texto": "La motivación es un invitado. La costumbre vive contigo."
+    },
+    {
+      "id": "0154",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "La paciencia es lo que hace el amor cuando no puede hacer nada más."
+    },
+    {
+      "id": "0155",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "ternura",
+      "texto": "Hay abrazos que se dan tarde y aun así llegan."
+    },
+    {
+      "id": "0156",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "foco",
+      "texto": "Un paso. Solo uno. Luego vemos."
+    },
+    {
+      "id": "0157",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "esfuerzo",
+      "texto": "Que te cueste no significa que no sea para ti."
+    },
+    {
+      "id": "0158",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "despedidas",
+      "texto": "Me despedí tantas veces de ti que aprendí el idioma de las despedidas."
+    },
+    {
+      "id": "0159",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Duele más lo que casi fue que lo que fue."
+    },
+    {
+      "id": "0160",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "No eres una carga. Eres alguien pasándolo mal, que no es lo mismo."
+    },
+    {
+      "id": "0161",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "soltar",
+      "texto": "Vas lento porque vas cargado. Suelta."
+    },
+    {
+      "id": "0162",
+      "voz": "literaria",
+      "tipo": "prosa",
+      "tema": "soledad",
+      "texto": "Hay un tipo de soledad que no se cura con gente. Se cura con una tarde, una ventana y no tener que explicarle nada a nadie. Tardé treinta años en saber pedirla."
+    },
+    {
+      "id": "0163",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "tiempo",
+      "texto": "Todos los relojes\nde esta casa\nvan un poco atrasados.\nComo yo."
+    },
+    {
+      "id": "0164",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Te vas a querer otra vez. Distinto, pero te vas a querer."
+    },
+    {
+      "id": "0165",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "No hay plan B para quien nunca empezó el A."
+    },
+    {
+      "id": "0166",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "nostalgia",
+      "texto": "Las ciudades donde fui feliz me siguen mandando postales sin remite."
+    },
+    {
+      "id": "0167",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "crecer",
+      "texto": "Me hice mayor una noche de septiembre y nadie lo celebró."
+    },
+    {
+      "id": "0168",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "presion",
+      "texto": "Hoy no tienes que ser fuerte delante de nadie."
+    },
+    {
+      "id": "0169",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "disciplina",
+      "texto": "El talento sin horario no llega a nada."
+    },
+    {
+      "id": "0170",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "No busco luces.\nBusco una lámpara,\nuna silla\ny ganas de quedarme."
+    },
+    {
+      "id": "0171",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "tristeza",
+      "texto": "Aprendí a llorar sin ruido, y eso no debería enseñarse a nadie."
+    },
+    {
+      "id": "0172",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "dias malos",
+      "texto": "Si no puedes con el día, ve por horas. Si no, por ratos."
+    },
+    {
+      "id": "0173",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "miedo",
+      "texto": "Deja de prepararte. Ya estás listo, solo estás asustado."
+    },
+    {
+      "id": "0174",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "expresion",
+      "texto": "Lo que no se dice se acumula, y lo acumulado siempre se cae un martes."
+    },
+    {
+      "id": "0175",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Sigues siendo mi mejor historia y la que no puedo contar."
+    },
+    {
+      "id": "0176",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "reconocimiento",
+      "texto": "Gracias por seguir intentándolo. Sé lo que cuesta."
+    },
+    {
+      "id": "0177",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "excusas",
+      "texto": "Tus excusas están muy trabajadas. Eso también es esfuerzo."
+    },
+    {
+      "id": "0178",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "aprender",
+      "texto": "Vine a aprender y me quedé a desaprender, que era lo urgente."
+    },
+    {
+      "id": "0179",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "olvido",
+      "texto": "Se me olvidó tu voz\nantes que tu cara.\nAsí funciona:\nprimero se va lo importante."
+    },
+    {
+      "id": "0180",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "No te pierdas por gente que no te busca."
+    },
+    {
+      "id": "0181",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "constancia",
+      "texto": "Lo difícil no es empezar. Es volver el jueves."
+    },
+    {
+      "id": "0182",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "pasado",
+      "texto": "El pasado es un país al que se viaja sin equipaje y del que se vuelve cargado."
+    },
+    {
+      "id": "0183",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "nostalgia",
+      "texto": "Estoy bien. Es solo que hoy hace el tiempo de aquel día."
+    },
+    {
+      "id": "0184",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Está bien echar de menos. No significa que quieras volver."
+    },
+    {
+      "id": "0185",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Nada cambia el uno de enero. Cambia el día que te hartas."
+    },
+    {
+      "id": "0186",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Hay quien enciende cerillas.\nHay quien aprende\na ver de noche.\nYo estoy en lo segundo."
+    },
+    {
+      "id": "0187",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "expresion",
+      "texto": "Nos dijimos todo menos lo único."
+    },
+    {
+      "id": "0188",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Te va a doler menos. No te digo cuándo, pero te lo digo."
+    },
+    {
+      "id": "0189",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "comparacion",
+      "texto": "Te comparas con su resultado y no con sus años."
+    },
+    {
+      "id": "0190",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "ternura",
+      "texto": "La ternura es un idioma que se olvida si no se practica en voz alta."
+    },
+    {
+      "id": "0191",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "memoria",
+      "texto": "Cierro los ojos\ny la casa vuelve a tener\ntodas las luces\nencendidas."
+    },
+    {
+      "id": "0192",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "validacion",
+      "texto": "Deja de pedir perdón por sentir. Nadie te lo ha cobrado nunca de verdad."
+    },
+    {
+      "id": "0193",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "descanso",
+      "texto": "Puedes descansar sin abandonar. Elige bien la palabra."
+    },
+    {
+      "id": "0194",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "valentia",
+      "texto": "Me construí con las manos temblando y aun así se mantiene en pie."
+    },
+    {
+      "id": "0195",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "No te guardo rencor. Te guardo, que es distinto y peor."
+    },
+    {
+      "id": "0196",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Puedes cambiar de vida un martes. No hace falta anunciarlo."
+    },
+    {
+      "id": "0197",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Hazlo mal, pero hazlo hoy."
+    },
+    {
+      "id": "0198",
+      "voz": "literaria",
+      "tipo": "prosa",
+      "tema": "silencio",
+      "texto": "Guardo cartas que nunca envié. No por cobardía: por respeto. Algunas cosas solo son verdad mientras no se dicen, y yo quería que aquello siguiera siendo verdad."
+    },
+    {
+      "id": "0199",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "Hay noches que se hacen largas a propósito."
+    },
+    {
+      "id": "0200",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Ojalá aprendas a hablarte como me hablas a mí cuando estoy mal."
+    },
+    {
+      "id": "0201",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "No es tarde. Es incómodo, que no es lo mismo."
+    },
+    {
+      "id": "0202",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "Los años no pasan: se sedimentan."
+    },
+    {
+      "id": "0203",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "perdon",
+      "texto": "Te perdoné antes de que lo pidieras, y aún así no volviste."
+    },
+    {
+      "id": "0204",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "tiempo",
+      "texto": "No estás atrasado. No hay horario en esto."
+    },
+    {
+      "id": "0205",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "criticas",
+      "texto": "Te van a criticar igual. Elige por qué."
+    },
+    {
+      "id": "0206",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "quedarse",
+      "texto": "Tenía cien razones para irme.\nMe quedé por una\nque no sabía explicar."
+    },
+    {
+      "id": "0207",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "duelo",
+      "texto": "Me acostumbré\nal hueco.\nAhora,\nsi lo llenas, molesta."
+    },
+    {
+      "id": "0208",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "amor propio",
+      "texto": "Si hoy no puedes ser amable con el mundo, sé amable contigo y ya vamos."
+    },
+    {
+      "id": "0209",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "constancia",
+      "texto": "Nadie aplaude lo que haces a solas. Hazlo igual."
+    },
+    {
+      "id": "0210",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "olvido",
+      "texto": "El olvido llega andando, nunca corriendo."
+    },
+    {
+      "id": "0211",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "heridas",
+      "texto": "Sobrevivir también deja marcas, aunque no se vean."
+    },
+    {
+      "id": "0212",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "resistencia",
+      "texto": "Vas a mirar atrás y no vas a entender cómo pudiste. Pero pudiste."
+    },
+    {
+      "id": "0213",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "habitos",
+      "texto": "Si no lo apuntas, no lo vas a hacer."
+    },
+    {
+      "id": "0214",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "amor",
+      "texto": "Aprendí a querer sin agarrar y me costó las dos manos."
+    },
+    {
+      "id": "0215",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "nostalgia",
+      "texto": "Aprendí que se puede tener nostalgia de un lunes cualquiera."
+    },
+    {
+      "id": "0216",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "autoestima",
+      "texto": "Te dejo dicho que eres suficiente, por si hoy se te olvida."
+    },
+    {
+      "id": "0217",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "decisiones",
+      "texto": "Deja de buscar señales. Busca decisiones."
+    },
+    {
+      "id": "0218",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "silencio",
+      "texto": "Hay silencios que son casa y silencios que son intemperie. Conviene saber distinguirlos."
+    },
+    {
+      "id": "0219",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "Nadie me avisó de que la vida sigue igual de bonita sin ti. Eso fue lo que más dolió."
+    },
+    {
+      "id": "0220",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "duelo",
+      "texto": "No tienes que aprender nada de esto. A veces solo hay que pasarlo."
+    },
+    {
+      "id": "0221",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "miedo",
+      "texto": "No estás procrastinando. Estás evitando algo que te da miedo. Míralo."
+    },
+    {
+      "id": "0222",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "escribir",
+      "texto": "Escribo para no gritar.\nA veces funciona.\nA veces\nel papel también grita."
+    },
+    {
+      "id": "0223",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "costumbre",
+      "texto": "El café se enfría.\nAntes lo bebías tú.\nAhora\nsolo se enfría."
+    },
+    {
+      "id": "0224",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Sé que nadie te preguntó cómo estabas. Te lo pregunto yo."
+    },
+    {
+      "id": "0225",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "permiso",
+      "texto": "El día que dejes de necesitar permiso, empieza tu vida."
+    },
+    {
+      "id": "0226",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "La esperanza es terca: se cuela por donde no se la llama."
+    },
+    {
+      "id": "0227",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "despedidas",
+      "texto": "Me despido de ti cada noche, un poquito, para que no se note."
+    },
+    {
+      "id": "0228",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "resistencia",
+      "texto": "Quédate un rato más. Solo un rato más, y luego otro."
+    },
+    {
+      "id": "0229",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "esfuerzo",
+      "texto": "Te falta menos de lo que crees y más de lo que estás dispuesto a dar hoy."
+    },
+    {
+      "id": "0230",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Me pasé la vida buscando el momento y el momento era cualquiera."
+    },
+    {
+      "id": "0231",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "insomnio",
+      "texto": "Hay cosas que solo se lloran a las tres de la mañana y con la luz apagada."
+    },
+    {
+      "id": "0232",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "comienzos",
+      "texto": "Está bien empezar de cero cuando el uno no era tuyo."
+    },
+    {
+      "id": "0233",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "limites",
+      "texto": "Lo que no defiendes, lo pierdes."
+    },
+    {
+      "id": "0234",
+      "voz": "literaria",
+      "tipo": "poema",
+      "tema": "comienzos",
+      "texto": "No tengo el final.\nTengo la primera frase.\nCon eso\nempezaron todos los libros."
+    },
+    {
+      "id": "0235",
+      "voz": "nocturna",
+      "tipo": "poema",
+      "tema": "ausencia",
+      "texto": "Duermo en tu lado\npara que la cama\nno note\nque te has ido."
+    },
+    {
+      "id": "0236",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "esperanza",
+      "texto": "Vas a tener días en los que te guste estar vivo. Te lo prometo."
+    },
+    {
+      "id": "0237",
+      "voz": "directa",
+      "tipo": "frase",
+      "tema": "constancia",
+      "texto": "Puedes fallar mañana. Hoy no."
+    },
+    {
+      "id": "0238",
+      "voz": "literaria",
+      "tipo": "frase",
+      "tema": "crecer",
+      "texto": "Todo lo que me salvó al principio tuve que soltarlo después. Eso también es crecer."
+    },
+    {
+      "id": "0239",
+      "voz": "nocturna",
+      "tipo": "frase",
+      "tema": "cierres",
+      "texto": "Un día dejé de esperarte y la casa siguió igual de silenciosa. Ese fue el final."
+    },
+    {
+      "id": "0240",
+      "voz": "intima",
+      "tipo": "frase",
+      "tema": "compania",
+      "texto": "Si esto te ha llegado en el momento justo, no es casualidad: llevas tiempo buscándolo."
+    }
+  ]
+}
