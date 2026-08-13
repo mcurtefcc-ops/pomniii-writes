@@ -447,57 +447,88 @@ def _atender(args) -> int:
                 pass
             continue
 
-        chat = o["chat_id"]
-        print(f"Orden /{o['orden']}")
-
-        if o["orden"] == "post":
-            try:
-                res = _publicar_ahora(cfg, env, hoy)
-            except (instagram.ErrorInstagram, Exception) as e:
-                telegram.enviar_texto(tg, chat, f"No se pudo publicar:\n{e}")
-                print(f"FALLO al publicar: {e}", file=sys.stderr)
-                return 1
-            telegram.enviar_publicado(
-                tg, chat, res["url"], res["item"], res["numero"],
-                hoy.strftime("%d.%m.%Y"), res["enlace"],
-            )
-
-        elif o["orden"] == "probar":
-            item, _ = elegir()
-            numero = numero_siguiente(cargar_estado())
-            listo = _preparar(item, cfg, env, hoy, numero)
-            telegram.enviar_texto(
-                tg, chat,
-                f"Vista previa del proximo post (#{numero:04d}, texto {item['id']}). "
-                "No se ha publicado nada.",
-            )
-            telegram.enviar_publicado(
-                tg, chat, listo["url"], item, numero, hoy.strftime("%d.%m.%Y")
-            )
-
-        elif o["orden"] == "saltar":
-            item, _ = elegir()
-            marcar_usado(cargar_estado(), item, {"fecha": hoy.isoformat(), "saltado": True})
-            telegram.enviar_texto(
-                tg, chat,
-                f"Saltado el texto {item['id']} sin publicarlo:\n\n{item['texto']}\n\n"
-                "El siguiente /post cogera el que va detras.",
-            )
-
-        elif o["orden"] == "estado":
-            telegram.enviar_texto(tg, chat, resumen())
-
-        else:
-            telegram.enviar_texto(
-                tg, chat,
-                "No conozco esa orden. Las que entiendo:\n\n"
-                "/post — publicar ahora el siguiente texto\n"
-                "/probar — ver la tarjeta sin publicar\n"
-                "/saltar — descartar el siguiente sin publicarlo\n"
-                "/estado — cuantos textos quedan",
-            )
+        codigo = _ejecutar_orden(o["orden"], o["chat_id"], cfg, env, hoy)
+        if codigo != 0:
+            return codigo
 
     return 0
+
+
+AYUDA = (
+    "No conozco esa orden. Las que entiendo:\n\n"
+    "/post — publicar ahora el siguiente texto\n"
+    "/probar — ver la tarjeta sin publicar\n"
+    "/saltar — descartar el siguiente sin publicarlo\n"
+    "/estado — cuantos textos quedan"
+)
+
+
+def _ejecutar_orden(orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date) -> int:
+    """Ejecuta una orden ya identificada. La usan los dos caminos de entrada:
+    el sondeo con getUpdates y el webhook."""
+    tg = env["tg_token"]
+    print(f"Orden /{orden}")
+
+    if orden == "post":
+        try:
+            res = _publicar_ahora(cfg, env, hoy)
+        except Exception as e:
+            telegram.enviar_texto(tg, chat, f"No se pudo publicar:\n{e}")
+            print(f"FALLO al publicar: {e}", file=sys.stderr)
+            return 1
+        telegram.enviar_publicado(
+            tg, chat, res["url"], res["item"], res["numero"],
+            hoy.strftime("%d.%m.%Y"), res["enlace"],
+        )
+
+    elif orden == "probar":
+        item, _ = elegir()
+        numero = numero_siguiente(cargar_estado())
+        listo = _preparar(item, cfg, env, hoy, numero)
+        telegram.enviar_texto(
+            tg, chat,
+            f"Vista previa del proximo post (#{numero:04d}, texto {item['id']}). "
+            "No se ha publicado nada.",
+        )
+        telegram.enviar_publicado(
+            tg, chat, listo["url"], item, numero, hoy.strftime("%d.%m.%Y")
+        )
+
+    elif orden == "saltar":
+        item, _ = elegir()
+        marcar_usado(cargar_estado(), item, {"fecha": hoy.isoformat(), "saltado": True})
+        telegram.enviar_texto(
+            tg, chat,
+            f"Saltado el texto {item['id']} sin publicarlo:\n\n{item['texto']}\n\n"
+            "El siguiente /post cogera el que va detras.",
+        )
+
+    elif orden == "estado":
+        telegram.enviar_texto(tg, chat, resumen())
+
+    else:
+        telegram.enviar_texto(tg, chat, AYUDA)
+
+    return 0
+
+
+def cmd_orden(args) -> int:
+    """Atiende UNA orden concreta, la que llega por webhook.
+
+    Con webhook activo no se puede usar getUpdates (Telegram responde 409), asi
+    que el Worker manda la orden ya extraida y aqui solo se ejecuta.
+    """
+    cfg, env = cargar_config(), _entorno()
+    chat = str(args.chat or env["tg_chat"])
+
+    # Segunda barrera: el Worker ya filtra por chat, pero repository_dispatch
+    # tambien puede dispararlo cualquiera con un token del repositorio.
+    if chat != str(env["tg_chat"]):
+        print(f"Chat {chat} no autorizado. No se hace nada.", file=sys.stderr)
+        return 0
+
+    orden = args.orden.strip().lstrip("/").split("@")[0].split()[0].lower()
+    return _ejecutar_orden(orden, chat, cfg, env, dt.date.today())
 
 
 def cmd_automatico(args) -> int:
@@ -691,6 +722,11 @@ def main(argv: list[str] | None = None) -> int:
         help="quedarse escuchando estos minutos en vez de dar una sola pasada",
     )
     es.set_defaults(func=cmd_escuchar)
+
+    od = sub.add_parser("orden", help="ejecuta una orden concreta (la usa el webhook)")
+    od.add_argument("orden", help="post, probar, saltar o estado")
+    od.add_argument("--chat", default="", help="chat que la envio; se comprueba que sea el tuyo")
+    od.set_defaults(func=cmd_orden)
 
     sub.add_parser("comandos", help="registra el menu de ordenes del bot").set_defaults(
         func=cmd_comandos

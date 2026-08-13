@@ -1,0 +1,76 @@
+name: Orden del bot
+
+# Se dispara cuando el Worker de Cloudflare avisa de que has mandado una orden
+# al bot. Latencia total desde que tocas el boton: unos 15 segundos.
+#
+# No hay cron: este workflow solo corre cuando hay algo que hacer. Es la
+# diferencia con escuchar.yml, que preguntaba cada 5 minutos por si acaso.
+#
+# El payload lo manda el Worker: {"orden": "post", "chat": "8179045821"}.
+# La orden se pasa por --chat y el CLI comprueba que sea el chat autorizado:
+# repository_dispatch lo puede disparar cualquiera con un token del
+# repositorio, asi que no basta con el filtro del Worker.
+
+on:
+  repository_dispatch:
+    types: [telegram]
+
+concurrency:
+  group: pomniii-estado
+  cancel-in-progress: false
+
+jobs:
+  atender:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Ejecutar la orden
+        env:
+          IG_MODO: ${{ vars.IG_MODO || 'instagram' }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
+          HOSTING: ${{ vars.HOSTING || 'github' }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          python -m src.cli orden "${{ github.event.client_payload.orden }}" \
+            --chat "${{ github.event.client_payload.chat }}"
+
+      - name: Guardar el estado en el repositorio
+        if: always()
+        run: |
+          git config user.name "pomniii-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A data/
+          if git diff --staged --quiet; then
+            echo "Nada que guardar."
+          else
+            git commit -m "orden ${{ github.event.client_payload.orden }} [skip ci]"
+            git pull --rebase --autostash
+            git push
+          fi
+
+      - name: Avisar por Telegram si algo ha fallado
+        if: failure()
+        env:
+          TG: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TG}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT}" \
+            --data-urlencode "text=Fallo al atender la orden. Detalle: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
