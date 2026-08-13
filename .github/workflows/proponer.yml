@@ -57,6 +57,10 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
+          # Sin estas dos, la tarjeta se cuelga en imgbb y a Instagram se le
+          # agota el tiempo al descargarla. GITHUB_REPOSITORY ya viene puesta.
+          HOSTING: ${{ vars.HOSTING || 'github' }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           # Lanzado a mano se publica al momento; programado se respeta la hora.
           if [ "${{ github.event_name }}" = "schedule" ]; then
