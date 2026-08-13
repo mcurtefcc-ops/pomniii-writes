@@ -1,6 +1,7 @@
 {
   "usados": [
-    "0001"
+    "0001",
+    "0002"
   ],
   "rondas": 0,
   "historial": [
@@ -9,6 +10,15 @@
       "texto": "No te falta tiempo. Te falta decirlo en voz alta.",
       "fecha": "2026-08-13",
       "saltado": true
+    },
+    {
+      "id": "0002",
+      "texto": "El insomnio es la casa donde viven las cosas que no dije.",
+      "fecha": "2026-08-13",
+      "numero": 1,
+      "ig_post_id": "18113318119752823",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-13_0002.jpg",
+      "enlace": "https://www.instagram.com/p/Db_01T_GNf_/"
     }
   ],
   "telegram_offset": 84805326
