@@ -260,10 +260,19 @@ def cmd_verificar(args) -> int:
 
 
 def cmd_comandos(args) -> int:
-    """Da de alta el menu de ordenes del bot para que salgan al escribir '/'."""
+    """Registra el menu del bot y deja los botones fijos en el chat."""
     env = _entorno()
     telegram.registrar_comandos(env["tg_token"])
     print("Menu del bot registrado: /post, /probar, /saltar, /estado")
+    telegram.enviar_teclado(
+        env["tg_token"], env["tg_chat"],
+        "Botones listos. Ya no hace falta escribir nada: toca el que quieras.\n\n"
+        "/probar — te mando la tarjeta SIN publicar\n"
+        "/post — publica de verdad en Instagram\n"
+        "/estado — cuantos textos quedan\n"
+        "/saltar — descarta el siguiente sin publicarlo",
+    )
+    print("Teclado de botones enviado al chat.")
     return 0
 
 

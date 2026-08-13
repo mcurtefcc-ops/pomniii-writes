@@ -221,6 +221,28 @@ def leer_ordenes(token: str, offset: int, espera_s: int = 0) -> tuple[list[dict]
     return ordenes, nuevo_offset
 
 
+def enviar_teclado(token: str, chat_id: str, texto: str) -> None:
+    """Deja un teclado fijo en el chat con las ordenes como botones.
+
+    Escribir "/post" a mano en el movil falla mas de lo que parece: el
+    autocorrector se come la barra, el menu del "/" deja la orden escrita sin
+    enviarla... Con un teclado de respuesta, tocar el boton manda el texto exacto.
+    """
+    teclado = {
+        "keyboard": [
+            [{"text": "/post"}, {"text": "/probar"}],
+            [{"text": "/estado"}, {"text": "/saltar"}],
+        ],
+        "resize_keyboard": True,
+        "is_persistent": True,
+    }
+    _llamar(
+        token,
+        "sendMessage",
+        {"chat_id": chat_id, "text": texto, "reply_markup": teclado},
+    )
+
+
 def registrar_comandos(token: str) -> None:
     """Da de alta el menu de ordenes del bot, para que salgan al escribir "/"."""
     _llamar(
