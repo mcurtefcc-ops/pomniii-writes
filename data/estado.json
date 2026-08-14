@@ -3,7 +3,8 @@
     "0001",
     "0002",
     "0003",
-    "0004"
+    "0004",
+    "0005"
   ],
   "rondas": 0,
   "historial": [
@@ -34,6 +35,12 @@
     {
       "id": "0004",
       "texto": "Si hoy solo has respirado, ya has hecho bastante. Te lo digo yo, que tampoco pude más.",
+      "fecha": "2026-08-14",
+      "saltado": true
+    },
+    {
+      "id": "0005",
+      "texto": "Te quedaste por miedo y lo llamaste amor.",
       "fecha": "2026-08-14",
       "saltado": true
     }
