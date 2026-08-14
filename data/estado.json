@@ -2,7 +2,8 @@
   "usados": [
     "0001",
     "0002",
-    "0003"
+    "0003",
+    "0004"
   ],
   "rondas": 0,
   "historial": [
@@ -29,6 +30,12 @@
       "ig_post_id": "17943735402276231",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-14_0003.jpg",
       "enlace": "https://www.instagram.com/p/DcAursRIERa/"
+    },
+    {
+      "id": "0004",
+      "texto": "Si hoy solo has respirado, ya has hecho bastante. Te lo digo yo, que tampoco pude más.",
+      "fecha": "2026-08-14",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
