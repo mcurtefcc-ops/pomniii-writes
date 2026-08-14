@@ -1,7 +1,8 @@
 {
   "usados": [
     "0001",
-    "0002"
+    "0002",
+    "0003"
   ],
   "rondas": 0,
   "historial": [
@@ -19,6 +20,15 @@
       "ig_post_id": "18113318119752823",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-13_0002.jpg",
       "enlace": "https://www.instagram.com/p/Db_01T_GNf_/"
+    },
+    {
+      "id": "0003",
+      "texto": "Duermo con la luz encendida por si vuelven las ganas.",
+      "fecha": "2026-08-14",
+      "numero": 2,
+      "ig_post_id": "17943735402276231",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-14_0003.jpg",
+      "enlace": "https://www.instagram.com/p/DcAursRIERa/"
     }
   ],
   "telegram_offset": 84805326
