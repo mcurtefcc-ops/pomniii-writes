@@ -4,7 +4,8 @@
     "0002",
     "0003",
     "0004",
-    "0005"
+    "0005",
+    "0006"
   ],
   "rondas": 0,
   "historial": [
@@ -43,6 +44,15 @@
       "texto": "Te quedaste por miedo y lo llamaste amor.",
       "fecha": "2026-08-14",
       "saltado": true
+    },
+    {
+      "id": "0006",
+      "texto": "Hay puertas que solo abren por dentro. Llevaba la llave en el bolsillo.",
+      "fecha": "2026-08-25",
+      "numero": 3,
+      "ig_post_id": "18491072626097341",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-25_0006.jpg",
+      "enlace": "https://www.instagram.com/p/DcdK-2yoBMt/"
     }
   ],
   "telegram_offset": 84805326
