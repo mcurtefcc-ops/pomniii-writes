@@ -7,7 +7,8 @@
     "0005",
     "0006",
     "0007",
-    "0008"
+    "0008",
+    "0009"
   ],
   "rondas": 0,
   "historial": [
@@ -70,6 +71,15 @@
       "texto": "Te dejo esto aquí por si mañana lo necesitas: sigues a tiempo.",
       "fecha": "2026-08-26",
       "saltado": true
+    },
+    {
+      "id": "0009",
+      "texto": "Nadie te está esperando. Por eso puedes ir donde quieras.",
+      "fecha": "2026-08-27",
+      "numero": 5,
+      "ig_post_id": "18153485242502407",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-27_0009.jpg",
+      "enlace": "https://www.instagram.com/p/Dcidu09IFeh/"
     }
   ],
   "telegram_offset": 84805326
