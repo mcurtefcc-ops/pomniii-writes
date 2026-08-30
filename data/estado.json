@@ -12,7 +12,8 @@
     "0010",
     "0011",
     "0012",
-    "0013"
+    "0013",
+    "0014"
   ],
   "rondas": 0,
   "historial": [
@@ -114,6 +115,15 @@
       "texto": "No estabas cansado. Estabas fingiendo.",
       "fecha": "2026-08-30",
       "saltado": true
+    },
+    {
+      "id": "0014",
+      "texto": "Guardo tu nombre\nen la parte del mapa\ndonde ya no voy.",
+      "fecha": "2026-08-30",
+      "numero": 8,
+      "ig_post_id": "18133044565653513",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-30_0014.jpg",
+      "enlace": "https://www.instagram.com/p/DcqkJNqm5iC/"
     }
   ],
   "telegram_offset": 84805326
