@@ -14,7 +14,8 @@
     "0012",
     "0013",
     "0014",
-    "0015"
+    "0015",
+    "0016"
   ],
   "rondas": 0,
   "historial": [
@@ -134,6 +135,15 @@
       "ig_post_id": "18119918759481202",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-31_0015.jpg",
       "enlace": "https://www.instagram.com/p/DcsZwuam-M5/"
+    },
+    {
+      "id": "0016",
+      "texto": "Sé que estás cansado. No hace falta que lo expliques, no hoy.",
+      "fecha": "2026-08-31",
+      "numero": 10,
+      "ig_post_id": "18123335944864528",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-31_0016.jpg",
+      "enlace": "https://www.instagram.com/p/Dcs1GsRlvqm/"
     }
   ],
   "telegram_offset": 84805326
