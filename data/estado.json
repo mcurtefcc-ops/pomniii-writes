@@ -13,7 +13,8 @@
     "0011",
     "0012",
     "0013",
-    "0014"
+    "0014",
+    "0015"
   ],
   "rondas": 0,
   "historial": [
@@ -124,6 +125,15 @@
       "ig_post_id": "18133044565653513",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-30_0014.jpg",
       "enlace": "https://www.instagram.com/p/DcqkJNqm5iC/"
+    },
+    {
+      "id": "0015",
+      "texto": "A las tres de la mañana\ntodos somos honestos\ny nadie está despierto\npara oírlo.",
+      "fecha": "2026-08-31",
+      "numero": 9,
+      "ig_post_id": "18119918759481202",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-31_0015.jpg",
+      "enlace": "https://www.instagram.com/p/DcsZwuam-M5/"
     }
   ],
   "telegram_offset": 84805326
