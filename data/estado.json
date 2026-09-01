@@ -15,7 +15,8 @@
     "0013",
     "0014",
     "0015",
-    "0016"
+    "0016",
+    "0017"
   ],
   "rondas": 0,
   "historial": [
@@ -144,6 +145,15 @@
       "ig_post_id": "18123335944864528",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-08-31_0016.jpg",
       "enlace": "https://www.instagram.com/p/Dcs1GsRlvqm/"
+    },
+    {
+      "id": "0017",
+      "texto": "Lo que no eliges, se elige solo. Y elige mal.",
+      "fecha": "2026-09-01",
+      "numero": 11,
+      "ig_post_id": "18350418532173092",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-01_0017.jpg",
+      "enlace": "https://www.instagram.com/p/DcwQM7plGEV/"
     }
   ],
   "telegram_offset": 84805326
