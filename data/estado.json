@@ -16,7 +16,8 @@
     "0014",
     "0015",
     "0016",
-    "0017"
+    "0017",
+    "0018"
   ],
   "rondas": 0,
   "historial": [
@@ -154,6 +155,15 @@
       "ig_post_id": "18350418532173092",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-01_0017.jpg",
       "enlace": "https://www.instagram.com/p/DcwQM7plGEV/"
+    },
+    {
+      "id": "0018",
+      "texto": "Aprendí a leer los silencios y desde entonces leo menos libros.",
+      "fecha": "2026-09-02",
+      "numero": 12,
+      "ig_post_id": "18099828629112415",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-02_0018.jpg",
+      "enlace": "https://www.instagram.com/p/DcyBx62FlmR/"
     }
   ],
   "telegram_offset": 84805326
