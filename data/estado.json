@@ -17,7 +17,8 @@
     "0015",
     "0016",
     "0017",
-    "0018"
+    "0018",
+    "0019"
   ],
   "rondas": 0,
   "historial": [
@@ -164,6 +165,15 @@
       "ig_post_id": "18099828629112415",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-02_0018.jpg",
       "enlace": "https://www.instagram.com/p/DcyBx62FlmR/"
+    },
+    {
+      "id": "0019",
+      "texto": "Sigo poniendo dos tazas. La costumbre tarda más en irse que la gente.",
+      "fecha": "2026-09-03",
+      "numero": 13,
+      "ig_post_id": "18381803995237503",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-03_0019.jpg",
+      "enlace": "https://www.instagram.com/p/Dc0EqBYER7m/"
     }
   ],
   "telegram_offset": 84805326
