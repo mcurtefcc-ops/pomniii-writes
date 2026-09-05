@@ -20,7 +20,8 @@
     "0018",
     "0019",
     "0020",
-    "0021"
+    "0021",
+    "0022"
   ],
   "rondas": 0,
   "historial": [
@@ -191,6 +192,15 @@
       "texto": "Dijiste que era complicado. Era que no querías.",
       "fecha": "2026-09-05",
       "saltado": true
+    },
+    {
+      "id": "0022",
+      "texto": "La memoria es un perro que solo obedece de noche.",
+      "fecha": "2026-09-05",
+      "numero": 15,
+      "ig_post_id": "18373504468240251",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-05_0022.jpg",
+      "enlace": "https://www.instagram.com/p/Dc4x5qzmo02/"
     }
   ],
   "telegram_offset": 84805326
