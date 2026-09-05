@@ -19,7 +19,8 @@
     "0017",
     "0018",
     "0019",
-    "0020"
+    "0020",
+    "0021"
   ],
   "rondas": 0,
   "historial": [
@@ -184,6 +185,12 @@
       "ig_post_id": "18077159567354991",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-04_0020.jpg",
       "enlace": "https://www.instagram.com/p/Dc2-MwvHM2C/"
+    },
+    {
+      "id": "0021",
+      "texto": "Dijiste que era complicado. Era que no querías.",
+      "fecha": "2026-09-05",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
