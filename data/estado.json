@@ -21,7 +21,8 @@
     "0019",
     "0020",
     "0021",
-    "0022"
+    "0022",
+    "0023"
   ],
   "rondas": 0,
   "historial": [
@@ -201,6 +202,12 @@
       "ig_post_id": "18373504468240251",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-05_0022.jpg",
       "enlace": "https://www.instagram.com/p/Dc4x5qzmo02/"
+    },
+    {
+      "id": "0023",
+      "texto": "No te echo de menos. Echo de menos quién era yo cuando estabas.",
+      "fecha": "2026-09-06",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
