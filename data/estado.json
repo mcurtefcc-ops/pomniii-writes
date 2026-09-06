@@ -22,7 +22,8 @@
     "0020",
     "0021",
     "0022",
-    "0023"
+    "0023",
+    "0024"
   ],
   "rondas": 0,
   "historial": [
@@ -208,6 +209,15 @@
       "texto": "No te echo de menos. Echo de menos quién era yo cuando estabas.",
       "fecha": "2026-09-06",
       "saltado": true
+    },
+    {
+      "id": "0024",
+      "texto": "Ojalá pudiera decirte que se pasa rápido. Se pasa, y eso ya es mucho.",
+      "fecha": "2026-09-06",
+      "numero": 16,
+      "ig_post_id": "18119785963718812",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-06_0024.jpg",
+      "enlace": "https://www.instagram.com/p/Dc9QGyCkXUh/"
     }
   ],
   "telegram_offset": 84805326
