@@ -25,7 +25,8 @@
     "0023",
     "0024",
     "0025",
-    "0026"
+    "0026",
+    "0027"
   ],
   "rondas": 0,
   "historial": [
@@ -232,6 +233,15 @@
       "texto": "Me fui sin cerrar la puerta,\npor si el que volvía\nera yo.",
       "fecha": "2026-09-07",
       "saltado": true
+    },
+    {
+      "id": "0027",
+      "texto": "Hay noches en las que el techo y yo tenemos mucho de qué hablar.",
+      "fecha": "2026-09-07",
+      "numero": 17,
+      "ig_post_id": "18071375168538705",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-07_0027.jpg",
+      "enlace": "https://www.instagram.com/p/Dc_0Lo9mRS6/"
     }
   ],
   "telegram_offset": 84805326
