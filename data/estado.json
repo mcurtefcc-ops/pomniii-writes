@@ -23,7 +23,8 @@
     "0021",
     "0022",
     "0023",
-    "0024"
+    "0024",
+    "0025"
   ],
   "rondas": 0,
   "historial": [
@@ -218,6 +219,12 @@
       "ig_post_id": "18119785963718812",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-06_0024.jpg",
       "enlace": "https://www.instagram.com/p/Dc9QGyCkXUh/"
+    },
+    {
+      "id": "0025",
+      "texto": "No te ignoran. Te contestan justo lo suficiente.",
+      "fecha": "2026-09-07",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
