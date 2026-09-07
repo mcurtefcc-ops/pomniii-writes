@@ -24,7 +24,8 @@
     "0022",
     "0023",
     "0024",
-    "0025"
+    "0025",
+    "0026"
   ],
   "rondas": 0,
   "historial": [
@@ -223,6 +224,12 @@
     {
       "id": "0025",
       "texto": "No te ignoran. Te contestan justo lo suficiente.",
+      "fecha": "2026-09-07",
+      "saltado": true
+    },
+    {
+      "id": "0026",
+      "texto": "Me fui sin cerrar la puerta,\npor si el que volvía\nera yo.",
       "fecha": "2026-09-07",
       "saltado": true
     }
