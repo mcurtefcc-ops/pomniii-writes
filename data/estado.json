@@ -27,7 +27,8 @@
     "0025",
     "0026",
     "0027",
-    "0028"
+    "0028",
+    "0029"
   ],
   "rondas": 0,
   "historial": [
@@ -249,6 +250,15 @@
       "texto": "No tienes que ser inspiración de nadie. Solo tienes que llegar al jueves.",
       "fecha": "2026-09-08",
       "saltado": true
+    },
+    {
+      "id": "0029",
+      "texto": "Lo llamas paciencia. Se llama miedo a buscar otra cosa.",
+      "fecha": "2026-09-08",
+      "numero": 18,
+      "ig_post_id": "18110570648327585",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-08_0029.jpg",
+      "enlace": "https://www.instagram.com/p/DdCl9RUnVB3/"
     }
   ],
   "telegram_offset": 84805326
