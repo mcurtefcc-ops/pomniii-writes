@@ -26,7 +26,8 @@
     "0024",
     "0025",
     "0026",
-    "0027"
+    "0027",
+    "0028"
   ],
   "rondas": 0,
   "historial": [
@@ -242,6 +243,12 @@
       "ig_post_id": "18071375168538705",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-07_0027.jpg",
       "enlace": "https://www.instagram.com/p/Dc_0Lo9mRS6/"
+    },
+    {
+      "id": "0028",
+      "texto": "No tienes que ser inspiración de nadie. Solo tienes que llegar al jueves.",
+      "fecha": "2026-09-08",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
