@@ -28,7 +28,8 @@
     "0026",
     "0027",
     "0028",
-    "0029"
+    "0029",
+    "0030"
   ],
   "rondas": 0,
   "historial": [
@@ -259,6 +260,15 @@
       "ig_post_id": "18110570648327585",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-08_0029.jpg",
       "enlace": "https://www.instagram.com/p/DdCl9RUnVB3/"
+    },
+    {
+      "id": "0030",
+      "texto": "Los inviernos no matan las raíces: las obligan a hablar bajito.",
+      "fecha": "2026-09-09",
+      "numero": 19,
+      "ig_post_id": "18189513802394990",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-09_0030.jpg",
+      "enlace": "https://www.instagram.com/p/DdD4bauFhdF/"
     }
   ],
   "telegram_offset": 84805326
