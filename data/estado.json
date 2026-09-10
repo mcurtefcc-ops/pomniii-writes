@@ -29,7 +29,8 @@
     "0027",
     "0028",
     "0029",
-    "0030"
+    "0030",
+    "0031"
   ],
   "rondas": 0,
   "historial": [
@@ -269,6 +270,15 @@
       "ig_post_id": "18189513802394990",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-09_0030.jpg",
       "enlace": "https://www.instagram.com/p/DdD4bauFhdF/"
+    },
+    {
+      "id": "0031",
+      "texto": "Me acostumbré a tu ausencia igual que a un dolor de espalda: ya ni lo nombro.",
+      "fecha": "2026-09-10",
+      "numero": 20,
+      "ig_post_id": "18077215082706636",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-10_0031.jpg",
+      "enlace": "https://www.instagram.com/p/DdGC7iFG4lc/"
     }
   ],
   "telegram_offset": 84805326
