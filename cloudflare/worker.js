@@ -16,7 +16,15 @@
  *   CHAT_AUTORIZADO   tu id de chat de Telegram
  */
 
-const ORDENES = ["post", "probar", "saltar", "estado"];
+const ORDENES = ["post", "probar", "saltar", "estado", "frase", "subir"];
+
+// Acuse inmediato para las ordenes que tardan unos segundos, para que no
+// parezca que el bot te ignora mientras GitHub arranca el workflow.
+const ACUSES = {
+  post: "Recibido. Publicando, tardo unos segundos...",
+  frase: "Preparando la vista previa de tu frase...",
+  subir: "Publicando y guardando tu frase...",
+};
 
 export default {
   async fetch(peticion, entorno) {
@@ -50,9 +58,13 @@ export default {
 
     const orden = texto.slice(1).split(/\s+/)[0].split("@")[0].toLowerCase();
     if (!ORDENES.includes(orden)) {
-      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /saltar o /estado.");
+      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /frase, /subir, /saltar o /estado.");
       return respuestaOk();
     }
+
+    // Lo que va detras del comando (el texto de /frase). Se quita la primera
+    // palabra (el comando, con su posible @nombre_bot) y el espacio que la sigue.
+    const argumento = texto.slice(1).replace(/^\S+\s*/, "");
 
     const r = await fetch(
       `https://api.github.com/repos/${entorno.GITHUB_REPO}/dispatches`,
@@ -68,7 +80,7 @@ export default {
         },
         body: JSON.stringify({
           event_type: "telegram",
-          client_payload: { orden, chat },
+          client_payload: { orden, chat, texto: argumento },
         }),
       }
     );
@@ -79,8 +91,8 @@ export default {
       return new Response(detalle.slice(0, 200), { status: 200 });
     }
 
-    if (orden === "post") {
-      await avisar(entorno, chat, "Recibido. Publicando, tardo unos segundos...");
+    if (ACUSES[orden]) {
+      await avisar(entorno, chat, ACUSES[orden]);
     }
     return respuestaOk();
   },

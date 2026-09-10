@@ -18,6 +18,8 @@ le escribes /post al bot
 |---|---|
 | `/post` | Publica ahora el siguiente texto |
 | `/probar` | Te manda la tarjeta **sin publicar** nada |
+| `/frase <tu texto>` | Monta la tarjeta con **una frase tuya** y te la manda de prueba, sin publicar ni guardar |
+| `/subir` | Publica en Instagram la frase que acabas de probar y la **guarda en el banco** |
 | `/saltar` | Descarta el siguiente sin publicarlo |
 | `/estado` | Cuántos textos quedan |
 
@@ -316,6 +318,29 @@ Abres Telegram, escribes `/post`, y en unos minutos está publicado. Nada más.
 
 Si quieres ver antes qué va a salir, `/probar` te manda la tarjeta sin publicar
 nada, y `/saltar` descarta ese texto y pasa al siguiente.
+
+### Subir una frase que se te ocurra
+
+Cuando se te ocurra una frase propia, no hace falta tocar los archivos: se la
+mandas al bot y él hace la prueba y la publica.
+
+```
+le escribes  /frase Aquí va la frase que se te ha ocurrido
+   │
+   ├─→  el bot monta la tarjeta con tu texto
+   └─→  te la manda de PRUEBA (no publica ni guarda nada todavía)
+
+si te gusta, le escribes  /subir
+   │
+   ├─→  la publica en Instagram
+   └─→  la guarda en data/lotes/lote_propias.json con un id nuevo
+```
+
+Toca `/frase` en el menú del `/` (o en los botones fijos) y te deja el comando
+escrito para que solo tengas que añadir tu texto. Si no te convence la prueba,
+manda otra vez `/frase` con otro texto y sustituye la anterior; nada se guarda
+hasta que pulsas `/subir`. Tus frases propias quedan todas juntas en
+`data/lotes/lote_propias.json`, aparte de las de fábrica.
 
 Lo único que conviene hacer de vez en cuando es **podar el banco**: mirar los
 textos que no te gustan y marcarlos para que no salgan nunca.

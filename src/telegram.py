@@ -120,6 +120,30 @@ def enviar_publicado(
     )
 
 
+def enviar_vista_previa(
+    token: str, chat_id: str, url_imagen: str, item: dict, numero: int, fecha: str
+) -> None:
+    """Manda la tarjeta de una frase propia SIN publicar ni guardar nada.
+
+    Sirve para que veas como quedaria antes de decidir. Debajo recuerda como
+    confirmarla (/subir) o como cambiarla (/frase otra vez).
+    """
+    lineas = [
+        f"VISTA PREVIA · seria el post #{numero:04d} ({fecha})",
+        "Aun no se ha publicado ni guardado nada.",
+        "",
+        item["texto"],
+        "",
+        "/subir — publicarla en Instagram y guardarla en el banco",
+        "/frase <otro texto> — cambiarla por otra",
+    ]
+    _llamar(
+        token,
+        "sendPhoto",
+        {"chat_id": chat_id, "photo": url_imagen, "caption": "\n".join(lineas)[:1024]},
+    )
+
+
 def confirmar_pulsacion(token: str, callback_id: str, aviso: str) -> None:
     """Quita el reloj de arena del boton y ensena un aviso corto en el movil."""
     try:
@@ -240,6 +264,7 @@ def enviar_teclado(token: str, chat_id: str, texto: str) -> None:
         "keyboard": [
             [{"text": "/post"}, {"text": "/probar"}],
             [{"text": "/estado"}, {"text": "/saltar"}],
+            [{"text": "/frase"}, {"text": "/subir"}],
         ],
         "resize_keyboard": True,
         "is_persistent": True,
@@ -260,6 +285,8 @@ def registrar_comandos(token: str) -> None:
             "commands": [
                 {"command": "post", "description": "Publicar ahora el siguiente texto"},
                 {"command": "probar", "description": "Ver la tarjeta sin publicar nada"},
+                {"command": "frase", "description": "Probar una frase tuya: /frase tu texto"},
+                {"command": "subir", "description": "Publicar y guardar la frase de la vista previa"},
                 {"command": "saltar", "description": "Descartar el siguiente sin publicarlo"},
                 {"command": "estado", "description": "Cuantos textos quedan"},
             ]
