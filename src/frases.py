@@ -13,6 +13,11 @@ RAIZ = Path(__file__).resolve().parent.parent
 LOTES = RAIZ / "data" / "lotes"
 ESTADO = RAIZ / "data" / "estado.json"
 
+# Lote donde caen las frases que te inventas tu y subes desde Telegram con
+# /frase + /subir. Va aparte de los lotes originales para no mezclarlas con el
+# contenido de fabrica y para que sea facil verlas todas juntas.
+LOTE_PROPIAS = LOTES / "lote_propias.json"
+
 
 class BancoInvalido(RuntimeError):
     pass
@@ -125,6 +130,49 @@ def descartar(ids: list[str]) -> tuple[list[str], list[str]]:
     estado["descartados"] = sorted(ya)
     guardar_estado(estado)
     return nuevos, inexistentes
+
+
+def siguiente_id_libre() -> str:
+    """Devuelve el primer id de 4 digitos que no exista ya en el banco.
+
+    Continua la numeracion desde el id mas alto que haya, para que una frase
+    propia nueva no choque nunca con las de los lotes originales.
+    """
+    banco = cargar_banco()
+    maximo = max((int(i["id"]) for i in banco if str(i["id"]).isdigit()), default=0)
+    return f"{maximo + 1:04d}"
+
+
+def anadir_frase(
+    texto: str, voz: str = "propia", tipo: str = "frase", tema: str = "propia"
+) -> dict:
+    """Guarda una frase propia en LOTE_PROPIAS con un id nuevo y la devuelve.
+
+    No la marca como usada ni la publica: eso lo decide quien llama. El id se
+    asigna aqui, en el momento de guardar, para que sea unico aunque entre la
+    vista previa y el /subir se hayan anadido otras.
+    """
+    item = {
+        "id": siguiente_id_libre(),
+        "voz": voz,
+        "tipo": tipo,
+        "tema": tema,
+        "texto": texto,
+    }
+    if LOTE_PROPIAS.exists():
+        with open(LOTE_PROPIAS, encoding="utf-8") as f:
+            datos = json.load(f)
+    else:
+        datos = {
+            "lote": "propias",
+            "nota": "Frases propias anadidas desde Telegram con /frase + /subir.",
+            "items": [],
+        }
+    datos.setdefault("items", []).append(item)
+    LOTE_PROPIAS.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOTE_PROPIAS, "w", encoding="utf-8") as f:
+        json.dump(datos, f, ensure_ascii=False, indent=2)
+    return item
 
 
 def marcar_usado(estado: dict, item: dict, extra: dict | None = None) -> None:

@@ -47,12 +47,20 @@ jobs:
           GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
           HOSTING: ${{ vars.HOSTING || 'github' }}
           GH_PAT: ${{ secrets.GH_PAT }}
+          # El payload va por variables de entorno y NO interpolado en el script:
+          # el texto de /frase lo escribes tu y podria llevar comillas. Metido en
+          # el shell directamente seria una via de inyeccion de comandos; como
+          # env var, el shell no lo reevalua.
+          ORDEN: ${{ github.event.client_payload.orden }}
+          CHAT: ${{ github.event.client_payload.chat }}
+          TEXTO_ORDEN: ${{ github.event.client_payload.texto }}
         run: |
-          python -m src.cli orden "${{ github.event.client_payload.orden }}" \
-            --chat "${{ github.event.client_payload.chat }}"
+          python -m src.cli orden "$ORDEN" --chat "$CHAT" --texto "$TEXTO_ORDEN"
 
       - name: Guardar el estado en el repositorio
         if: always()
+        env:
+          ORDEN: ${{ github.event.client_payload.orden }}
         run: |
           git config user.name "pomniii-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -60,7 +68,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "Nada que guardar."
           else
-            git commit -m "orden ${{ github.event.client_payload.orden }} [skip ci]"
+            git commit -m "orden ${ORDEN} [skip ci]"
             git pull --rebase --autostash
             git push
           fi
