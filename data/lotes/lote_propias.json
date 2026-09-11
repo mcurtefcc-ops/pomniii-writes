@@ -1,0 +1,13 @@
+{
+  "lote": "propias",
+  "nota": "Frases propias anadidas desde Telegram con /frase + /subir.",
+  "items": [
+    {
+      "id": "0481",
+      "voz": "propia",
+      "tipo": "frase",
+      "tema": "propia",
+      "texto": "Dicen que los escritores siempre dejan un pedazo de su historia real entre líneas... a ver si adivinas en qué personaje estabas pensando hoy."
+    }
+  ]
+}

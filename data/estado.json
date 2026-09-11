@@ -30,7 +30,8 @@
     "0028",
     "0029",
     "0030",
-    "0031"
+    "0031",
+    "0481"
   ],
   "rondas": 0,
   "historial": [
@@ -279,6 +280,16 @@
       "ig_post_id": "18077215082706636",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-10_0031.jpg",
       "enlace": "https://www.instagram.com/p/DdGC7iFG4lc/"
+    },
+    {
+      "id": "0481",
+      "texto": "Dicen que los escritores siempre dejan un pedazo de su historia real entre líneas... a ver si adivinas en qué personaje estabas pensando hoy.",
+      "fecha": "2026-09-11",
+      "numero": 21,
+      "ig_post_id": "18095392022553758",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-11_propia.jpg",
+      "enlace": "https://www.instagram.com/p/DdIiRSND0FG/",
+      "propia": true
     }
   ],
   "telegram_offset": 84805326
