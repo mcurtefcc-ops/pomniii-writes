@@ -32,7 +32,8 @@
     "0030",
     "0031",
     "0481",
-    "0032"
+    "0032",
+    "0482"
   ],
   "rondas": 0,
   "historial": [
@@ -300,6 +301,16 @@
       "ig_post_id": "18103969163617595",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-12_0032.jpg",
       "enlace": "https://www.instagram.com/p/DdK3A3Dl1Xj/"
+    },
+    {
+      "id": "0482",
+      "texto": "A veces no necesitas tenerlo todo claro, solo seguir avanzando hasta que un día mires atrás y entiendas por qué todo tenía que pasar así.",
+      "fecha": "2026-09-13",
+      "numero": 23,
+      "ig_post_id": "18352706287168064",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-13_propia.jpg",
+      "enlace": "https://www.instagram.com/p/DdPhXiugTGV/",
+      "propia": true
     }
   ],
   "telegram_offset": 84805326
