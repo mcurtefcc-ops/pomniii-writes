@@ -33,7 +33,8 @@
     "0031",
     "0481",
     "0032",
-    "0482"
+    "0482",
+    "0483"
   ],
   "rondas": 0,
   "historial": [
@@ -310,6 +311,16 @@
       "ig_post_id": "18352706287168064",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-13_propia.jpg",
       "enlace": "https://www.instagram.com/p/DdPhXiugTGV/",
+      "propia": true
+    },
+    {
+      "id": "0483",
+      "texto": "El perro no está en misa, si la puerta no está abierta.",
+      "fecha": "2026-09-14",
+      "numero": 24,
+      "ig_post_id": "18105287057262330",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-14_propia.jpg",
+      "enlace": "https://www.instagram.com/p/DdQWrtmEQ6I/",
       "propia": true
     }
   ],
