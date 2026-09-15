@@ -34,7 +34,8 @@
     "0481",
     "0032",
     "0482",
-    "0483"
+    "0483",
+    "0033"
   ],
   "rondas": 0,
   "historial": [
@@ -322,6 +323,15 @@
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-14_propia.jpg",
       "enlace": "https://www.instagram.com/p/DdQWrtmEQ6I/",
       "propia": true
+    },
+    {
+      "id": "0033",
+      "texto": "Te acostumbraste a pedir migas y ahora te asusta el pan.",
+      "fecha": "2026-09-15",
+      "numero": 25,
+      "ig_post_id": "18058371536543089",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-15_0033.jpg",
+      "enlace": "https://www.instagram.com/p/DdS7y9hlfJ7/"
     }
   ],
   "telegram_offset": 84805326
