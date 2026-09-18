@@ -269,12 +269,13 @@ def cmd_comandos(args) -> int:
     """Registra el menu del bot y deja los botones fijos en el chat."""
     env = _entorno()
     telegram.registrar_comandos(env["tg_token"])
-    print("Menu del bot registrado: /post, /probar, /saltar, /estado")
+    print("Menu del bot registrado: /post, /frase, /probar, /saltar, /estado")
     telegram.enviar_teclado(
         env["tg_token"], env["tg_chat"],
         "Botones listos. Ya no hace falta escribir nada: toca el que quieras.\n\n"
         "/probar — te mando la tarjeta SIN publicar\n"
         "/post — publica de verdad en Instagram\n"
+        "/frase tu texto — vista previa de una frase propia para confirmar\n"
         "/estado — cuantos textos quedan\n"
         "/saltar — descarta el siguiente sin publicarlo",
     )
@@ -447,7 +448,7 @@ def _atender(args) -> int:
                 pass
             continue
 
-        codigo = _ejecutar_orden(o["orden"], o["chat_id"], cfg, env, hoy)
+        codigo = _ejecutar_orden(o["orden"], o["chat_id"], cfg, env, hoy, o["argumento"])
         if codigo != 0:
             return codigo
 
@@ -457,13 +458,16 @@ def _atender(args) -> int:
 AYUDA = (
     "No conozco esa orden. Las que entiendo:\n\n"
     "/post — publicar ahora el siguiente texto\n"
+    "/frase tu texto — vista previa de una frase propia para confirmar\n"
     "/probar — ver la tarjeta sin publicar\n"
     "/saltar — descartar el siguiente sin publicarlo\n"
     "/estado — cuantos textos quedan"
 )
 
 
-def _ejecutar_orden(orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date) -> int:
+def _ejecutar_orden(
+    orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date, texto: str = ""
+) -> int:
     """Ejecuta una orden ya identificada. La usan los dos caminos de entrada:
     el sondeo con getUpdates y el webhook."""
     tg = env["tg_token"]
@@ -480,6 +484,72 @@ def _ejecutar_orden(orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date) -
             tg, chat, res["url"], res["item"], res["numero"],
             hoy.strftime("%d.%m.%Y"), res["enlace"],
         )
+
+    elif orden == "frase":
+        propia = (texto or "").strip()
+        if not propia:
+            telegram.enviar_texto(
+                tg, chat,
+                "Escribe la frase despues de la orden. Por ejemplo:\n\n"
+                "/frase El silencio tambien es una respuesta.",
+            )
+            return 0
+        item = {"id": "libre", "voz": "propia", "tipo": "frase", "tema": "libre", "texto": propia}
+        numero = numero_siguiente(cargar_estado())
+        listo = _preparar(item, cfg, env, hoy, numero)
+        # Se guarda el item entero para que la publicacion posterior no dependa
+        # del banco: esta frase no esta en ningun lote.
+        listo["item"] = item
+        listo["chat_id"] = chat
+        guardar_pendiente(listo)
+        telegram.enviar_previsualizacion(
+            tg, chat, listo["url"], item, hoy.strftime("%d.%m.%Y"), numero
+        )
+
+    elif orden == "publicar":
+        pendiente = cargar_pendiente()
+        if not pendiente:
+            telegram.enviar_texto(
+                tg, chat,
+                "No hay ninguna frase en vista previa. Manda primero /frase con tu texto.",
+            )
+            return 0
+        banco = {i["id"]: i for i in cargar_banco()}
+        item = pendiente.get("item") or banco.get(pendiente["id"]) or {
+            "id": pendiente["id"], "texto": ""
+        }
+        try:
+            post_id = _publicar_pendiente(pendiente, env)
+        except Exception as e:
+            telegram.enviar_texto(tg, chat, f"No se pudo publicar:\n{e}")
+            print(f"FALLO al publicar: {e}", file=sys.stderr)
+            return 1
+        enlace = instagram.obtener_enlace(post_id, env["ig_token"], env["modo"], env["graph"])
+        marcar_usado(
+            cargar_estado(), item,
+            {
+                "fecha": pendiente.get("fecha", hoy.isoformat()),
+                "numero": pendiente.get("numero"),
+                "ig_post_id": post_id,
+                "url": pendiente["url"],
+                "enlace": enlace,
+            },
+        )
+        borrar_pendiente()
+        telegram.enviar_publicado(
+            tg, chat, pendiente["url"], item,
+            int(pendiente.get("numero") or 0), hoy.strftime("%d.%m.%Y"), enlace,
+        )
+        telegram.enviar_teclado(tg, chat, "Publicado. Botones restaurados.")
+
+    elif orden == "cancelar":
+        if cargar_pendiente():
+            borrar_pendiente()
+            telegram.enviar_teclado(
+                tg, chat, "Vista previa descartada. No se ha publicado nada."
+            )
+        else:
+            telegram.enviar_teclado(tg, chat, "No habia nada en vista previa.")
 
     elif orden == "probar":
         item, _ = elegir()
@@ -528,7 +598,7 @@ def cmd_orden(args) -> int:
         return 0
 
     orden = args.orden.strip().lstrip("/").split("@")[0].split()[0].lower()
-    return _ejecutar_orden(orden, chat, cfg, env, dt.date.today())
+    return _ejecutar_orden(orden, chat, cfg, env, dt.date.today(), args.texto)
 
 
 def cmd_automatico(args) -> int:
@@ -724,8 +794,9 @@ def main(argv: list[str] | None = None) -> int:
     es.set_defaults(func=cmd_escuchar)
 
     od = sub.add_parser("orden", help="ejecuta una orden concreta (la usa el webhook)")
-    od.add_argument("orden", help="post, probar, saltar o estado")
+    od.add_argument("orden", help="post, frase, probar, saltar, estado, publicar o cancelar")
     od.add_argument("--chat", default="", help="chat que la envio; se comprueba que sea el tuyo")
+    od.add_argument("--texto", default="", help="argumento de la orden (el texto de /frase)")
     od.set_defaults(func=cmd_orden)
 
     sub.add_parser("comandos", help="registra el menu de ordenes del bot").set_defaults(

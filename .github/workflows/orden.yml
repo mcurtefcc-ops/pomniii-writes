@@ -47,9 +47,14 @@ jobs:
           GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
           HOSTING: ${{ vars.HOSTING || 'github' }}
           GH_PAT: ${{ secrets.GH_PAT }}
+          # El texto de /frase es libre, asi que se pasa por variable de entorno
+          # y NO interpolado en el shell: interpolar aqui abriria la puerta a la
+          # inyeccion de comandos.
+          ORDEN: ${{ github.event.client_payload.orden }}
+          CHAT: ${{ github.event.client_payload.chat }}
+          TEXTO: ${{ github.event.client_payload.texto }}
         run: |
-          python -m src.cli orden "${{ github.event.client_payload.orden }}" \
-            --chat "${{ github.event.client_payload.chat }}"
+          python -m src.cli orden "$ORDEN" --chat "$CHAT" --texto "$TEXTO"
 
       - name: Guardar el estado en el repositorio
         if: always()

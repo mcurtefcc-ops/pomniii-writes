@@ -16,7 +16,7 @@
  *   CHAT_AUTORIZADO   tu id de chat de Telegram
  */
 
-const ORDENES = ["post", "probar", "saltar", "estado"];
+const ORDENES = ["post", "probar", "saltar", "estado", "frase", "publicar", "cancelar"];
 
 export default {
   async fetch(peticion, entorno) {
@@ -48,9 +48,22 @@ export default {
     if (!texto.startsWith("/")) return respuestaOk();
     if (chat !== String(entorno.CHAT_AUTORIZADO)) return respuestaOk();
 
-    const orden = texto.slice(1).split(/\s+/)[0].split("@")[0].toLowerCase();
+    // La orden es la primera palabra; el resto (si lo hay) es el argumento, que
+    // /frase necesita para llevar el texto que has escrito.
+    const sinBarra = texto.slice(1);
+    const corte = sinBarra.search(/\s/);
+    const orden = (corte === -1 ? sinBarra : sinBarra.slice(0, corte)).split("@")[0].toLowerCase();
+    const argumento = corte === -1 ? "" : sinBarra.slice(corte + 1).trim();
     if (!ORDENES.includes(orden)) {
-      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /saltar o /estado.");
+      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /saltar, /estado o /frase <tu texto>.");
+      return respuestaOk();
+    }
+    if (orden === "frase" && !argumento) {
+      await avisar(
+        entorno,
+        chat,
+        "Escribe la frase despues de la orden. Por ejemplo:\n/frase El silencio tambien es una respuesta."
+      );
       return respuestaOk();
     }
 
@@ -68,7 +81,7 @@ export default {
         },
         body: JSON.stringify({
           event_type: "telegram",
-          client_payload: { orden, chat },
+          client_payload: { orden, chat, texto: argumento },
         }),
       }
     );
@@ -79,8 +92,10 @@ export default {
       return new Response(detalle.slice(0, 200), { status: 200 });
     }
 
-    if (orden === "post") {
+    if (orden === "post" || orden === "publicar") {
       await avisar(entorno, chat, "Recibido. Publicando, tardo unos segundos...");
+    } else if (orden === "frase") {
+      await avisar(entorno, chat, "Recibido. Preparando la vista previa...");
     }
     return respuestaOk();
   },
