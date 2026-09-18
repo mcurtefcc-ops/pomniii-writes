@@ -17,9 +17,15 @@ le escribes /post al bot
 | Orden | Qué hace |
 |---|---|
 | `/post` | Publica ahora el siguiente texto |
+| `/frase tu texto` | Monta la tarjeta con **tu propia frase** y te la manda como vista previa para que confirmes antes de publicar |
 | `/probar` | Te manda la tarjeta **sin publicar** nada |
 | `/saltar` | Descarta el siguiente sin publicarlo |
 | `/estado` | Cuántos textos quedan |
+
+Con `/frase` escribes tu texto detrás de la orden (por ejemplo
+`/frase El silencio también es una respuesta.`). El bot te devuelve la tarjeta ya
+montada y dos botones: **/publicar** la sube a Instagram y **/cancelar** la
+descarta. No se publica nada hasta que tú confirmas.
 
 Todo corre en la nube: no necesitas el ordenador encendido, y el token de
 Instagram se renueva solo cada mes.
