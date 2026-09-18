@@ -120,6 +120,46 @@ def enviar_publicado(
     )
 
 
+def enviar_previsualizacion(
+    token: str,
+    chat_id: str,
+    url_imagen: str,
+    item: dict,
+    fecha: str,
+    numero: int | None = None,
+) -> None:
+    """Manda la tarjeta de una frase propia y deja dos botones para confirmar.
+
+    Son botones de teclado, no incrustados: al tocarlos, Telegram manda
+    /publicar o /cancelar como un mensaje normal, que es lo unico que el webhook
+    entrega. Asi la confirmacion funciona sin reactivar el flujo de "recoger"
+    ni tener que registrar el webhook para las pulsaciones de botones.
+    """
+    cabecera = "Vista previa de tu frase"
+    if numero is not None:
+        cabecera += f" · seria el post #{numero:04d}"
+    pie = (
+        f"{cabecera} ({fecha})\n\n"
+        f"{item['texto']}\n\n"
+        "Toca /publicar para subirla a Instagram, o /cancelar para descartarla."
+    )
+    teclado = {
+        "keyboard": [[{"text": "/publicar"}, {"text": "/cancelar"}]],
+        "resize_keyboard": True,
+        "is_persistent": True,
+    }
+    _llamar(
+        token,
+        "sendPhoto",
+        {
+            "chat_id": chat_id,
+            "photo": url_imagen,
+            "caption": pie[:1024],
+            "reply_markup": teclado,
+        },
+    )
+
+
 def confirmar_pulsacion(token: str, callback_id: str, aviso: str) -> None:
     """Quita el reloj de arena del boton y ensena un aviso corto en el movil."""
     try:
@@ -259,6 +299,7 @@ def registrar_comandos(token: str) -> None:
         {
             "commands": [
                 {"command": "post", "description": "Publicar ahora el siguiente texto"},
+                {"command": "frase", "description": "Vista previa de tu propia frase: /frase tu texto"},
                 {"command": "probar", "description": "Ver la tarjeta sin publicar nada"},
                 {"command": "saltar", "description": "Descartar el siguiente sin publicarlo"},
                 {"command": "estado", "description": "Cuantos textos quedan"},
