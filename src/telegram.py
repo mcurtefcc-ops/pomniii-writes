@@ -259,6 +259,7 @@ def registrar_comandos(token: str) -> None:
         {
             "commands": [
                 {"command": "post", "description": "Publicar ahora el siguiente texto"},
+                {"command": "frase", "description": "Publicar una frase tuya: /frase tu texto"},
                 {"command": "probar", "description": "Ver la tarjeta sin publicar nada"},
                 {"command": "saltar", "description": "Descartar el siguiente sin publicarlo"},
                 {"command": "estado", "description": "Cuantos textos quedan"},

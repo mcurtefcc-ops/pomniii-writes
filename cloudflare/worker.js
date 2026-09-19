@@ -16,7 +16,7 @@
  *   CHAT_AUTORIZADO   tu id de chat de Telegram
  */
 
-const ORDENES = ["post", "probar", "saltar", "estado"];
+const ORDENES = ["post", "frase", "probar", "saltar", "estado"];
 
 export default {
   async fetch(peticion, entorno) {
@@ -50,7 +50,22 @@ export default {
 
     const orden = texto.slice(1).split(/\s+/)[0].split("@")[0].toLowerCase();
     if (!ORDENES.includes(orden)) {
-      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /saltar o /estado.");
+      await avisar(entorno, chat, "No conozco esa orden. Usa /post, /frase, /probar, /saltar o /estado.");
+      return respuestaOk();
+    }
+
+    // Todo lo que va detras de la orden. Solo lo usa /frase, con el texto que
+    // quieres publicar. Se manda tal cual: el CLI lo recibe por --texto (no
+    // interpolado en el shell), asi que no hay riesgo de inyeccion.
+    const primerEspacio = texto.search(/\s/);
+    const argumento = primerEspacio === -1 ? "" : texto.slice(primerEspacio + 1).trim();
+
+    if (orden === "frase" && !argumento) {
+      await avisar(
+        entorno,
+        chat,
+        "Escribe la frase detras de la orden. Por ejemplo:\n/frase El mar no tiene prisa."
+      );
       return respuestaOk();
     }
 
@@ -68,7 +83,7 @@ export default {
         },
         body: JSON.stringify({
           event_type: "telegram",
-          client_payload: { orden, chat },
+          client_payload: { orden, chat, argumento },
         }),
       }
     );
@@ -79,7 +94,7 @@ export default {
       return new Response(detalle.slice(0, 200), { status: 200 });
     }
 
-    if (orden === "post") {
+    if (orden === "post" || orden === "frase") {
       await avisar(entorno, chat, "Recibido. Publicando, tardo unos segundos...");
     }
     return respuestaOk();

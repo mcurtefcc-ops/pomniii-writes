@@ -359,14 +359,19 @@ def cmd_proponer(args) -> int:
     return 0
 
 
-def _publicar_ahora(cfg: dict, env: dict, fecha: dt.date) -> dict:
-    """Elige el siguiente texto, monta la tarjeta, la sube y la publica.
+def _publicar_ahora(cfg: dict, env: dict, fecha: dt.date, item: dict | None = None) -> dict:
+    """Monta la tarjeta, la sube y la publica.
+
+    Si no se pasa `item`, elige el siguiente texto del banco. Con `item` se
+    publica ese texto concreto: asi lo usa /frase para sacar una frase tuya que
+    no esta en el banco.
 
     Marca el texto como usado SOLO despues de que Instagram confirme. Si algo
     falla antes, el texto sigue disponible y se reintentara la proxima vez.
     """
     estado = cargar_estado()
-    item, _ = elegir()
+    if item is None:
+        item, _ = elegir()
     numero = numero_siguiente(estado)
     print(f"Post #{numero:04d} · texto {item['id']} [{item.get('voz')}/{item.get('tipo')}]")
     print(f"  {item['texto'][:70]}")
@@ -447,7 +452,7 @@ def _atender(args) -> int:
                 pass
             continue
 
-        codigo = _ejecutar_orden(o["orden"], o["chat_id"], cfg, env, hoy)
+        codigo = _ejecutar_orden(o["orden"], o["argumento"], o["chat_id"], cfg, env, hoy)
         if codigo != 0:
             return codigo
 
@@ -457,15 +462,22 @@ def _atender(args) -> int:
 AYUDA = (
     "No conozco esa orden. Las que entiendo:\n\n"
     "/post — publicar ahora el siguiente texto\n"
+    "/frase tu texto — publicar una frase tuya\n"
     "/probar — ver la tarjeta sin publicar\n"
     "/saltar — descartar el siguiente sin publicarlo\n"
     "/estado — cuantos textos quedan"
 )
 
 
-def _ejecutar_orden(orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date) -> int:
+def _ejecutar_orden(
+    orden: str, argumento: str, chat: str, cfg: dict, env: dict, hoy: dt.date
+) -> int:
     """Ejecuta una orden ya identificada. La usan los dos caminos de entrada:
-    el sondeo con getUpdates y el webhook."""
+    el sondeo con getUpdates y el webhook.
+
+    `argumento` es lo que va detras de la orden. Solo lo usa /frase, con el
+    texto que quieres publicar; las demas ordenes lo ignoran.
+    """
     tg = env["tg_token"]
     print(f"Orden /{orden}")
 
@@ -475,6 +487,29 @@ def _ejecutar_orden(orden: str, chat: str, cfg: dict, env: dict, hoy: dt.date) -
         except Exception as e:
             telegram.enviar_texto(tg, chat, f"No se pudo publicar:\n{e}")
             print(f"FALLO al publicar: {e}", file=sys.stderr)
+            return 1
+        telegram.enviar_publicado(
+            tg, chat, res["url"], res["item"], res["numero"],
+            hoy.strftime("%d.%m.%Y"), res["enlace"],
+        )
+
+    elif orden == "frase":
+        texto = (argumento or "").strip()
+        if not texto:
+            telegram.enviar_texto(
+                tg, chat,
+                "Escribe la frase justo detras de la orden. Por ejemplo:\n\n"
+                "/frase El mar no tiene prisa y aun asi siempre llega.",
+            )
+            return 0
+        # Frase tuya, no del banco. Se publica igual que /post pero con este
+        # texto: misma tarjeta, misma numeracion de post y mismo aviso.
+        item = {"id": "frase", "texto": texto, "tipo": "frase", "voz": "propia"}
+        try:
+            res = _publicar_ahora(cfg, env, hoy, item=item)
+        except Exception as e:
+            telegram.enviar_texto(tg, chat, f"No se pudo publicar tu frase:\n{e}")
+            print(f"FALLO al publicar frase: {e}", file=sys.stderr)
             return 1
         telegram.enviar_publicado(
             tg, chat, res["url"], res["item"], res["numero"],
@@ -528,7 +563,7 @@ def cmd_orden(args) -> int:
         return 0
 
     orden = args.orden.strip().lstrip("/").split("@")[0].split()[0].lower()
-    return _ejecutar_orden(orden, chat, cfg, env, dt.date.today())
+    return _ejecutar_orden(orden, args.texto, chat, cfg, env, dt.date.today())
 
 
 def cmd_automatico(args) -> int:
@@ -724,8 +759,9 @@ def main(argv: list[str] | None = None) -> int:
     es.set_defaults(func=cmd_escuchar)
 
     od = sub.add_parser("orden", help="ejecuta una orden concreta (la usa el webhook)")
-    od.add_argument("orden", help="post, probar, saltar o estado")
+    od.add_argument("orden", help="post, frase, probar, saltar o estado")
     od.add_argument("--chat", default="", help="chat que la envio; se comprueba que sea el tuyo")
+    od.add_argument("--texto", default="", help="texto que acompana a la orden (lo usa /frase)")
     od.set_defaults(func=cmd_orden)
 
     sub.add_parser("comandos", help="registra el menu de ordenes del bot").set_defaults(

@@ -47,9 +47,16 @@ jobs:
           GRAPH_VERSION: ${{ vars.GRAPH_VERSION || 'v23.0' }}
           HOSTING: ${{ vars.HOSTING || 'github' }}
           GH_PAT: ${{ secrets.GH_PAT }}
+          # El payload va por variables de entorno, NO interpolado en el script:
+          # ORDEN_ARG es la frase que escribes con /frase y es texto libre, asi
+          # que interpolarlo con ${{ }} permitiria inyectar comandos en el shell.
+          ORDEN_NOMBRE: ${{ github.event.client_payload.orden }}
+          ORDEN_CHAT: ${{ github.event.client_payload.chat }}
+          ORDEN_ARG: ${{ github.event.client_payload.argumento }}
         run: |
-          python -m src.cli orden "${{ github.event.client_payload.orden }}" \
-            --chat "${{ github.event.client_payload.chat }}"
+          python -m src.cli orden "$ORDEN_NOMBRE" \
+            --chat "$ORDEN_CHAT" \
+            --texto "$ORDEN_ARG"
 
       - name: Guardar el estado en el repositorio
         if: always()

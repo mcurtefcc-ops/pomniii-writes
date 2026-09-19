@@ -17,6 +17,7 @@ le escribes /post al bot
 | Orden | Qué hace |
 |---|---|
 | `/post` | Publica ahora el siguiente texto |
+| `/frase tu texto` | Publica una frase tuya (la que escribas), no una del banco |
 | `/probar` | Te manda la tarjeta **sin publicar** nada |
 | `/saltar` | Descarta el siguiente sin publicarlo |
 | `/estado` | Cuántos textos quedan |
@@ -316,6 +317,11 @@ Abres Telegram, escribes `/post`, y en unos minutos está publicado. Nada más.
 
 Si quieres ver antes qué va a salir, `/probar` te manda la tarjeta sin publicar
 nada, y `/saltar` descarta ese texto y pasa al siguiente.
+
+¿Se te ocurre una frase que no está en el banco y quieres sacarla ya? Escribe
+`/frase` seguido del texto —por ejemplo `/frase El mar no tiene prisa y aun así
+siempre llega`— y la publica con la misma tarjeta de siempre, sin tocar el orden
+del banco.
 
 Lo único que conviene hacer de vez en cuando es **podar el banco**: mirar los
 textos que no te gustan y marcarlos para que no salgan nunca.
