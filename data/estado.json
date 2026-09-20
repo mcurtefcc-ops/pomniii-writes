@@ -3,6 +3,7 @@
     "0001",
     "0002",
     "0003",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -36,6 +37,15 @@
       "ig_post_id": "17894042268415995",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-19_libre.jpg",
       "enlace": "https://www.instagram.com/p/DddZzdelkS3/"
+    },
+    {
+      "id": "libre",
+      "texto": "La noche no apaga la voz, solo le quita el ruido para que la poesía se escuche con claridad.",
+      "fecha": "2026-09-20",
+      "numero": 3,
+      "ig_post_id": "18005635887005180",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-20_libre.jpg",
+      "enlace": "https://www.instagram.com/p/Ddf-ueQltZR/"
     }
   ],
   "telegram_offset": 84805326
