@@ -1,0 +1,16 @@
+{
+  "id": "libre",
+  "numero": 3,
+  "fecha": "2026-09-20",
+  "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-20_libre.jpg",
+  "pie": "La noche no apaga la voz, solo le quita el ruido para que la poesía se escuche con claridad.\n\n———\n\nSi te ha llegado, guárdalo para el día en que lo necesites.\nCada día una frase nueva por aquí → @pomniii.writes\n\n#frasesqueinspiran #microcuentos #poesiacorta #escribirparasanar #reflexionesdiarias #frasesdeldia #pensamientos #letrasypoesia #saludmental #motivaciondiaria #textospoeticos #poesiaenespanol",
+  "ruta_local": "/home/runner/work/pomniii-writes/pomniii-writes/salida/2026-09-20_libre.jpg",
+  "item": {
+    "id": "libre",
+    "voz": "propia",
+    "tipo": "frase",
+    "tema": "libre",
+    "texto": "La noche no apaga la voz, solo le quita el ruido para que la poesía se escuche con claridad."
+  },
+  "chat_id": "8179045821"
+}
