@@ -6,6 +6,7 @@
     "libre",
     "libre",
     "libre",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -66,6 +67,15 @@
       "ig_post_id": "18127963252748459",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-22_libre.jpg",
       "enlace": "https://www.instagram.com/p/Ddk3v69FaRp/"
+    },
+    {
+      "id": "libre",
+      "texto": "Mi problema es que hasta mis pensamientos tienen argumentos y me cuesta llevarles la contraria.",
+      "fecha": "2026-09-22",
+      "numero": 6,
+      "ig_post_id": "18408446788091671",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-22_libre.jpg",
+      "enlace": "https://www.instagram.com/p/Ddm0S81CbIW/"
     }
   ],
   "telegram_offset": 84805326
