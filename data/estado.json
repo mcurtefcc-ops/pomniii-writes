@@ -8,6 +8,7 @@
     "libre",
     "libre",
     "libre",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -86,6 +87,15 @@
       "ig_post_id": "18156179827450106",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-23_libre.jpg",
       "enlace": "https://www.instagram.com/p/DdpXe58H2Zf/"
+    },
+    {
+      "id": "libre",
+      "texto": "Hoy ya es mañana.",
+      "fecha": "2026-09-24",
+      "numero": 8,
+      "ig_post_id": "18115592933050329",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-24_libre.jpg",
+      "enlace": "https://www.instagram.com/p/DdsBNYNj26f/"
     }
   ],
   "telegram_offset": 84805326
