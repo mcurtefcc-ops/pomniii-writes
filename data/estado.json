@@ -9,6 +9,7 @@
     "libre",
     "libre",
     "libre",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -96,6 +97,15 @@
       "ig_post_id": "18115592933050329",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-24_libre.jpg",
       "enlace": "https://www.instagram.com/p/DdsBNYNj26f/"
+    },
+    {
+      "id": "libre",
+      "texto": "Tengo una memoria excelente para recordar lo que debería olvidar y una amnesia selectiva para todo lo que debería haber aprendido.",
+      "fecha": "2026-09-26",
+      "numero": 9,
+      "ig_post_id": "18109220165239999",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-26_libre.jpg",
+      "enlace": "https://www.instagram.com/p/DduxyIljeAE/"
     }
   ],
   "telegram_offset": 84805326
