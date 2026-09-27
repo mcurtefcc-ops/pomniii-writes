@@ -11,6 +11,7 @@
     "libre",
     "libre",
     "libre",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -116,6 +117,15 @@
       "ig_post_id": "17913143586465223",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-27_libre.jpg",
       "enlace": "https://www.instagram.com/p/Ddx9r4bEV4o/"
+    },
+    {
+      "id": "libre",
+      "texto": "Hay noches que no piden compañía, solo hacen que ciertas personas se sientan un poco más cerca.",
+      "fecha": "2026-09-27",
+      "numero": 11,
+      "ig_post_id": "18132574513680524",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-27_libre.jpg",
+      "enlace": "https://www.instagram.com/p/Ddzq4f2D6Ix/"
     }
   ],
   "telegram_offset": 84805326
