@@ -12,6 +12,7 @@
     "libre",
     "libre",
     "libre",
+    "libre",
     "libre"
   ],
   "rondas": 0,
@@ -126,6 +127,15 @@
       "ig_post_id": "18132574513680524",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-27_libre.jpg",
       "enlace": "https://www.instagram.com/p/Ddzq4f2D6Ix/"
+    },
+    {
+      "id": "libre",
+      "texto": "Hay personas que no cambian tu vida; simplemente hacen que quieras vivirla de una manera diferente.",
+      "fecha": "2026-09-29",
+      "numero": 12,
+      "ig_post_id": "18101666015021067",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-09-29_libre.jpg",
+      "enlace": "https://www.instagram.com/p/Dd2960hERmw/"
     }
   ],
   "telegram_offset": 84805326
