@@ -16,7 +16,8 @@
     "libre",
     "libre",
     "libre",
-    "libre"
+    "libre",
+    "0016"
   ],
   "rondas": 0,
   "historial": [
@@ -166,6 +167,15 @@
       "ig_post_id": "18169444435462576",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-10-05_libre.jpg",
       "enlace": "https://www.instagram.com/p/DeHecGBmkR4/"
+    },
+    {
+      "id": "0016",
+      "texto": "Te miré un segundo de más\ny el resto del día\nse me quedó pequeño.",
+      "fecha": "2026-11-09",
+      "numero": 16,
+      "ig_post_id": "18169129144433232",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-11-09_0016.jpg",
+      "enlace": "https://www.instagram.com/p/Dfhs4OcFZ93/"
     }
   ],
   "telegram_offset": 84805326
