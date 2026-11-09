@@ -139,7 +139,10 @@ def marcar_usado(estado: dict, item: dict, extra: dict | None = None) -> None:
 def resumen() -> str:
     banco = cargar_banco()
     estado = cargar_estado()
-    usados = len(estado.get("usados", []))
+    # Solo cuentan los usados que siguen en el banco: los textos libres de
+    # /frase y los de bancos anteriores no restan de lo que queda.
+    ids_banco = {i["id"] for i in banco}
+    usados = len(set(estado.get("usados", [])) & ids_banco)
     descartados = len(estado.get("descartados", []))
     por_voz: dict[str, int] = {}
     for i in banco:

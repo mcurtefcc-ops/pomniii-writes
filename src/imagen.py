@@ -146,9 +146,22 @@ def _ancho_linea(d, linea, fuente) -> float:
 
 def _ajustar_cita(
     parrafos, ruta_fuente: str, ancho_max: int, alto_max: int, d,
-    tam_max: int, tam_min: int, interlineado: float,
+    tam_max: int, tam_min: int, interlineado: float, verso_entero_min: int | None = None,
 ):
-    """Baja el cuerpo de letra de dos en dos hasta que la cita entra."""
+    """Baja el cuerpo de letra de dos en dos hasta que la cita entra.
+
+    Con `verso_entero_min` (poemas) primero intenta que cada verso quepa en
+    una sola linea, bajando la letra hasta ese minimo: un verso partido en
+    dos deja una palabra suelta y rompe el ritmo. Si ni asi cabe, se parte
+    como cualquier otro texto.
+    """
+    if verso_entero_min:
+        for tam in range(tam_max, verso_entero_min - 1, -2):
+            fuente = ImageFont.truetype(ruta_fuente, tam)
+            lineas = _envolver(parrafos, fuente, ancho_max, d)
+            if len(lineas) == len(parrafos) and len(lineas) * tam * interlineado <= alto_max:
+                return fuente, lineas, tam
+
     fuente = lineas = None
     for tam in range(tam_max, tam_min - 1, -2):
         fuente = ImageFont.truetype(ruta_fuente, tam)
@@ -335,6 +348,7 @@ def crear_post(
     fuente_cita, lineas, tam = _ajustar_cita(
         parrafos, tip["cita"], ancho_cita, caja_bottom - caja_top, d,
         tam_max=78 * S, tam_min=26 * S, interlineado=interlineado,
+        verso_entero_min=52 * S if item.get("tipo") == "poema" else None,
     )
     paso = tam * interlineado
     y0 = caja_top + (caja_bottom - caja_top - len(lineas) * paso) / 2 + paso / 2

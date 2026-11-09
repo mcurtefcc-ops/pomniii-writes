@@ -1,0 +1,636 @@
+{
+  "lote": 3,
+  "nota": "Poemas cortos de dos o tres versos: amor, tristeza, melancolia, noche, ironia tierna y calma. Los ids empiezan en 0016 para que coincidan con el numero de post (ya habia 15 publicados). El ultimo verso es el remate.",
+  "items": [
+    {
+      "id": "0016",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Te miré un segundo de más\ny el resto del día\nse me quedó pequeño."
+    },
+    {
+      "id": "0017",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Hay despedidas que no se dicen.\nSe notan en cómo\nya no preguntas."
+    },
+    {
+      "id": "0018",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Hay tardes de domingo\nque huelen a una casa\nque ya no existe."
+    },
+    {
+      "id": "0019",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "De madrugada todo pesa el doble,\nsobre todo\nlo que no dije."
+    },
+    {
+      "id": "0020",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Dije que no me volvería a enamorar\ny luego sonreíste,\nasí que retiro lo dicho."
+    },
+    {
+      "id": "0021",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "No todo lo que se acaba se pierde.\nAlgunas cosas solo\nse quedan a vivir más adentro."
+    },
+    {
+      "id": "0022",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "No sé bailar,\npero contigo hasta el silencio\ntiene ritmo."
+    },
+    {
+      "id": "0023",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Fuiste casi todo,\ny ese casi\nme sigue doliendo."
+    },
+    {
+      "id": "0024",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Sigo guardando tu sitio en el sofá,\nno por si vuelves,\nsino porque no sé qué poner ahí."
+    },
+    {
+      "id": "0025",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Volví al barrio\ny las calles me reconocieron\nantes que yo a ellas."
+    },
+    {
+      "id": "0026",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Te nombro bajito\npara no gastarte."
+    },
+    {
+      "id": "0027",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "La noche no me quita el sueño.\nMe lo cambia\npor recuerdos."
+    },
+    {
+      "id": "0028",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Mi corazón tiene buena intención\ny pésimo criterio,\ncomo yo los lunes."
+    },
+    {
+      "id": "0029",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Te fuiste un jueves cualquiera\ny desde entonces\nlos jueves no son cualquiera."
+    },
+    {
+      "id": "0030",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Si me preguntan por ti\nhablo del tiempo:\nde lo poco que me dura cuando estás."
+    },
+    {
+      "id": "0031",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Echo de menos cosas\nque cuando pasaban\nme parecían normales."
+    },
+    {
+      "id": "0032",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Me dijiste que no era el momento.\nAhora entiendo\nque no era la persona."
+    },
+    {
+      "id": "0033",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Hoy me quise un poco más\nque ayer,\ny eso también cuenta."
+    },
+    {
+      "id": "0034",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Llegaste sin hacer ruido\ny ahora el silencio\nsuena a ti."
+    },
+    {
+      "id": "0035",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Lloré poco,\npero en todos los sitios\ndonde estuvimos."
+    },
+    {
+      "id": "0036",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Hay cosas que solo salen de noche:\nlos gatos\ny las ganas de escribirte."
+    },
+    {
+      "id": "0037",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "No es que me haya enamorado.\nEs que mi cabeza te alquiló un cuarto\nsin pedirme permiso."
+    },
+    {
+      "id": "0038",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Las fotos no guardan el momento.\nGuardan las ganas\nde volver a él."
+    },
+    {
+      "id": "0039",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "No te busqué.\nQuizá por eso\nme encontraste de verdad."
+    },
+    {
+      "id": "0040",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "No me dolió que te fueras.\nMe dolió lo fácil\nque te salió."
+    },
+    {
+      "id": "0041",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Te deseo lo mejor,\npero que lo mejor\ntarde un poco en llegarte."
+    },
+    {
+      "id": "0042",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Tu mano en mi espalda\ny el mundo, por fin,\nbajando el volumen."
+    },
+    {
+      "id": "0043",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Mi infancia cabe\nen el olor a pan tostado\nde una cocina que vendieron."
+    },
+    {
+      "id": "0044",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Apago la luz\ny se encienden\ntodas las preguntas."
+    },
+    {
+      "id": "0045",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Algún día este dolor\nserá solo una historia\nque cuento sin que me tiemble la voz."
+    },
+    {
+      "id": "0046",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Borré tus mensajes,\npero me los sé de memoria,\nque es peor."
+    },
+    {
+      "id": "0047",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Eres el sitio\nal que vuelvo\naunque no me haya ido."
+    },
+    {
+      "id": "0048",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Te olvidé completamente.\nBueno, menos los martes,\nlas canciones y el olor a café."
+    },
+    {
+      "id": "0049",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Hay personas que no se van del todo:\nse quedan viviendo\nen una forma de decir las cosas."
+    },
+    {
+      "id": "0050",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Ya no te espero.\nSolo miro el móvil\npor si el silencio cambia de opinión."
+    },
+    {
+      "id": "0051",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Me gustas como el primer café:\nsin pensarlo\ny todos los días."
+    },
+    {
+      "id": "0052",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Hay canciones que ya no pongo,\nno porque me duelan,\nsino porque todavía te esperan."
+    },
+    {
+      "id": "0053",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Duermo en mi lado de la cama\npor costumbre,\no por si acaso."
+    },
+    {
+      "id": "0054",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Quería escribirte un poema\ny me salió tu nombre\ntres veces seguidas."
+    },
+    {
+      "id": "0055",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Fui feliz en sitios\nque ahora solo existen\ncuando cierro los ojos."
+    },
+    {
+      "id": "0056",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Las heridas no se cierran solas.\nSe cierran\ncuando dejas de tocarlas."
+    },
+    {
+      "id": "0057",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Yo pidiendo señales al universo\ny el universo\nmandándome tu nombre en cada esquina."
+    },
+    {
+      "id": "0058",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Me preguntan si estoy bien\ny digo que sí\ncon la voz de quien lo ha ensayado."
+    },
+    {
+      "id": "0059",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Contigo descubrí que hay abrazos\nque no se dan:\nse habitan."
+    },
+    {
+      "id": "0060",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Lo difícil no fue soltarte.\nFue darme cuenta\nde que tú ya lo habías hecho."
+    },
+    {
+      "id": "0061",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "La nostalgia es eso:\nquerer volver\na un lugar que en realidad era un tiempo."
+    },
+    {
+      "id": "0062",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "La luna también se queda a medias\ny nadie le pide\nque se explique."
+    },
+    {
+      "id": "0063",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Te quiero sin prisa,\ncomo se quiere lo que uno sabe\nque se va a quedar."
+    },
+    {
+      "id": "0064",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Lo nuestro no se rompió:\nse fue apagando\nde tanto dejarlo para mañana."
+    },
+    {
+      "id": "0065",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Mi terapia es escribir.\nMi recaída\nes escribirte."
+    },
+    {
+      "id": "0066",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Releo conversaciones viejas\ncomo quien vuelve a una casa\nsolo para ver si sigue la luz encendida."
+    },
+    {
+      "id": "0067",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Dices mi nombre\ny de repente\nme cae mejor."
+    },
+    {
+      "id": "0068",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Me estoy aprendiendo despacio,\ncomo una canción\nque al principio no me gustaba."
+    },
+    {
+      "id": "0069",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Te perdoné,\npero mi memoria\ntodavía se lo está pensando."
+    },
+    {
+      "id": "0070",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Aún digo «nosotros»\ny me corrijo, como quien tropieza\nen el mismo escalón de siempre."
+    },
+    {
+      "id": "0071",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Las tres de la mañana tienen\nuna forma muy suya\nde decirme la verdad."
+    },
+    {
+      "id": "0072",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "No me prometas siempre.\nProméteme el martes,\ny luego otro martes."
+    },
+    {
+      "id": "0073",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Crecer fue darme cuenta\nde que las despedidas importantes\nno avisan de que lo son."
+    },
+    {
+      "id": "0074",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Soy de corazón fuerte:\nse rompe, se pega con celo\ny vuelve a intentarlo."
+    },
+    {
+      "id": "0075",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Hay ausencias que ocupan\nmás sitio\nque cualquier persona."
+    },
+    {
+      "id": "0076",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Me besaste\ny se me olvidó\nel resto del idioma."
+    },
+    {
+      "id": "0077",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Me gusta el otoño\nporque no finge:\ntambién está soltando cosas."
+    },
+    {
+      "id": "0078",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Querer a quien no se queda\nes como regar\nuna flor de plástico."
+    },
+    {
+      "id": "0079",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Esta noche no escribo para que me leas.\nEscribo para que pese\nun poco menos."
+    },
+    {
+      "id": "0080",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Tienes una forma de mirarme\nque me desordena\nhasta las ideas."
+    },
+    {
+      "id": "0081",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "La tristeza no hace ruido:\nse sienta a la mesa\ny se come la mitad de todo."
+    },
+    {
+      "id": "0082",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Florecer también es esto:\nesperar en calma\nhasta que vuelve la primavera."
+    },
+    {
+      "id": "0083",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Tengo un máster en disimular\ny un suspenso\nen soltarte."
+    },
+    {
+      "id": "0084",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Guardo un billete de tren\nde un viaje que no recuerdo\ny de alguien que no olvido."
+    },
+    {
+      "id": "0085",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "A tu lado hasta el insomnio\nparece una forma\nde no querer perderme nada."
+    },
+    {
+      "id": "0086",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Me quedé con tu sudadera\ny con la costumbre\nde abrazarla cuando hace frío."
+    },
+    {
+      "id": "0087",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Fuiste mi lugar seguro\nhasta que aprendí\nque también se puede llover por dentro."
+    },
+    {
+      "id": "0088",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Hay lluvias que no mojan\nla ropa,\nsino los recuerdos."
+    },
+    {
+      "id": "0089",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Si alguna vez dudas de lo que siento,\nmira cómo me río\ncuando entras por la puerta."
+    },
+    {
+      "id": "0090",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Prometí no pensar en ti hoy\ny llevo desde las nueve\nincumpliéndolo con mucha dedicación."
+    },
+    {
+      "id": "0091",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Hay noches que no necesitan respuestas,\nsolo a alguien\nque no se duerma antes que yo."
+    },
+    {
+      "id": "0092",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "No te echo de menos todo el tiempo.\nSolo cuando algo me hace gracia\ny no tengo a quién contárselo."
+    },
+    {
+      "id": "0093",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Contigo el tiempo no pasa.\nSe queda,\ncomo tú."
+    },
+    {
+      "id": "0094",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "El mar me devuelve\ntodo lo que le cuento,\npero más bajito."
+    },
+    {
+      "id": "0095",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "No vine a quedarme en lo que dolió.\nVine a ver\nqué crece después."
+    },
+    {
+      "id": "0096",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Te elegí sin pensarlo\ny lo pienso cada día\nsolo para volver a elegirte."
+    },
+    {
+      "id": "0097",
+      "voz": "desamor",
+      "tipo": "poema",
+      "tema": "desamor",
+      "texto": "Te fuiste con la misma calma\ncon la que llegaste,\ncomo si nunca hubieras estado del todo."
+    },
+    {
+      "id": "0098",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Llevo dentro una ciudad\nque solo sale a pasear\ncuando suena esa canción."
+    },
+    {
+      "id": "0099",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "No quiero ser tu persona favorita.\nQuiero ser\ntu sitio tranquilo."
+    },
+    {
+      "id": "0100",
+      "voz": "tristeza",
+      "tipo": "poema",
+      "tema": "tristeza",
+      "texto": "Hay días grises\nque no piden arreglo,\nsolo una manta y alguien que no pregunte."
+    },
+    {
+      "id": "0101",
+      "voz": "ironia",
+      "tipo": "poema",
+      "tema": "ironia",
+      "texto": "Todo el mundo me dice que te olvide.\nYo les digo que sí\ny luego te escribo a ti para contártelo."
+    },
+    {
+      "id": "0102",
+      "voz": "melancolia",
+      "tipo": "poema",
+      "tema": "melancolia",
+      "texto": "Antes quería crecer rápido.\nAhora solo quiero\nque alguien me arrope."
+    },
+    {
+      "id": "0103",
+      "voz": "amor",
+      "tipo": "poema",
+      "tema": "amor",
+      "texto": "Bastó con que dijeras «quédate»\npara que todos mis planes\nse volvieran tú."
+    },
+    {
+      "id": "0104",
+      "voz": "noche",
+      "tipo": "poema",
+      "tema": "noche",
+      "texto": "Te escribo poco\nporque lo que siento\nno cabe en un mensaje de madrugada."
+    },
+    {
+      "id": "0105",
+      "voz": "calma",
+      "tipo": "poema",
+      "tema": "calma",
+      "texto": "Al final del día\nsolo quiero que alguien\nme pregunte de verdad cómo estoy."
+    }
+  ]
+}
