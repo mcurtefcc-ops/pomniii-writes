@@ -48,6 +48,13 @@ def enviar_texto(token: str, chat_id: str, texto: str) -> None:
     _llamar(token, "sendMessage", {"chat_id": chat_id, "text": texto})
 
 
+# Textos de los dos botones de la propuesta. El Worker de Cloudflare los
+# reconoce por el emoji del principio, asi que si cambias el texto, conserva
+# el emoji (o cambia tambien cloudflare/worker.js).
+BOTON_SI = "✅ Sí, publícalo"
+BOTON_NO = "⏭ No, otro"
+
+
 def enviar_propuesta(
     token: str,
     chat_id: str,
@@ -55,28 +62,31 @@ def enviar_propuesta(
     item: dict,
     fecha: str,
     numero: int | None = None,
+    nota: str = "",
 ) -> int:
-    """Manda la imagen del dia con los botones. Devuelve el message_id."""
-    cabecera = f"Propuesta para hoy ({fecha})"
+    """Manda la tarjeta propuesta con dos botones: Si / No. Devuelve el message_id.
+
+    Son botones de teclado, no incrustados: al tocarlos, Telegram manda su texto
+    como un mensaje normal, que es lo que el webhook ya entrega. Asi funcionan
+    sin volver a registrar el webhook para las pulsaciones de botones.
+    """
+    cabecera = f"Propuesta ({fecha})"
     if numero is not None:
         cabecera += f" · seria el post #{numero:04d}"
-    pie = (
-        f"{cabecera}\n"
-        f"texto {item['id']} · {item.get('voz', '-')} · {item.get('tipo', 'texto')} "
-        f"· {item.get('tema', '-')}\n\n"
-        f"{item['texto']}"
-    )
+    lineas = [nota, ""] if nota else []
+    lineas += [
+        cabecera,
+        "",
+        item["texto"],
+        "",
+        "¿Lo publico? Si dices que no, te propongo el siguiente. "
+        "Y si prefieres escribir tú algo, mándamelo aquí tal cual y te enseño cómo queda.",
+    ]
+    pie = "\n".join(lineas)
     teclado = {
-        "inline_keyboard": [
-            [
-                {"text": "✅ Publicar", "callback_data": f"pub:{item['id']}"},
-                {"text": "⏭ Saltar hoy", "callback_data": f"salta:{item['id']}"},
-            ],
-            [
-                {"text": "🔄 Otra", "callback_data": f"otra:{item['id']}"},
-                {"text": "🚫 No usar nunca", "callback_data": f"desc:{item['id']}"},
-            ],
-        ]
+        "keyboard": [[{"text": BOTON_SI}, {"text": BOTON_NO}]],
+        "resize_keyboard": True,
+        "is_persistent": True,
     }
     res = _llamar(
         token,
@@ -99,14 +109,23 @@ def enviar_publicado(
     numero: int,
     fecha: str,
     enlace: str = "",
+    borrador: bool = False,
 ) -> None:
     """Aviso de que el post ya se ha publicado. Sin botones: no hay que decidir nada.
 
     Se manda igualmente en modo automatico para que tengas registro diario de
     lo que sale, y para enterarte el dia que algo deje de salir.
+
+    Con borrador=True es solo la vista previa de /probar: nada se ha publicado
+    todavia, asi que la cabecera no debe decir "PUBLICADO" o parece que salio.
     """
+    cabecera = (
+        f"VISTA PREVIA · proximo post #{numero:04d}"
+        if borrador
+        else f"PUBLICADO · post #{numero:04d} ({fecha})"
+    )
     lineas = [
-        f"PUBLICADO · post #{numero:04d} ({fecha})",
+        cabecera,
         f"texto {item['id']} · {item.get('voz', '-')} · {item.get('tipo', '-')}",
         "",
         item["texto"],
@@ -117,46 +136,6 @@ def enviar_publicado(
         token,
         "sendPhoto",
         {"chat_id": chat_id, "photo": url_imagen, "caption": "\n".join(lineas)[:1024]},
-    )
-
-
-def enviar_previsualizacion(
-    token: str,
-    chat_id: str,
-    url_imagen: str,
-    item: dict,
-    fecha: str,
-    numero: int | None = None,
-) -> None:
-    """Manda la tarjeta de una frase propia y deja dos botones para confirmar.
-
-    Son botones de teclado, no incrustados: al tocarlos, Telegram manda
-    /publicar o /cancelar como un mensaje normal, que es lo unico que el webhook
-    entrega. Asi la confirmacion funciona sin reactivar el flujo de "recoger"
-    ni tener que registrar el webhook para las pulsaciones de botones.
-    """
-    cabecera = "Vista previa de tu frase"
-    if numero is not None:
-        cabecera += f" · seria el post #{numero:04d}"
-    pie = (
-        f"{cabecera} ({fecha})\n\n"
-        f"{item['texto']}\n\n"
-        "Toca /publicar para subirla a Instagram, o /cancelar para descartarla."
-    )
-    teclado = {
-        "keyboard": [[{"text": "/publicar"}, {"text": "/cancelar"}]],
-        "resize_keyboard": True,
-        "is_persistent": True,
-    }
-    _llamar(
-        token,
-        "sendPhoto",
-        {
-            "chat_id": chat_id,
-            "photo": url_imagen,
-            "caption": pie[:1024],
-            "reply_markup": teclado,
-        },
     )
 
 

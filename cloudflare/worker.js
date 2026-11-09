@@ -1,8 +1,9 @@
 /**
  * Puente entre Telegram y GitHub Actions para pomniii.writes.
  *
- * Telegram avisa a este Worker en el instante en que mandas una orden al bot, y
- * el Worker dispara el workflow que la ejecuta. Sin sondeos ni crons: la orden
+ * Telegram avisa a este Worker en el instante en que mandas una orden al bot
+ * (o pulsas Si / No en la propuesta de cada noche, o le escribes un texto tuyo),
+ * y el Worker dispara el workflow que la ejecuta. Sin sondeos ni crons: la orden
  * llega en el momento y el post sale en unos 15 segundos.
  *
  * El Worker no publica nada ni toca Instagram. Solo hace de timbre: comprueba
@@ -16,7 +17,7 @@
  *   CHAT_AUTORIZADO   tu id de chat de Telegram
  */
 
-const ORDENES = ["post", "probar", "saltar", "estado", "frase", "publicar", "cancelar"];
+const ORDENES = ["post", "probar", "saltar", "estado", "frase", "publicar", "cancelar", "si", "no"];
 
 export default {
   async fetch(peticion, entorno) {
@@ -45,15 +46,32 @@ export default {
 
     // A Telegram SIEMPRE se le contesta 200, aunque descartemos el mensaje: si
     // devolvemos un error, reintenta y acaba desactivando el webhook.
-    if (!texto.startsWith("/")) return respuestaOk();
+    if (!texto) return respuestaOk();
     if (chat !== String(entorno.CHAT_AUTORIZADO)) return respuestaOk();
 
-    // La orden es la primera palabra; el resto (si lo hay) es el argumento, que
-    // /frase necesita para llevar el texto que has escrito.
-    const sinBarra = texto.slice(1);
-    const corte = sinBarra.search(/\s/);
-    const orden = (corte === -1 ? sinBarra : sinBarra.slice(0, corte)).split("@")[0].toLowerCase();
-    const argumento = corte === -1 ? "" : sinBarra.slice(corte + 1).trim();
+    let orden, argumento;
+    const simple = texto.toLowerCase();
+    if (texto.startsWith("✅") || simple === "si" || simple === "sí") {
+      // Boton "Si, publicalo" de la propuesta de cada noche.
+      orden = "si";
+      argumento = "";
+    } else if (texto.startsWith("⏭") || simple === "no") {
+      // Boton "No, otro": salta ese poema y propone el siguiente.
+      orden = "no";
+      argumento = "";
+    } else if (!texto.startsWith("/")) {
+      // Texto escrito tal cual: es un texto tuyo para publicar. Se manda como
+      // /frase, que te ensena la tarjeta con los botones Si / No.
+      orden = "frase";
+      argumento = texto;
+    } else {
+      // La orden es la primera palabra; el resto (si lo hay) es el argumento,
+      // que /frase necesita para llevar el texto que has escrito.
+      const sinBarra = texto.slice(1);
+      const corte = sinBarra.search(/\s/);
+      orden = (corte === -1 ? sinBarra : sinBarra.slice(0, corte)).split("@")[0].toLowerCase();
+      argumento = corte === -1 ? "" : sinBarra.slice(corte + 1).trim();
+    }
     if (!ORDENES.includes(orden)) {
       await avisar(entorno, chat, "No conozco esa orden. Usa /post, /probar, /saltar, /estado o /frase <tu texto>.");
       return respuestaOk();
@@ -92,10 +110,12 @@ export default {
       return new Response(detalle.slice(0, 200), { status: 200 });
     }
 
-    if (orden === "post" || orden === "publicar") {
+    if (orden === "post" || orden === "publicar" || orden === "si") {
       await avisar(entorno, chat, "Recibido. Publicando, tardo unos segundos...");
+    } else if (orden === "no") {
+      await avisar(entorno, chat, "Vale, te preparo otro...");
     } else if (orden === "frase") {
-      await avisar(entorno, chat, "Recibido. Preparando la vista previa...");
+      await avisar(entorno, chat, "Recibido. Preparando tu tarjeta...");
     }
     return respuestaOk();
   },

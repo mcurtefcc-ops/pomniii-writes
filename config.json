@@ -28,9 +28,9 @@
     "firma": ["assets/fonts/Parisienne-Regular.ttf", "C:/Windows/Fonts/segoesc.ttf"]
   },
   "programacion": {
-    "_nota": "Hora local a la que quieres la propuesta. El cron de GitHub solo entiende UTC y no ajusta el horario de verano, asi que proponer.yml se lanza a dos horas UTC y este guardian decide cual de las dos es la buena segun la fecha.",
+    "_nota": "Hora local a la que llega la propuesta (0 = medianoche). Si la cambias, cambia tambien los dos cron de .github/workflows/proponer.yml. El cron de GitHub solo entiende UTC y no ajusta el horario de verano, asi que proponer.yml se lanza a dos horas UTC y este guardian decide cual de las dos es la buena segun la fecha.",
     "zona": "Europe/Madrid",
-    "hora": 8,
+    "hora": 0,
     "ventana_horas": 2
   },
   "lienzo": {

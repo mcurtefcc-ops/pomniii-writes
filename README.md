@@ -3,6 +3,17 @@
 Publica un texto propio en Instagram, con su tarjeta diseñada, **cuando tú se lo
 pides por Telegram**.
 
+**Cada noche a las 00:00** te llega por Telegram el siguiente poema con dos
+botones:
+
+- **✅ Sí, publícalo**: sale en Instagram.
+- **⏭ No, otro**: ese poema se salta y te propone el siguiente.
+- Si prefieres publicar algo tuyo, **escríbeselo al bot tal cual** (con saltos
+  de línea si son versos): te enseña tu tarjeta con los mismos dos botones.
+
+No se publica nada sin tu Sí. Si una noche no contestas, a la siguiente te
+llega la propuesta nueva y la de ayer queda olvidada.
+
 ```
 le escribes /post al bot
    │

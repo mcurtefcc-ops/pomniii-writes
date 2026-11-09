@@ -72,6 +72,21 @@ def _entorno() -> dict:
     }
 
 
+def _hoy(cfg: dict) -> dt.date:
+    """Fecha de HOY en la zona de la programacion (Madrid), no la del servidor.
+
+    El runner de GitHub va en UTC: a las 00:00 de Madrid alli aun es el dia
+    anterior, y la propuesta de medianoche se apuntaria con la fecha de ayer.
+    """
+    zona = (cfg.get("programacion") or {}).get("zona", "Europe/Madrid")
+    try:
+        from zoneinfo import ZoneInfo
+
+        return dt.datetime.now(ZoneInfo(zona)).date()
+    except Exception:
+        return dt.date.today()
+
+
 def _toca_ahora(cfg: dict) -> tuple[bool, str]:
     """¿Es la hora local de mandar la propuesta?
 
@@ -321,9 +336,37 @@ def cmd_chatid(args) -> int:
     return 0
 
 
+def _proponer(
+    cfg: dict, env: dict, fecha: dt.date, chat: str,
+    item: dict | None = None, nota: str = "",
+) -> dict:
+    """Monta la tarjeta y te la manda por Telegram con los botones Si / No.
+
+    No publica nada: deja la propuesta en data/pendiente.json hasta que
+    contestes. Sin `item` coge el siguiente poema del banco; con `item` propone
+    ese (lo usa el texto que escribes tu). El texto NO se marca como usado aqui.
+    """
+    if item is None:
+        item, _ = elegir()
+    numero = numero_siguiente(cargar_estado())
+    print(f"Propuesta #{numero:04d} · texto {item['id']}: {item['texto'][:60]!r}")
+    pendiente = _preparar(item, cfg, env, fecha, numero)
+    # El item va entero en el pendiente: un texto tuyo no esta en ningun lote y
+    # la publicacion posterior no puede ir a buscarlo al banco.
+    pendiente["item"] = item
+    pendiente["chat_id"] = chat
+    pendiente["message_id"] = telegram.enviar_propuesta(
+        env["tg_token"], chat, pendiente["url"], item,
+        fecha.strftime("%d.%m.%Y"), numero, nota,
+    )
+    guardar_pendiente(pendiente)
+    return pendiente
+
+
 def cmd_proponer(args) -> int:
+    """La propuesta de cada noche: te manda el siguiente poema para que decidas."""
     cfg, env = cargar_config(), _entorno()
-    hoy = dt.date.today()
+    hoy = _hoy(cfg)
 
     if args.respetar_hora and not args.forzar:
         toca, motivo = _toca_ahora(cfg)
@@ -333,30 +376,29 @@ def cmd_proponer(args) -> int:
         if motivo:
             print(f"Hora correcta ({motivo}).")
 
-    if (pendiente := cargar_pendiente()) and not args.forzar:
-        print(f"Ya hay una propuesta sin responder (#{pendiente['id']}). Usa --forzar para reemplazarla.")
-        return 0
-
     estado = cargar_estado()
-    ya_hoy = [h for h in estado.get("historial", []) if h.get("fecha") == hoy.isoformat()]
+    ya_hoy = [
+        h for h in estado.get("historial", [])
+        if h.get("fecha") == hoy.isoformat() and h.get("ig_post_id")
+    ]
     if ya_hoy and not args.forzar:
-        print(f"Hoy ya se publico #{ya_hoy[-1]['id']}. Nada que hacer.")
+        print(f"Hoy ya se publico el post #{ya_hoy[-1].get('numero')}. Nada que proponer.")
         return 0
 
-    item, _ = elegir()
-    numero = numero_siguiente(estado)
-    print(f"Propuesta texto {item['id']} [{item.get('voz')}/{item.get('tipo')}]: {item['texto'][:60]}...")
-    pendiente = _preparar(item, cfg, env, hoy, numero)
+    nota = "Buenas noches. Este es el de hoy:"
+    pendiente = cargar_pendiente()
+    if pendiente and not args.forzar:
+        if pendiente.get("fecha") == hoy.isoformat():
+            # La segunda pasada del cron (en verano caen las dos dentro de la
+            # ventana) no repite la propuesta.
+            print(f"Ya te propuse hoy el texto {pendiente['id']}; esperando respuesta.")
+            return 0
+        # La de un dia anterior se quedo sin contestar: se sustituye por la de
+        # hoy. Como no se marco como usado, si era del banco vuelve a salir.
+        nota = "La de ayer se quedó sin respuesta. Esta es la de hoy:"
 
-    message_id = telegram.enviar_propuesta(
-        env["tg_token"], env["tg_chat"], pendiente["url"], item,
-        hoy.strftime("%d.%m.%Y"), numero,
-    )
-    pendiente["message_id"] = message_id
-    pendiente["chat_id"] = env["tg_chat"]
-    pendiente["salto"] = 0
-    guardar_pendiente(pendiente)
-    print("Enviada a Telegram. Esperando que pulses un boton.")
+    _proponer(cfg, env, hoy, env["tg_chat"], nota=nota)
+    print("Enviada a Telegram. Esperando tu Si o tu No.")
     return 0
 
 
@@ -414,7 +456,7 @@ def cmd_escuchar(args) -> int:
 
 def _atender(args) -> int:
     cfg, env = cargar_config(), _entorno()
-    hoy = dt.date.today()
+    hoy = _hoy(cfg)
     tg = env["tg_token"]
 
     estado = cargar_estado()
@@ -457,8 +499,10 @@ def _atender(args) -> int:
 
 AYUDA = (
     "No conozco esa orden. Las que entiendo:\n\n"
+    "Cada noche a las 00:00 te mando un poema con Sí / No.\n"
+    "Si me escribes un texto tal cual, te enseño cómo quedaría.\n\n"
     "/post — publicar ahora el siguiente texto\n"
-    "/frase tu texto — vista previa de una frase propia para confirmar\n"
+    "/frase tu texto — lo mismo que escribirme el texto directamente\n"
     "/probar — ver la tarjeta sin publicar\n"
     "/saltar — descartar el siguiente sin publicarlo\n"
     "/estado — cuantos textos quedan"
@@ -494,24 +538,32 @@ def _ejecutar_orden(
                 "/frase El silencio tambien es una respuesta.",
             )
             return 0
-        item = {"id": "libre", "voz": "propia", "tipo": "frase", "tema": "libre", "texto": propia}
-        numero = numero_siguiente(cargar_estado())
-        listo = _preparar(item, cfg, env, hoy, numero)
-        # Se guarda el item entero para que la publicacion posterior no dependa
-        # del banco: esta frase no esta en ningun lote.
-        listo["item"] = item
-        listo["chat_id"] = chat
-        guardar_pendiente(listo)
-        telegram.enviar_previsualizacion(
-            tg, chat, listo["url"], item, hoy.strftime("%d.%m.%Y"), numero
-        )
+        # Con saltos de linea es un poema: cada linea es un verso y el ultimo
+        # va resaltado. Sin saltos, una frase.
+        tipo = "poema" if "\n" in propia else "frase"
+        item = {"id": "libre", "voz": "propia", "tipo": tipo, "tema": "libre", "texto": propia}
+        # Sustituye a la propuesta que hubiera. Si era un poema del banco no se
+        # pierde: no se marco como usado y sigue el primero en la cola.
+        _proponer(cfg, env, hoy, chat, item=item, nota="Tu texto, así quedaría:")
 
-    elif orden == "publicar":
+    elif orden == "no":
         pendiente = cargar_pendiente()
         if not pendiente:
-            telegram.enviar_texto(
+            telegram.enviar_teclado(tg, chat, "No hay nada esperando respuesta.")
+            return 0
+        item = pendiente.get("item") or {"id": pendiente["id"], "texto": ""}
+        borrar_pendiente()
+        if item["id"] != "libre":
+            # Se marca como saltado para que no vuelva a salir en esta ronda.
+            marcar_usado(cargar_estado(), item, {"fecha": hoy.isoformat(), "saltado": True})
+        _proponer(cfg, env, hoy, chat, nota="Vale, ese no. ¿Y este?")
+
+    elif orden in ("si", "publicar"):
+        pendiente = cargar_pendiente()
+        if not pendiente:
+            telegram.enviar_teclado(
                 tg, chat,
-                "No hay ninguna frase en vista previa. Manda primero /frase con tu texto.",
+                "No hay nada esperando respuesta. Escríbeme un texto o usa /probar.",
             )
             return 0
         banco = {i["id"]: i for i in cargar_banco()}
@@ -561,7 +613,7 @@ def _ejecutar_orden(
             "No se ha publicado nada.",
         )
         telegram.enviar_publicado(
-            tg, chat, listo["url"], item, numero, hoy.strftime("%d.%m.%Y")
+            tg, chat, listo["url"], item, numero, hoy.strftime("%d.%m.%Y"), borrador=True
         )
 
     elif orden == "saltar":
@@ -598,7 +650,7 @@ def cmd_orden(args) -> int:
         return 0
 
     orden = args.orden.strip().lstrip("/").split("@")[0].split()[0].lower()
-    return _ejecutar_orden(orden, chat, cfg, env, dt.date.today(), args.texto)
+    return _ejecutar_orden(orden, chat, cfg, env, _hoy(cfg), args.texto)
 
 
 def cmd_automatico(args) -> int:
@@ -610,7 +662,7 @@ def cmd_automatico(args) -> int:
     registro y para que notes el dia que algo deje de funcionar.
     """
     cfg, env = cargar_config(), _entorno()
-    hoy = dt.date.today()
+    hoy = _hoy(cfg)
 
     if args.respetar_hora and not args.forzar:
         toca, motivo = _toca_ahora(cfg)
