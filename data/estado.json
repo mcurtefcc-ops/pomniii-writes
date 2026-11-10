@@ -17,7 +17,8 @@
     "libre",
     "libre",
     "libre",
-    "0016"
+    "0016",
+    "0017"
   ],
   "rondas": 0,
   "historial": [
@@ -176,6 +177,12 @@
       "ig_post_id": "18169129144433232",
       "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-11-09_0016.jpg",
       "enlace": "https://www.instagram.com/p/Dfhs4OcFZ93/"
+    },
+    {
+      "id": "0017",
+      "texto": "Hay despedidas que no se dicen.\nSe notan en cómo\nya no preguntas.",
+      "fecha": "2026-11-10",
+      "saltado": true
     }
   ],
   "telegram_offset": 84805326
