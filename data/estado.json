@@ -18,7 +18,8 @@
     "libre",
     "libre",
     "0016",
-    "0017"
+    "0017",
+    "0018"
   ],
   "rondas": 0,
   "historial": [
@@ -183,6 +184,15 @@
       "texto": "Hay despedidas que no se dicen.\nSe notan en cómo\nya no preguntas.",
       "fecha": "2026-11-10",
       "saltado": true
+    },
+    {
+      "id": "0018",
+      "texto": "Hay tardes de domingo\nque huelen a una casa\nque ya no existe.",
+      "fecha": "2026-11-10",
+      "numero": 17,
+      "ig_post_id": "17977362066168757",
+      "url": "https://raw.githubusercontent.com/mcurtefcc-ops/pomniii-writes/main/publicadas/2026-11-10_0018.jpg",
+      "enlace": "https://www.instagram.com/p/DfjZjgUlWci/"
     }
   ],
   "telegram_offset": 84805326
