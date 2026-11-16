@@ -691,6 +691,15 @@
     tic: [[1200, 0.02, "square", 0.04]],
     explosion: [[90, 0.25, "sawtooth", 0.15]]
   };
+  S.tono = function (f, d, tipo) {
+    if (!ac || S.silencio) return;
+    try {
+      const t = ac.currentTime, o = ac.createOscillator(), gn = ac.createGain();
+      o.type = tipo || "triangle"; o.frequency.setValueAtTime(f, t);
+      gn.gain.setValueAtTime(0.15, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + (d || 0.3));
+      o.connect(gn).connect(ac.destination); o.start(t); o.stop(t + (d || 0.3) + 0.02);
+    } catch (e) {}
+  };
   S.sonido = function (n) {
     if (!ac || S.silencio) return;
     const notas = SONIDOS[n];
