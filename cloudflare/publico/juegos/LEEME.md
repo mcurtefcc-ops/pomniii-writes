@@ -7,6 +7,27 @@ del Stick **o con el móvil** como mando por WiFi.
 - Móvil: escanea el QR de la tele, o abre `https://<worker>/juegos/mando.html` y
   escribe el código de sala.
 
+## Publicarlo
+
+Cloudflare despliega el Worker `pomniii-bot` solo cada vez que algo llega a
+`main`. Con eso, el salón queda en `https://pomniii-bot.<cuenta>.workers.dev/juegos/`.
+La primera vez Cloudflare crea también el Durable Object `Sala` (lo pide
+`wrangler.toml`); entra en el plan gratuito.
+
+Para probarlo en local: `npx wrangler dev` y abrir `http://localhost:8787/juegos/`.
+
+## Juegos (42)
+
+- **Mesa:** damas, ajedrez, tres en raya, cuatro en raya, reversi, cinco en
+  raya, mancala, puntos y cajas, palillos, hundir la flota, oca, dominó, parchís.
+- **Física:** billar, carrom, hockey de aire, minigolf, bolos, tanques.
+- **Arcade:** serpientes, tenis de mesa, rompeladrillos, bloques, vuelo, rocas
+  espaciales, defensa espacial.
+- **Puzles:** buscaminas, sudoku, 2048, puzle deslizante, torres de Hanói,
+  Simón, parejas, ahorcado, código secreto, sopa de letras.
+- **Cartas:** veintiuna, siete y media, mayor o menor, solitario.
+- **Fiesta:** concurso de preguntas, ¡pulsa ya!
+
 ## Cómo encaja todo
 
 ```
