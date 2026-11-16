@@ -17,10 +17,19 @@
  *   CHAT_AUTORIZADO   tu id de chat de Telegram
  */
 
+// Sala de juegos para la tele (Silk del Fire TV): /juegos. Ver juegos.html.
+import JUEGOS from "./juegos.html";
+
 const ORDENES = ["post", "probar", "saltar", "estado", "frase", "publicar", "cancelar", "si", "no"];
 
 export default {
   async fetch(peticion, entorno) {
+    const ruta = new URL(peticion.url).pathname.replace(/\/+$/, "");
+    if (peticion.method === "GET" && ruta === "/juegos") {
+      return new Response(JUEGOS, {
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
+      });
+    }
     if (peticion.method !== "POST") {
       // Visitas con el navegador: sirve para comprobar que el Worker esta vivo.
       return new Response("Puente de pomniii.writes activo.", { status: 200 });

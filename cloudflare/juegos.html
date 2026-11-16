@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salón de juegos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #0d0b12;
+    --fondo2: #1b1424;
+    --texto: #f6efe2;
+    --suave: #a79db3;
+    --oro: #e8b85c;
+    --oro2: #ffd98a;
+    --rojo: #e2554b;
+    --verde: #5ccf8f;
+    --panel: rgba(255,255,255,.05);
+    --borde: rgba(255,255,255,.1);
+    --casilla-clara: #ecd9b4;
+    --casilla-oscura: #6d4428;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: Barlow, system-ui, sans-serif; color: var(--texto);
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(232,184,92,.12), transparent 55%),
+      radial-gradient(ellipse at 90% 100%, rgba(226,85,75,.10), transparent 50%),
+      linear-gradient(160deg, var(--fondo2), var(--fondo));
+    font-size: 2.2vh;
+  }
+  h1, h2, .titulo { font-family: "Playfair Display", Georgia, serif; }
+  .pantalla { position: fixed; inset: 0; display: none; }
+  .pantalla.activa { display: flex; }
+
+  /* ---------- Botones navegables con el mando ---------- */
+  .boton {
+    font: inherit; color: var(--texto); background: var(--panel);
+    border: 2px solid var(--borde); border-radius: 1.4vh;
+    padding: 1.6vh 3vh; cursor: pointer; text-align: left;
+    transition: transform .15s, border-color .15s, background .15s, box-shadow .15s;
+  }
+  .boton:focus, .boton.foco {
+    outline: none; border-color: var(--oro); background: rgba(232,184,92,.14);
+    box-shadow: 0 0 0 .5vh rgba(232,184,92,.25), 0 1vh 4vh rgba(0,0,0,.4);
+    transform: scale(1.04);
+  }
+  .boton.principal { background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; font-weight: 700; border-color: transparent; text-align: center; }
+  .boton.principal:focus { box-shadow: 0 0 0 .6vh rgba(255,217,138,.45), 0 1vh 4vh rgba(0,0,0,.5); }
+
+  /* ---------- Inicio ---------- */
+  #inicio { flex-direction: column; align-items: center; justify-content: center; gap: 5vh; }
+  #inicio h1 { font-size: 9vh; letter-spacing: .02em; text-shadow: 0 .6vh 3vh rgba(0,0,0,.5); }
+  #inicio h1 em { color: var(--oro); font-style: italic; }
+  .sub { color: var(--suave); font-size: 2.6vh; margin-top: -3vh; }
+  .juegos { display: flex; gap: 3vw; }
+  .juego { width: 26vw; min-height: 34vh; display: flex; flex-direction: column; gap: 1.2vh; padding: 3vh; }
+  .juego .icono { font-size: 9vh; line-height: 1; filter: drop-shadow(0 .8vh 1.5vh rgba(0,0,0,.5)); }
+  .juego .nombre { font-family: "Playfair Display", serif; font-size: 4vh; font-weight: 700; }
+  .juego .stats { color: var(--suave); font-size: 2vh; line-height: 1.5; }
+  .juego .stats b { color: var(--texto); }
+  .juego.pronto { opacity: .45; }
+  .etiqueta { display: inline-block; font-size: 1.6vh; letter-spacing: .1em; text-transform: uppercase; color: var(--oro); }
+  .ayuda { position: fixed; bottom: 3vh; left: 0; right: 0; text-align: center; color: var(--suave); font-size: 1.9vh; }
+
+  /* ---------- Configuración ---------- */
+  #config { flex-direction: column; align-items: center; justify-content: center; gap: 2vh; }
+  #config h2 { font-size: 6vh; margin-bottom: 2vh; }
+  .opcion { width: 46vw; display: flex; justify-content: space-between; align-items: center; font-size: 2.6vh; }
+  .opcion .valor { color: var(--oro); font-weight: 700; }
+  .opcion .valor::before { content: "◀  "; opacity: .5; font-size: .8em; }
+  .opcion .valor::after { content: "  ▶"; opacity: .5; font-size: .8em; }
+  #config .principal { width: 46vw; margin-top: 2vh; font-size: 3vh; }
+
+  /* ---------- Partida ---------- */
+  #partida { align-items: center; justify-content: center; gap: 4vw; }
+  .marco {
+    padding: 2.2vh; border-radius: 1.6vh;
+    background: linear-gradient(145deg, #4a2a16, #2a170b 60%, #3a2111);
+    box-shadow: 0 3vh 8vh rgba(0,0,0,.65), inset 0 0 0 .3vh rgba(255,217,138,.25), inset 0 .4vh 1vh rgba(255,255,255,.08);
+  }
+  .tablero { position: relative; width: 86vh; height: 86vh; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); border-radius: .6vh; overflow: hidden; }
+  .casilla { position: relative; cursor: pointer; }
+  .casilla.clara { background: linear-gradient(135deg, #f3e3c3, var(--casilla-clara)); }
+  .casilla.oscura { background: linear-gradient(135deg, #7a4d2e, var(--casilla-oscura) 60%, #5e3a22); }
+  .casilla.ultimo::after { content: ""; position: absolute; inset: 0; background: rgba(232,184,92,.22); }
+  .casilla.destino::before {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 28%; height: 28%;
+    transform: translate(-50%,-50%); border-radius: 50%;
+    background: radial-gradient(circle, rgba(92,207,143,.95), rgba(92,207,143,.35));
+    box-shadow: 0 0 2vh rgba(92,207,143,.8); animation: latido 1.2s ease-in-out infinite;
+  }
+  .casilla.puede::after { content: ""; position: absolute; inset: 6%; border-radius: 50%; box-shadow: 0 0 0 .35vh rgba(92,207,143,.55); }
+  @keyframes latido { 50% { transform: translate(-50%,-50%) scale(1.25); } }
+  .cursor {
+    position: absolute; width: 12.5%; height: 12.5%; pointer-events: none; z-index: 5;
+    border-radius: .6vh; box-shadow: inset 0 0 0 .55vh var(--oro2), 0 0 3vh rgba(255,217,138,.7);
+    transition: transform .14s ease-out;
+  }
+  .ficha {
+    position: absolute; width: 12.5%; height: 12.5%; z-index: 3; pointer-events: none;
+    transition: transform .2s cubic-bezier(.3,.7,.3,1), opacity .35s, filter .3s;
+  }
+  .ficha .disco {
+    position: absolute; inset: 11%; border-radius: 50%;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .ficha.blanca .disco {
+    background: radial-gradient(circle at 35% 30%, #fffdf7, #efe3cb 45%, #c9b48d 100%);
+    box-shadow: 0 .7vh 0 #a8926b, 0 1.2vh 1.6vh rgba(0,0,0,.5), inset 0 0 0 .6vh rgba(255,255,255,.35), inset 0 0 0 1.1vh rgba(168,146,107,.35);
+  }
+  .ficha.negra .disco {
+    background: radial-gradient(circle at 35% 30%, #6a5a6e, #2a2130 50%, #120d16 100%);
+    box-shadow: 0 .7vh 0 #08060a, 0 1.2vh 1.6vh rgba(0,0,0,.6), inset 0 0 0 .6vh rgba(255,255,255,.08), inset 0 0 0 1.1vh rgba(0,0,0,.35);
+  }
+  .ficha.dama .disco::after {
+    content: "♛"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 5.2vh; color: var(--oro); text-shadow: 0 .2vh 0 #7a5418, 0 0 1.5vh rgba(255,217,138,.8);
+  }
+  .ficha.elegida .disco { transform: translateY(-.8vh) scale(1.08); box-shadow: 0 1.6vh 2.4vh rgba(0,0,0,.55), 0 0 0 .5vh var(--verde), 0 0 3vh rgba(92,207,143,.8); }
+  .ficha.comida { opacity: 0; filter: blur(.6vh); }
+  .ficha.comida .disco { transform: scale(.4); }
+  .ficha.corona .disco { animation: corona .7s ease; }
+  @keyframes corona { 40% { transform: scale(1.3); box-shadow: 0 0 6vh var(--oro2); } }
+
+  .lateral { width: 30vw; display: flex; flex-direction: column; gap: 2.4vh; }
+  .lateral h2 { font-size: 5vh; }
+  .jugador { display: flex; align-items: center; gap: 2vh; padding: 2vh 2.4vh; border-radius: 1.4vh; background: var(--panel); border: 2px solid var(--borde); transition: border-color .3s, box-shadow .3s; }
+  .jugador.turno { border-color: var(--oro); box-shadow: 0 0 3vh rgba(232,184,92,.25); }
+  .jugador .mini { width: 5vh; height: 5vh; border-radius: 50%; flex: none; }
+  .jugador .mini.blanca { background: radial-gradient(circle at 35% 30%, #fffdf7, #c9b48d); }
+  .jugador .mini.negra { background: radial-gradient(circle at 35% 30%, #6a5a6e, #120d16); box-shadow: inset 0 0 0 .2vh rgba(255,255,255,.15); }
+  .jugador .quien { font-size: 2.8vh; font-weight: 700; }
+  .jugador .detalle { color: var(--suave); font-size: 2vh; }
+  .jugador .piezas { margin-left: auto; font-size: 4.4vh; font-weight: 700; font-family: "Playfair Display", serif; }
+  .estado { min-height: 3.4vh; font-size: 2.6vh; color: var(--oro2); }
+  .pensando::after { content: ""; display: inline-block; width: 1.2em; text-align: left; animation: puntos 1.2s steps(4) infinite; }
+  @keyframes puntos { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+  .marcador { display: flex; gap: 1.4vh; }
+  .marcador div { flex: 1; text-align: center; padding: 1.4vh; border-radius: 1.2vh; background: var(--panel); }
+  .marcador b { display: block; font-size: 4vh; font-family: "Playfair Display", serif; }
+  .marcador span { color: var(--suave); font-size: 1.7vh; text-transform: uppercase; letter-spacing: .08em; }
+  .lateral .teclas { color: var(--suave); font-size: 1.8vh; line-height: 1.7; }
+
+  /* ---------- Fin de partida ---------- */
+  .velo { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(8,6,12,.75); backdrop-filter: blur(.6vh); z-index: 20; }
+  .velo.activa { display: flex; }
+  .caja { text-align: center; padding: 6vh 7vw; border-radius: 2.4vh; background: linear-gradient(160deg, #2a2034, #15101b); border: 2px solid rgba(232,184,92,.4); box-shadow: 0 4vh 10vh rgba(0,0,0,.6); animation: entra .5s cubic-bezier(.2,1.4,.4,1); }
+  @keyframes entra { from { transform: scale(.8); opacity: 0; } }
+  .caja .grande { font-size: 10vh; line-height: 1.1; }
+  .caja h2 { font-size: 6vh; margin: 1vh 0; }
+  .caja p { color: var(--suave); font-size: 2.4vh; margin-bottom: 4vh; }
+  .caja .fila { display: flex; gap: 2vw; justify-content: center; }
+  .caja .boton { min-width: 18vw; text-align: center; }
+  canvas#confeti { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+</style>
+</head>
+<body>
+
+<!-- ===== Inicio ===== -->
+<section class="pantalla activa" id="inicio">
+  <h1>Salón de <em>juegos</em></h1>
+  <div class="sub">Coge el mando y elige</div>
+  <div class="juegos">
+    <button class="boton juego" data-nav data-juego="damas">
+      <span class="icono">⛀</span>
+      <span class="etiqueta">Clásico</span>
+      <span class="nombre">Damas</span>
+      <span class="stats" id="statsDamas"></span>
+    </button>
+    <button class="boton juego pronto" data-nav data-pronto="Ajedrez">
+      <span class="icono">♞</span>
+      <span class="etiqueta">Muy pronto</span>
+      <span class="nombre">Ajedrez</span>
+      <span class="stats">En preparación</span>
+    </button>
+    <button class="boton juego pronto" data-nav data-pronto="Cuatro en raya">
+      <span class="icono">◉</span>
+      <span class="etiqueta">Muy pronto</span>
+      <span class="nombre">Cuatro en raya</span>
+      <span class="stats">En preparación</span>
+    </button>
+  </div>
+  <div class="ayuda">◀ ▶ moverte · OK elegir</div>
+</section>
+
+<!-- ===== Configuración ===== -->
+<section class="pantalla" id="config">
+  <h2>Damas</h2>
+  <button class="boton opcion" data-nav data-opcion="modo"><span>Modo</span><span class="valor"></span></button>
+  <button class="boton opcion" data-nav data-opcion="nivel"><span>Nivel de la máquina</span><span class="valor"></span></button>
+  <button class="boton opcion" data-nav data-opcion="color"><span>Juegas con</span><span class="valor"></span></button>
+  <button class="boton principal" data-nav id="jugar">Jugar</button>
+  <div class="ayuda">▲ ▼ moverte · ◀ ▶ u OK cambiar · Atrás volver</div>
+</section>
+
+<!-- ===== Partida ===== -->
+<section class="pantalla" id="partida">
+  <div class="marco"><div class="tablero" id="tablero"><div class="cursor" id="cursor"></div></div></div>
+  <div class="lateral">
+    <h2>Damas</h2>
+    <div class="jugador" id="jugNegras"><div class="mini negra"></div><div><div class="quien"></div><div class="detalle">Oscuras</div></div><div class="piezas">12</div></div>
+    <div class="jugador" id="jugBlancas"><div class="mini blanca"></div><div><div class="quien"></div><div class="detalle">Claras · empiezan</div></div><div class="piezas">12</div></div>
+    <div class="estado" id="estado"></div>
+    <div class="marcador" id="marcador"></div>
+    <div class="teclas">◀ ▲ ▼ ▶ mover · OK elegir ficha y casilla<br>Atrás: menú · Comer es obligatorio, y siempre la jugada que más fichas come</div>
+  </div>
+</section>
+
+<!-- ===== Fin / pausa ===== -->
+<div class="velo" id="velo">
+  <div class="caja">
+    <div class="grande" id="finIcono"></div>
+    <h2 id="finTitulo"></h2>
+    <p id="finTexto"></p>
+    <div class="fila" id="finBotones"></div>
+  </div>
+</div>
+<canvas id="confeti"></canvas>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ================= Marcador guardado =================
+  // Se guarda en el navegador de la tele: sobrevive a apagarla y a cerrar Silk.
+  var CLAVE = "salon-juegos.v1";
+  function leerStats() {
+    try { return JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch (e) { return {}; }
+  }
+  function guardarStats(s) { try { localStorage.setItem(CLAVE, JSON.stringify(s)); } catch (e) {} }
+  function statsDamas() {
+    var s = leerStats();
+    s.damas = s.damas || { ganadas: 0, perdidas: 0, tablas: 0, racha: 0, mejorRacha: 0, aDos: 0, porNivel: {} };
+    return s;
+  }
+
+  // ================= Navegación con el mando =================
+  function pantallaActiva() { return document.querySelector(".pantalla.activa"); }
+  function navegables() {
+    var cont = $("velo").classList.contains("activa") ? $("velo") : pantallaActiva();
+    return Array.prototype.slice.call(cont.querySelectorAll("[data-nav]"));
+  }
+  function moverFoco(dx, dy) {
+    var lista = navegables(); if (!lista.length) return;
+    var actual = document.activeElement;
+    if (lista.indexOf(actual) < 0) { lista[0].focus(); return; }
+    var a = actual.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+    var mejor = null, mejorD = Infinity;
+    lista.forEach(function (el) {
+      if (el === actual) return;
+      var b = el.getBoundingClientRect(), bx = b.left + b.width / 2, by = b.top + b.height / 2;
+      var vx = bx - ax, vy = by - ay;
+      if (dx && Math.sign(vx) !== dx) return;
+      if (dy && Math.sign(vy) !== dy) return;
+      var d = dx ? Math.abs(vx) + Math.abs(vy) * 3 : Math.abs(vy) + Math.abs(vx) * 3;
+      if (d < mejorD) { mejorD = d; mejor = el; }
+    });
+    if (mejor) mejor.focus();
+  }
+  function mostrar(id) {
+    document.querySelectorAll(".pantalla").forEach(function (p) { p.classList.toggle("activa", p.id === id); });
+    var lista = navegables(); if (lista.length) lista[0].focus();
+  }
+
+  // ================= Inicio =================
+  function pintarInicio() {
+    var d = statsDamas().damas;
+    var total = d.ganadas + d.perdidas + d.tablas;
+    $("statsDamas").innerHTML = total || d.aDos
+      ? "Ganadas <b>" + d.ganadas + "</b> · Perdidas <b>" + d.perdidas + "</b> · Tablas <b>" + d.tablas + "</b><br>Mejor racha <b>" + d.mejorRacha + "</b>" + (d.aDos ? " · A dos <b>" + d.aDos + "</b>" : "")
+      : "Aún sin partidas. ¡Estrénalo!";
+  }
+  document.querySelectorAll("[data-juego]").forEach(function (b) {
+    b.addEventListener("click", function () { abrirConfig(); });
+  });
+  document.querySelectorAll("[data-pronto]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      dialogo("🛠", b.getAttribute("data-pronto"), "Lo estamos preparando. Muy pronto en tu salón.", [["Vale", cerrarDialogo]]);
+    });
+  });
+
+  // ================= Configuración =================
+  var OPCIONES = {
+    modo: [["maquina", "Contra la máquina"], ["dos", "Dos jugadores"]],
+    nivel: [["1", "Fácil"], ["2", "Medio"], ["3", "Difícil"]],
+    color: [["blancas", "Claras (empiezas tú)"], ["negras", "Oscuras"]]
+  };
+  var config = (function () {
+    try { return JSON.parse(localStorage.getItem(CLAVE + ".config")) || null; } catch (e) { return null; }
+  })() || { modo: "maquina", nivel: "2", color: "blancas" };
+  function pintarConfig() {
+    document.querySelectorAll("[data-opcion]").forEach(function (b) {
+      var k = b.getAttribute("data-opcion");
+      var v = OPCIONES[k].filter(function (o) { return o[0] === config[k]; })[0];
+      b.querySelector(".valor").textContent = v[1];
+      b.style.display = (k !== "modo" && config.modo === "dos") ? "none" : "";
+    });
+    try { localStorage.setItem(CLAVE + ".config", JSON.stringify(config)); } catch (e) {}
+  }
+  function cambiarOpcion(b, paso) {
+    var k = b.getAttribute("data-opcion"), ops = OPCIONES[k];
+    var i = ops.map(function (o) { return o[0]; }).indexOf(config[k]);
+    config[k] = ops[(i + paso + ops.length) % ops.length][0];
+    pintarConfig();
+  }
+  document.querySelectorAll("[data-opcion]").forEach(function (b) {
+    b.addEventListener("click", function () { cambiarOpcion(b, 1); });
+  });
+  function abrirConfig() { pintarConfig(); mostrar("config"); }
+  $("jugar").addEventListener("click", function () { nuevaPartida(); });
+
+  // ================= Reglas de las damas (españolas) =================
+  // Tablero 8x8. 1 = peón claro, 2 = dama clara, -1 = peón oscuro, -2 = dama oscura.
+  // Claras abajo, suben (fila decreciente) y empiezan. Peones mueven y comen solo
+  // hacia delante. Las damas vuelan. Comer es obligatorio y hay que elegir la
+  // jugada que más fichas come.
+  var DIRS = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+  function dentro(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+  function tableroInicial() {
+    var t = [];
+    for (var r = 0; r < 8; r++) {
+      t.push([]);
+      for (var c = 0; c < 8; c++) {
+        var oscura = (r + c) % 2 === 1;
+        t[r].push(oscura && r < 3 ? -1 : oscura && r > 4 ? 1 : 0);
+      }
+    }
+    return t;
+  }
+  function copiar(t) { return t.map(function (f) { return f.slice(); }); }
+
+  function capturasDesde(t, r0, c0, pieza) {
+    var lado = Math.sign(pieza), dama = Math.abs(pieza) === 2, salida = [];
+    var avance = lado === 1 ? -1 : 1;
+    t[r0][c0] = 0; // la ficha que se mueve no estorba
+    (function buscar(r, c, camino, comidas) {
+      var siguio = false;
+      DIRS.forEach(function (d) {
+        if (!dama && d[0] !== avance) return;
+        var i = 1, rr = r + d[0], cc = c + d[1];
+        if (dama) while (dentro(rr, cc) && t[rr][cc] === 0) { i++; rr = r + d[0] * i; cc = c + d[1] * i; }
+        if (!dentro(rr, cc)) return;
+        var v = t[rr][cc];
+        if (Math.sign(v) !== -lado) return;
+        if (comidas.some(function (p) { return p[0] === rr && p[1] === cc; })) return;
+        var j = 1, lr = rr + d[0], lc = cc + d[1];
+        while (dentro(lr, lc) && t[lr][lc] === 0) {
+          siguio = true;
+          buscar(lr, lc, camino.concat([[lr, lc]]), comidas.concat([[rr, cc]]));
+          if (!dama) break;
+          j++; lr = rr + d[0] * j; lc = cc + d[1] * j;
+        }
+      });
+      if (!siguio && comidas.length) salida.push({ de: [r0, c0], camino: camino, comidas: comidas });
+    })(r0, c0, [], []);
+    t[r0][c0] = pieza;
+    return salida;
+  }
+
+  function jugadas(t, lado) {
+    var comer = [], simples = [], r, c;
+    for (r = 0; r < 8; r++) for (c = 0; c < 8; c++) {
+      var p = t[r][c];
+      if (Math.sign(p) !== lado) continue;
+      comer = comer.concat(capturasDesde(t, r, c, p));
+    }
+    if (comer.length) {
+      var max = Math.max.apply(null, comer.map(function (j) { return j.comidas.length; }));
+      return comer.filter(function (j) { return j.comidas.length === max; });
+    }
+    var avance = lado === 1 ? -1 : 1;
+    for (r = 0; r < 8; r++) for (c = 0; c < 8; c++) {
+      var q = t[r][c];
+      if (Math.sign(q) !== lado) continue;
+      var dama = Math.abs(q) === 2;
+      DIRS.forEach(function (d) {
+        if (!dama && d[0] !== avance) return;
+        var rr = r + d[0], cc = c + d[1];
+        while (dentro(rr, cc) && t[rr][cc] === 0) {
+          simples.push({ de: [r, c], camino: [[rr, cc]], comidas: [] });
+          if (!dama) break;
+          rr += d[0]; cc += d[1];
+        }
+      });
+    }
+    return simples;
+  }
+
+  function aplicar(t, j) {
+    var n = copiar(t), p = n[j.de[0]][j.de[1]], fin = j.camino[j.camino.length - 1];
+    n[j.de[0]][j.de[1]] = 0;
+    j.comidas.forEach(function (x) { n[x[0]][x[1]] = 0; });
+    if (p === 1 && fin[0] === 0) p = 2;
+    if (p === -1 && fin[0] === 7) p = -2;
+    n[fin[0]][fin[1]] = p;
+    return n;
+  }
+
+  // ================= La máquina =================
+  function valorar(t) {
+    var v = 0;
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var p = t[r][c]; if (!p) continue;
+      var centro = (c >= 2 && c <= 5 && r >= 2 && r <= 5) ? 6 : 0;
+      if (p === 1) v += 100 + (7 - r) * 5 + centro + (r === 7 ? 8 : 0);
+      else if (p === -1) v -= 100 + r * 5 + centro + (r === 0 ? 8 : 0);
+      else if (p === 2) v += 320;
+      else v -= 320;
+    }
+    return v;
+  }
+  function negamax(t, lado, prof, alfa, beta, ply) {
+    var js = jugadas(t, lado);
+    if (!js.length) return -100000 + ply;
+    if (prof <= 0 && (!js[0].comidas.length || ply > 14)) return lado * valorar(t);
+    var mejor = -Infinity;
+    for (var i = 0; i < js.length; i++) {
+      var v = -negamax(aplicar(t, js[i]), -lado, prof - 1, -beta, -alfa, ply + 1);
+      if (v > mejor) mejor = v;
+      if (v > alfa) alfa = v;
+      if (alfa >= beta) break;
+    }
+    return mejor;
+  }
+  function jugadaMaquina(t, lado, nivel) {
+    var js = jugadas(t, lado);
+    if (js.length === 1) return js[0];
+    var prof = nivel === "1" ? 1 : nivel === "2" ? 3 : 5;
+    var notas = js.map(function (j) {
+      return { j: j, v: -negamax(aplicar(t, j), -lado, prof - 1, -Infinity, Infinity, 1) };
+    });
+    // En fácil se equivoca a propósito de vez en cuando.
+    var margen = nivel === "1" ? 140 : nivel === "2" ? 8 : 0;
+    var top = Math.max.apply(null, notas.map(function (n) { return n.v; }));
+    var buenas = notas.filter(function (n) { return n.v >= top - margen; });
+    return buenas[Math.floor(Math.random() * buenas.length)].j;
+  }
+
+  // ================= Partida =================
+  var P = null; // estado de la partida
+  var casillas = [], fichasEl = {};
+
+  function construirTablero() {
+    var tab = $("tablero");
+    if (casillas.length) return;
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var d = document.createElement("div");
+      d.className = "casilla " + ((r + c) % 2 ? "oscura" : "clara");
+      d.dataset.r = r; d.dataset.c = c;
+      d.addEventListener("click", (function (r, c) { return function () { P && (P.cursor = [r, c], pulsar()); }; })(r, c));
+      tab.appendChild(d); casillas.push(d);
+    }
+  }
+  function casilla(r, c) { return casillas[r * 8 + c]; }
+  function pos(el, r, c) { el.style.transform = "translate(" + (c * 100) + "%," + (r * 100) + "%)"; }
+
+  function nuevaPartida() {
+    construirTablero();
+    Object.keys(fichasEl).forEach(function (k) { fichasEl[k].remove(); });
+    fichasEl = {};
+    var t = tableroInicial(), id = 0;
+    var ids = [];
+    for (var r = 0; r < 8; r++) { ids.push([]); for (var c = 0; c < 8; c++) {
+      ids[r].push(null);
+      if (t[r][c]) {
+        var f = document.createElement("div");
+        f.className = "ficha " + (t[r][c] > 0 ? "blanca" : "negra");
+        f.innerHTML = '<div class="disco"></div>';
+        pos(f, r, c); $("tablero").appendChild(f);
+        fichasEl[id] = f; ids[r][c] = id; id++;
+      }
+    } }
+    var humano = config.modo === "dos" ? 0 : (config.color === "blancas" ? 1 : -1);
+    P = { t: t, ids: ids, turno: 1, humano: humano, elegida: null, cursor: humano === -1 ? [2, 1] : [5, 0],
+          bloqueado: false, sinCambio: 0, ultimo: null, fin: false };
+    var nombreNivel = OPCIONES.nivel.filter(function (o) { return o[0] === config.nivel; })[0][1];
+    $("jugBlancas").querySelector(".quien").textContent = humano === 0 ? "Jugador 1" : humano === 1 ? "Tú" : "Máquina · " + nombreNivel;
+    $("jugNegras").querySelector(".quien").textContent = humano === 0 ? "Jugador 2" : humano === -1 ? "Tú" : "Máquina · " + nombreNivel;
+    mostrar("partida");
+    document.activeElement && document.activeElement.blur();
+    pintarMarcador();
+    refrescar();
+    try { history.pushState({ partida: 1 }, ""); } catch (e) {}
+    siguienteTurno();
+  }
+
+  function contar(lado) {
+    var n = 0; P.t.forEach(function (f) { f.forEach(function (v) { if (Math.sign(v) === lado) n++; }); }); return n;
+  }
+
+  function refrescar() {
+    var js = P.fin || P.bloqueado || !esHumano() ? [] : jugadas(P.t, P.turno);
+    casillas.forEach(function (el) { el.classList.remove("destino", "puede", "ultimo"); });
+    if (P.ultimo) P.ultimo.forEach(function (x) { casilla(x[0], x[1]).classList.add("ultimo"); });
+    if (P.elegida) {
+      js.filter(function (j) { return j.de[0] === P.elegida[0] && j.de[1] === P.elegida[1]; })
+        .forEach(function (j) { var f = j.camino[j.camino.length - 1]; casilla(f[0], f[1]).classList.add("destino"); });
+    } else {
+      js.forEach(function (j) { casilla(j.de[0], j.de[1]).classList.add("puede"); });
+    }
+    Object.keys(fichasEl).forEach(function (k) { fichasEl[k].classList.remove("elegida"); });
+    if (P.elegida) { var id = P.ids[P.elegida[0]][P.elegida[1]]; if (id !== null) fichasEl[id].classList.add("elegida"); }
+    pos($("cursor"), P.cursor[0], P.cursor[1]);
+    $("cursor").style.display = esHumano() && !P.fin ? "" : "none";
+    $("jugBlancas").classList.toggle("turno", P.turno === 1 && !P.fin);
+    $("jugNegras").classList.toggle("turno", P.turno === -1 && !P.fin);
+    $("jugBlancas").querySelector(".piezas").textContent = contar(1);
+    $("jugNegras").querySelector(".piezas").textContent = contar(-1);
+  }
+
+  function esHumano() { return P && (P.humano === 0 || P.humano === P.turno); }
+
+  function siguienteTurno() {
+    var js = jugadas(P.t, P.turno);
+    if (!js.length) return terminar(-P.turno);
+    if (P.sinCambio >= 50) return terminar(0);
+    var obligada = js[0].comidas.length;
+    var nombre = P.turno === 1 ? "claras" : "oscuras";
+    if (esHumano()) {
+      $("estado").className = "estado";
+      $("estado").textContent = (P.humano === 0 ? "Turno de las " + nombre : "Tu turno") +
+        (obligada ? " · ¡hay que comer" + (obligada > 1 ? " " + obligada + " fichas" : "") + "!" : "");
+      refrescar();
+    } else {
+      $("estado").className = "estado pensando";
+      $("estado").textContent = "La máquina piensa";
+      P.bloqueado = true; refrescar();
+      var inicio = Date.now();
+      setTimeout(function () {
+        var j = jugadaMaquina(P.t, P.turno, config.nivel);
+        setTimeout(function () { animar(j); }, Math.max(0, 650 - (Date.now() - inicio)));
+      }, 60);
+    }
+  }
+
+  function animar(j) {
+    P.bloqueado = true; P.elegida = null; refrescar();
+    var id = P.ids[j.de[0]][j.de[1]], el = fichasEl[id];
+    var p0 = P.t[j.de[0]][j.de[1]];
+    el.style.zIndex = 4;
+    var pasos = j.camino.slice(), k = 0;
+    (function paso() {
+      if (k < pasos.length) {
+        pos(el, pasos[k][0], pasos[k][1]);
+        if (j.comidas[k]) {
+          var cid = P.ids[j.comidas[k][0]][j.comidas[k][1]];
+          setTimeout(function () { fichasEl[cid].classList.add("comida"); }, 140);
+        }
+        k++; setTimeout(paso, 240);
+        return;
+      }
+      el.style.zIndex = "";
+      var fin = pasos[pasos.length - 1];
+      P.ids[j.de[0]][j.de[1]] = null;
+      j.comidas.forEach(function (x) { var cid = P.ids[x[0]][x[1]]; fichasEl[cid].remove(); delete fichasEl[cid]; P.ids[x[0]][x[1]] = null; });
+      P.ids[fin[0]][fin[1]] = id;
+      P.t = aplicar(P.t, j);
+      if (Math.abs(P.t[fin[0]][fin[1]]) === 2 && Math.abs(p0) === 1) {
+        el.classList.add("dama", "corona");
+        setTimeout(function () { el.classList.remove("corona"); }, 800);
+      }
+      P.sinCambio = (j.comidas.length || Math.abs(p0) === 1) ? 0 : P.sinCambio + 1;
+      P.ultimo = [j.de, fin];
+      if (esHumano()) P.cursor = fin.slice(); // el cursor se queda donde movio la persona
+      P.turno = -P.turno; P.bloqueado = false;
+      siguienteTurno();
+    })();
+  }
+
+  function pulsar() {
+    if (!P || P.fin || P.bloqueado || !esHumano()) return;
+    var r = P.cursor[0], c = P.cursor[1];
+    var js = jugadas(P.t, P.turno);
+    if (P.elegida) {
+      var j = js.filter(function (j) {
+        var f = j.camino[j.camino.length - 1];
+        return j.de[0] === P.elegida[0] && j.de[1] === P.elegida[1] && f[0] === r && f[1] === c;
+      })[0];
+      if (j) return animar(j);
+    }
+    var propia = js.some(function (j) { return j.de[0] === r && j.de[1] === c; });
+    if (propia) P.elegida = [r, c];
+    else if (Math.sign(P.t[r][c]) === P.turno) {
+      $("estado").textContent = js[0].comidas.length ? "Esa no: ¡estás obligado a comer!" : "Esa ficha no puede moverse";
+      P.elegida = null;
+    } else P.elegida = null;
+    refrescar();
+  }
+
+  function moverCursor(dr, dc) {
+    if (!P || P.fin) return;
+    P.cursor = [Math.min(7, Math.max(0, P.cursor[0] + dr)), Math.min(7, Math.max(0, P.cursor[1] + dc))];
+    refrescar();
+  }
+
+  function pintarMarcador() {
+    var d = statsDamas().damas;
+    $("marcador").innerHTML = P && P.humano === 0
+      ? "<div><b>" + d.aDos + "</b><span>Partidas a dos</span></div>"
+      : "<div><b>" + d.ganadas + "</b><span>Ganadas</span></div><div><b>" + d.perdidas + "</b><span>Perdidas</span></div><div><b>" + d.racha + "</b><span>Racha</span></div>";
+  }
+
+  function terminar(ganador) {
+    P.fin = true; refrescar();
+    $("estado").className = "estado"; $("estado").textContent = "";
+    var s = statsDamas(), d = s.damas, icono, titulo, texto;
+    if (P.humano === 0) {
+      d.aDos++;
+      icono = ganador ? "🏆" : "🤝";
+      titulo = ganador === 1 ? "¡Ganan las claras!" : ganador === -1 ? "¡Ganan las oscuras!" : "Tablas";
+      texto = ganador ? "Buena partida para los dos." : "Nadie ha podido con nadie.";
+      if (ganador) confeti();
+    } else if (ganador === P.humano) {
+      d.ganadas++; d.racha++; d.mejorRacha = Math.max(d.mejorRacha, d.racha);
+      d.porNivel[config.nivel] = (d.porNivel[config.nivel] || 0) + 1;
+      icono = "🏆"; titulo = "¡Has ganado!";
+      texto = "Racha de " + d.racha + (d.racha === 1 ? " victoria" : " victorias") + (d.racha === d.mejorRacha && d.racha > 1 ? " · ¡tu mejor racha!" : "");
+      confeti();
+    } else if (ganador === 0) {
+      d.tablas++; icono = "🤝"; titulo = "Tablas"; texto = "Demasiados movimientos sin comer. Empate.";
+    } else {
+      d.perdidas++; d.racha = 0; icono = "😤"; titulo = "Ha ganado la máquina"; texto = "La revancha te está esperando.";
+    }
+    guardarStats(s); pintarMarcador();
+    setTimeout(function () {
+      dialogo(icono, titulo, texto, [["Otra partida", function () { cerrarDialogo(); nuevaPartida(); }], ["Menú", function () { cerrarDialogo(); volverInicio(); }]]);
+    }, 700);
+  }
+
+  function volverInicio() { P = null; pintarInicio(); mostrar("inicio"); }
+
+  // ================= Diálogos =================
+  function dialogo(icono, titulo, texto, botones) {
+    $("finIcono").textContent = icono; $("finTitulo").textContent = titulo; $("finTexto").textContent = texto;
+    var fila = $("finBotones"); fila.innerHTML = "";
+    botones.forEach(function (b, i) {
+      var el = document.createElement("button");
+      el.className = "boton" + (i === 0 ? " principal" : ""); el.setAttribute("data-nav", "");
+      el.textContent = b[0]; el.addEventListener("click", b[1]); fila.appendChild(el);
+    });
+    $("velo").classList.add("activa");
+    fila.firstChild.focus();
+  }
+  function cerrarDialogo() { $("velo").classList.remove("activa"); }
+  function menuPartida() {
+    if (!P || P.fin) return;
+    dialogo("⏸", "Pausa", "¿Qué quieres hacer?", [
+      ["Seguir jugando", function () { cerrarDialogo(); try { history.pushState({ partida: 1 }, ""); } catch (e) {} }],
+      ["Empezar de nuevo", function () { cerrarDialogo(); nuevaPartida(); }],
+      ["Salir al menú", function () { cerrarDialogo(); volverInicio(); }]
+    ]);
+  }
+
+  // ================= Confeti =================
+  function confeti() {
+    var cv = $("confeti"), cx = cv.getContext("2d");
+    cv.width = innerWidth; cv.height = innerHeight;
+    var colores = ["#e8b85c", "#ffd98a", "#e2554b", "#5ccf8f", "#f6efe2", "#8fb8ff"];
+    var ps = [];
+    for (var i = 0; i < 180; i++) ps.push({
+      x: Math.random() * cv.width, y: -Math.random() * cv.height * .6,
+      vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4,
+      r: 5 + Math.random() * 8, a: Math.random() * 6, va: (Math.random() - .5) * .3,
+      c: colores[i % colores.length]
+    });
+    var t0 = Date.now();
+    (function frame() {
+      cx.clearRect(0, 0, cv.width, cv.height);
+      ps.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.a += p.va; p.vy += .03;
+        cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a); cx.fillStyle = p.c;
+        cx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); cx.restore();
+      });
+      if (Date.now() - t0 < 4500) requestAnimationFrame(frame); else cx.clearRect(0, 0, cv.width, cv.height);
+    })();
+  }
+
+  // ================= Teclas del mando =================
+  document.addEventListener("keydown", function (e) {
+    var k = e.key, kc = e.keyCode;
+    var izq = k === "ArrowLeft" || kc === 37, der = k === "ArrowRight" || kc === 39;
+    var arr = k === "ArrowUp" || kc === 38, abj = k === "ArrowDown" || kc === 40;
+    var ok = k === "Enter" || kc === 13 || k === " ";
+    var atras = k === "Escape" || k === "Backspace" || k === "GoBack" || kc === 27 || kc === 8;
+    var enDialogo = $("velo").classList.contains("activa");
+    var enPartida = pantallaActiva().id === "partida" && !enDialogo;
+
+    if (enPartida) {
+      if (izq) moverCursor(0, -1); else if (der) moverCursor(0, 1);
+      else if (arr) moverCursor(-1, 0); else if (abj) moverCursor(1, 0);
+      else if (ok) pulsar();
+      else if (atras) menuPartida();
+      else return;
+      e.preventDefault(); return;
+    }
+    if (!enDialogo && pantallaActiva().id === "config" && (izq || der) && document.activeElement && document.activeElement.hasAttribute("data-opcion")) {
+      cambiarOpcion(document.activeElement, der ? 1 : -1); e.preventDefault(); return;
+    }
+    if (izq) moverFoco(-1, 0); else if (der) moverFoco(1, 0);
+    else if (arr) moverFoco(0, -1); else if (abj) moverFoco(0, 1);
+    else if (atras && !enDialogo && pantallaActiva().id === "config") volverInicio();
+    else return;
+    e.preventDefault();
+  });
+  // El botón Atrás del mando en Silk navega hacia atrás: dentro de una partida
+  // lo convertimos en "pausa" en vez de salir de la página.
+  window.addEventListener("popstate", function () {
+    if (P && !P.fin && pantallaActiva().id === "partida") menuPartida();
+  });
+
+  pintarInicio();
+  mostrar("inicio");
+})();
+</script>
+</body>
+</html>

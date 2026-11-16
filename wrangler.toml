@@ -19,6 +19,12 @@ compatibility_date = "2026-01-01"
 # https gratuita del tipo pomniii-bot.<cuenta>.workers.dev
 workers_dev = true
 
+# Permite importar juegos.html como texto desde el Worker (sala de juegos en /juegos).
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
 [vars]
 GITHUB_REPO = "mcurtefcc-ops/pomniii-writes"
 CHAT_AUTORIZADO = "8179045821"
