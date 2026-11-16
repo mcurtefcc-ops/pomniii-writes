@@ -1,7 +1,7 @@
 Salon.juego("billar", function (J) {
   const D = Salon.dib, F = Salon.fisica;
   const X1 = 230, Y1 = 230, X2 = 1690, Y2 = 960, CY = (Y1 + Y2) / 2, R = 17, VMAX = 2600;
-  const COL = { 1: "#f2c230", 2: "#2f6fd6", 3: "#e0393e", 4: "#7b3fb3", 5: "#f07b22", 6: "#2e9b52", 7: "#8b2a2a", 8: "#151515" };
+  const COL = { 1: "#f6c200", 2: "#1d4fc4", 3: "#d6261f", 4: "#5a2a8c", 5: "#f2661b", 6: "#11793f", 7: "#7c1b1b", 8: "#121212" };
   const tipo = (n) => (n === 8 ? "negra" : n < 8 ? "lisas" : "rayadas");
 
   function nuevoMundo() {
@@ -27,7 +27,7 @@ Salon.juego("billar", function (J) {
     lista.forEach(([fila, i, n]) => F.bola(mundo, 1240 + fila * (2 * R * 0.87 + 1), CY + (i - fila / 2) * (2 * R + 1), R, { n }));
   })();
 
-  const grupo = [null, null];
+  const grupo = [null, null], miniaturas = {};
   let turno = 0, fase = "apuntar", primerToque = null, metidas = [], msg = "Saque: rompe el triángulo", pensando = false, fin = false;
   const P = Salon.punteria(J, { angulo: 0, fuerza: 0.8 });
   const quedan = (g) => mundo.bolas.filter((b) => b.dentro && b.n && tipo(b.n) === g).length;
@@ -147,21 +147,100 @@ Salon.juego("billar", function (J) {
     return { x: blanca.x + dx * tmin, y: blanca.y + dy * tmin, bola: golpe };
   }
 
-  function bola(g, b) {
+  // ---- Bolas en 3D: cada una es una esfera con orientación propia que rueda al moverse ----
+  const LUZ = (() => { const v = [-0.45, -0.55, 0.7], n = Math.hypot(...v); return v.map((x) => x / n); })();
+  const MEDIO = (() => { const v = [LUZ[0], LUZ[1], LUZ[2] + 1], n = Math.hypot(...v); return v.map((x) => x / n); })();
+  const RGB = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  const MARFIL = [246, 241, 228], ROJO = [200, 30, 40];
+  function orientacionInicial() {
+    // el número mirando hacia arriba, un poco inclinado y girado al azar
+    let M = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+    M = girar(M, 0, 1, (Math.random() - 0.5) * 0.7);
+    M = girar(M, 1, 0, (Math.random() - 0.5) * 0.7);
+    const a = Math.random() * Math.PI * 2, c = Math.cos(a), s = Math.sin(a);
+    return mult([c, -s, 0, s, c, 0, 0, 0, 1], M);
+  }
+  function mult(A, B) {
+    const C = new Array(9);
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) C[i * 3 + j] = A[i * 3] * B[j] + A[i * 3 + 1] * B[3 + j] + A[i * 3 + 2] * B[6 + j];
+    return C;
+  }
+  function girar(M, ax, ay, ang) {
+    // giro alrededor del eje horizontal (ax, ay, 0): fórmula de Rodrigues
+    const c = Math.cos(ang), s = Math.sin(ang), t = 1 - c;
+    return mult([t * ax * ax + c, t * ax * ay, s * ay, t * ax * ay, t * ay * ay + c, -s * ax, -s * ay, s * ax, c], M);
+  }
+  function rodar(b) {
+    if (!b.M) { b.M = orientacionInicial(); b.sucia = true; }
+    if (b.lx === undefined) { b.lx = b.x; b.ly = b.y; return; }
+    const dx = b.x - b.lx, dy = b.y - b.ly, d = Math.hypot(dx, dy);
+    b.lx = b.x; b.ly = b.y;
+    if (d < 0.05) return;
+    b.M = girar(b.M, -dy / d, dx / d, d / R);
+    b.sucia = true;
+  }
+  const texturas = {};
+  function textura(b) {
+    const S = Math.max(16, Math.ceil(2 * R * (Salon.escala || 1)));
+    const clave = b.n + (b.panel ? "p" : "");
+    let t = texturas[clave];
+    if (!t || t.S !== S) {
+      const cv = document.createElement("canvas"); cv.width = cv.height = S;
+      t = texturas[clave] = { S, cv, cx: cv.getContext("2d"), img: null };
+      t.img = t.cx.createImageData(S, S);
+      b.sucia = true;
+    }
+    if (!b.sucia) return t.cv;
+    b.sucia = false;
+    const M = b.M, d = t.img.data, h = S / 2;
+    const base = b.n === 0 ? MARFIL : RGB(COL[b.n > 8 ? b.n - 8 : b.n]), raya = b.n > 8;
+    for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) {
+      const nx = (i + 0.5 - h) / h, ny = (j + 0.5 - h) / h, r2 = nx * nx + ny * ny, k = (j * S + i) * 4;
+      if (r2 > 1.0) { d[k + 3] = 0; continue; }
+      const nz = Math.sqrt(1 - r2);
+      // punto de la bola (en sus propias coordenadas) que se ve en este píxel
+      const qy = M[1] * nx + M[4] * ny + M[7] * nz, qz = M[2] * nx + M[5] * ny + M[8] * nz;
+      let col;
+      if (b.n === 0) col = qz > 0.97 || qz < -0.97 ? ROJO : MARFIL;
+      else if (qz > 0.8) col = MARFIL; // círculo blanco del número
+      else if (raya) col = Math.abs(qy) < 0.5 ? base : MARFIL;
+      else col = base;
+      const dif = Math.max(0, nx * LUZ[0] + ny * LUZ[1] + nz * LUZ[2]);
+      const bri = Math.pow(Math.max(0, nx * MEDIO[0] + ny * MEDIO[1] + nz * MEDIO[2]), 70) * 255 * 0.95;
+      const amb = 0.3 + 0.78 * dif;
+      const borde = Math.min(1, (1 - Math.sqrt(r2)) * h + 0.5);
+      d[k] = Math.min(255, col[0] * amb + bri);
+      d[k + 1] = Math.min(255, col[1] * amb + bri);
+      d[k + 2] = Math.min(255, col[2] * amb + bri);
+      d[k + 3] = 255 * borde;
+    }
+    t.cx.putImageData(t.img, 0, 0);
+    return t.cv;
+  }
+  function bola(g, b, sinSombra) {
+    if (!b.M) { b.M = orientacionInicial(); b.sucia = true; }
     const x = b.x, y = b.y;
-    g.save();
-    g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 8; g.shadowOffsetY = 4;
-    if (b.n === 0) { D.ficha(g, x, y, R, "#f7f3ea", { anillo: false }); g.restore(); return; }
-    const c = COL[b.n > 8 ? b.n - 8 : b.n];
-    if (b.n > 8) {
-      D.ficha(g, x, y, R, "#f7f3ea", { anillo: false, sombra: false });
-      g.shadowColor = "transparent";
-      g.save(); g.beginPath(); g.arc(x, y, R, 0, 7); g.clip(); g.fillStyle = c; g.fillRect(x - R, y - R * 0.55, 2 * R, R * 1.1); g.restore();
-    } else D.ficha(g, x, y, R, c, { anillo: false, sombra: false });
-    g.shadowColor = "transparent";
-    g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, R * 0.5, 0, 7); g.fill();
-    g.fillStyle = "#111"; g.font = "700 " + R * 0.68 + "px Barlow, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(b.n, x, y + 1);
-    g.restore();
+    if (!sinSombra) {
+      const sg = g.createRadialGradient(x + 6, y + 8, 0, x + 6, y + 8, R * 1.3);
+      sg.addColorStop(0, "rgba(0,0,0,.45)"); sg.addColorStop(0.6, "rgba(0,0,0,.25)"); sg.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = sg; g.beginPath(); g.arc(x + 6, y + 8, R * 1.3, 0, 7); g.fill();
+    }
+    g.drawImage(textura(b), x - R, y - R, 2 * R, 2 * R);
+    if (b.n > 0) {
+      // número sobre el círculo blanco, con la perspectiva de la esfera
+      const wx = b.M[2], wy = b.M[5], wz = b.M[8];
+      if (wz > 0.3) {
+        g.save();
+        g.beginPath(); g.arc(x, y, R, 0, 7); g.clip();
+        g.translate(x + wx * R * 0.98, y + wy * R * 0.98);
+        const inc = Math.atan2(wy, wx);
+        g.rotate(inc); g.scale(Math.max(0.3, wz), 1); g.rotate(-inc);
+        g.rotate(Math.atan2(b.M[3], b.M[0]));
+        g.fillStyle = "#151515"; g.font = "700 " + R * 0.62 + "px Barlow, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText(b.n, 0, 1);
+        g.restore();
+      }
+    }
   }
 
   return {
@@ -183,6 +262,7 @@ Salon.juego("billar", function (J) {
       }
       if (fase === "moviendo") {
         F.paso(mundo, dt, eventos);
+        mundo.bolas.forEach(rodar);
         if (F.quieto(mundo)) { fase = "pensando"; J.despues(300, trasTiro); }
       }
     },
@@ -222,7 +302,7 @@ Salon.juego("billar", function (J) {
         D.texto(g, grupo[i] ? (quedan(grupo[i]) ? "Juega con " + grupo[i] : "¡A por la negra!") : "Mesa abierta", x + 84, 92, { tam: 22, color: "#a79db3", peso: 400 });
         if (grupo[i]) {
           const mias = mundo.bolas.filter((b) => b.n && b.dentro && tipo(b.n) === grupo[i]).sort((a, b) => a.n - b.n);
-          mias.forEach((b, k) => bola(g, { x: x + 450 + k * 40, y: 70, n: b.n }));
+          mias.forEach((b, k) => { const m = miniaturas[b.n] || (miniaturas[b.n] = { n: b.n, panel: true }); m.x = x + 450 + k * 40; m.y = 70; bola(g, m, true); });
         }
       });
       if (fase === "apuntar" && !J.jugadores[turno].cpu && !fin) D.barraFuerza(g, 760, 1012, 400, 44, P.fuerza);
