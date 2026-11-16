@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#140f1b">
+<title>Mando del salón</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* Mando de latón sobre fondo oscuro, a juego con la tele. */
+  :root {
+    color-scheme: dark;
+    --fondo: #140f1b;
+    --panel: #221a2c;
+    --panel2: #2e2439;
+    --texto: #f6efe2;
+    --suave: #a79db3;
+    --oro: #e8b85c;
+    --oro2: #ffd98a;
+    --jugador: #e8b85c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: Barlow, system-ui, sans-serif; color: var(--texto); background: var(--fondo);
+    overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none;
+    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+  }
+  button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: none; }
+  .vista { display: none; height: 100%; flex-direction: column; }
+  .vista.activa { display: flex; }
+
+  /* ---------- Entrar ---------- */
+  #entrar { justify-content: center; gap: 18px; max-width: 420px; margin: 0 auto; touch-action: auto; }
+  #entrar h1 { font-family: "Playfair Display", serif; font-size: 34px; text-align: center; }
+  #entrar h1 em { color: var(--oro); }
+  #entrar p { color: var(--suave); text-align: center; line-height: 1.4; }
+  label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--suave); }
+  input { font: inherit; font-size: 22px; padding: 14px 16px; border-radius: 14px; border: 2px solid var(--panel2); background: var(--panel); color: var(--texto); outline: none; touch-action: auto; user-select: text; }
+  input:focus { border-color: var(--oro); }
+  #codigo { text-transform: uppercase; letter-spacing: .3em; text-align: center; font-weight: 700; font-size: 30px; }
+  .grande { padding: 18px; border-radius: 16px; background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; font-weight: 700; font-size: 22px; }
+  #errorEntrar { color: #ff8f7a; text-align: center; min-height: 20px; }
+
+  /* ---------- Mando ---------- */
+  #mando { padding: 12px 0 16px; gap: 12px; }
+  .barra { display: flex; align-items: center; gap: 12px; }
+  .punto { width: 16px; height: 16px; border-radius: 50%; background: #666; flex: none; }
+  .punto.ok { background: #5fd38d; box-shadow: 0 0 10px #5fd38d; }
+  .quien { flex: 1; min-width: 0; }
+  .quien .juego { font-size: 13px; color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .quien .nombre { font-size: 20px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ficha { width: 26px; height: 26px; border-radius: 50%; background: var(--jugador); box-shadow: inset 0 -4px 6px rgba(0,0,0,.35); flex: none; }
+  #pausa { padding: 10px 14px; border-radius: 12px; background: var(--panel); font-size: 15px; }
+  #turno { text-align: center; font-size: 18px; font-weight: 700; min-height: 26px; color: var(--suave); }
+  #turno.tuyo { color: var(--oro2); animation: brillo 1.2s ease-in-out infinite; }
+  @keyframes brillo { 50% { opacity: .55; } }
+  #area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; min-height: 0; }
+  .panel { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; gap: 22px; }
+  .panel.activo { display: flex; }
+  .pista { color: var(--suave); text-align: center; font-size: 14px; line-height: 1.4; max-width: 340px; }
+
+  /* Cruceta */
+  .cruz { position: relative; width: min(78vw, 46vh, 340px); aspect-ratio: 1; }
+  .cruz button { position: absolute; width: 31%; height: 31%; background: var(--panel2); border-radius: 18px; font-size: 32px; box-shadow: 0 6px 0 #0a070e, inset 0 2px 0 rgba(255,255,255,.06); }
+  .cruz button:active, .cruz button.pulsado { transform: translateY(4px); box-shadow: 0 2px 0 #0a070e; background: #3b2f48; }
+  .cruz [data-a=arriba] { left: 34.5%; top: 0; }
+  .cruz [data-a=abajo] { left: 34.5%; bottom: 0; }
+  .cruz [data-a=izquierda] { left: 0; top: 34.5%; }
+  .cruz [data-a=derecha] { right: 0; top: 34.5%; }
+  .cruz [data-a=ok] { left: 34.5%; top: 34.5%; z-index: 1; border-radius: 50%; background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; font-size: 22px; font-weight: 700; box-shadow: 0 6px 0 #6b4c12; }
+  .cruz [data-a=ok]:active, .cruz [data-a=ok].pulsado { box-shadow: 0 2px 0 #6b4c12; background: var(--oro); }
+
+  /* Apuntar */
+  #diana { position: relative; width: min(84vw, 48vh, 360px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #2e2439 0%, #221a2c 70%); border: 3px solid var(--panel2); }
+  #diana::before { content: ""; position: absolute; inset: 47%; border-radius: 50%; background: var(--suave); }
+  #flecha { position: absolute; left: 50%; top: 50%; height: 8px; width: 0; transform-origin: 0 50%; border-radius: 4px; background: linear-gradient(90deg, var(--oro), #ef5b5b); }
+  #fuerzaTxt { font-size: 18px; font-weight: 700; color: var(--oro2); min-height: 24px; }
+  .fila { display: flex; gap: 12px; }
+  .fila button { padding: 14px 20px; border-radius: 14px; background: var(--panel2); font-size: 22px; }
+
+  /* Respuestas */
+  .respuestas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; height: 100%; max-height: 520px; }
+  .respuestas button { border-radius: 22px; font-size: 54px; font-weight: 700; color: #fff; box-shadow: 0 8px 0 rgba(0,0,0,.4); }
+  .respuestas button:active, .respuestas button.pulsado { transform: translateY(5px); box-shadow: 0 3px 0 rgba(0,0,0,.4); }
+  .respuestas.elegida button:not(.marcada) { opacity: .3; }
+
+  /* Pulsar */
+  #botonGordo { width: min(80vw, 50vh, 360px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff9d8d, #ef5b5b 55%, #a52a2a); font-size: 34px; font-weight: 700; color: #fff; box-shadow: 0 12px 0 #6d1818, 0 20px 40px rgba(0,0,0,.5); }
+  #botonGordo:active, #botonGordo.pulsado { transform: translateY(8px); box-shadow: 0 4px 0 #6d1818; }
+
+  /* Letras */
+  .teclado { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; }
+  .teclado button { padding: 14px 0; border-radius: 12px; background: var(--panel2); font-size: 22px; font-weight: 700; }
+  .teclado button.usada { opacity: .25; }
+  .teclado button:active { background: var(--oro); color: #2a1a05; }
+</style>
+</head>
+<body>
+
+<section class="vista activa" id="entrar">
+  <h1>Mando del <em>salón</em></h1>
+  <p>Escribe el código que sale en la tele y tu nombre.</p>
+  <label>Código de la tele <input id="codigo" maxlength="4" autocomplete="off" inputmode="text" placeholder="ABCD"></label>
+  <label>Tu nombre <input id="nombre" maxlength="16" autocomplete="nickname" placeholder="Ana"></label>
+  <button class="grande" id="btnEntrar">Conectar</button>
+  <div id="errorEntrar"></div>
+</section>
+
+<section class="vista" id="mando">
+  <div class="barra">
+    <span class="punto" id="punto"></span>
+    <div class="quien"><div class="juego" id="txtJuego">Menú del salón</div><div class="nombre" id="txtNombre"></div></div>
+    <span class="ficha" id="ficha"></span>
+    <button id="pausa">Atrás</button>
+  </div>
+  <div id="turno"></div>
+  <div id="area">
+    <div class="panel activo" id="pCruceta">
+      <div class="cruz">
+        <button data-a="arriba">▲</button>
+        <button data-a="izquierda">◀</button>
+        <button data-a="ok">OK</button>
+        <button data-a="derecha">▶</button>
+        <button data-a="abajo">▼</button>
+      </div>
+      <div class="pista" id="pistaCruceta">Usa la cruceta para moverte por el menú de la tele</div>
+    </div>
+    <div class="panel" id="pApuntar">
+      <div id="fuerzaTxt">Arrastra para apuntar</div>
+      <div id="diana"><div id="flecha"></div></div>
+      <div class="pista">Arrastra el dedo hacia donde quieres tirar. Cuanto más lejos del centro, más fuerte. Suelta para tirar.</div>
+      <div class="fila"><button data-a="izquierda">◀</button><button data-a="arriba">▲</button><button data-a="abajo">▼</button><button data-a="derecha">▶</button><button data-a="ok">OK</button></div>
+    </div>
+    <div class="panel" id="pRespuestas">
+      <div class="respuestas" id="respuestas">
+        <button data-n="0" style="background:#ef5b5b">A</button>
+        <button data-n="1" style="background:#4c8ff0">B</button>
+        <button data-n="2" style="background:#e0a93a">C</button>
+        <button data-n="3" style="background:#4cb87a">D</button>
+      </div>
+    </div>
+    <div class="panel" id="pPulsar">
+      <button id="botonGordo" data-a="ok">¡YA!</button>
+    </div>
+    <div class="panel" id="pLetras">
+      <div class="teclado" id="teclado"></div>
+      <div class="fila"><button data-a="izquierda">◀</button><button data-a="ok">OK</button><button data-a="derecha">▶</button></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const leer = (k) => { try { return localStorage.getItem("mando." + k); } catch (e) { return null; } };
+  const guardar = (k, v) => { try { localStorage.setItem("mando." + k, v); } catch (e) {} };
+  const params = new URLSearchParams(location.search);
+
+  let miId = leer("id");
+  if (!miId) { miId = Math.random().toString(36).slice(2, 12); guardar("id", miId); }
+  $("codigo").value = (params.get("sala") || leer("sala") || "").toUpperCase();
+  $("nombre").value = leer("nombre") || "";
+  if (!$("codigo").value) $("codigo").focus(); else $("nombre").focus();
+
+  let ws = null, sala = null, nombre = null, espera = 1000, vivo = false;
+
+  $("btnEntrar").addEventListener("click", entrar);
+  $("nombre").addEventListener("keydown", (e) => { if (e.key === "Enter") entrar(); });
+  $("codigo").addEventListener("keydown", (e) => { if (e.key === "Enter") $("nombre").focus(); });
+
+  function entrar() {
+    const c = $("codigo").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const n = $("nombre").value.trim().slice(0, 16);
+    if (c.length < 4) { $("errorEntrar").textContent = "El código tiene 4 letras: míralo en la tele."; return; }
+    if (!n) { $("errorEntrar").textContent = "Pon tu nombre para que salga en la tele."; return; }
+    sala = c; nombre = n;
+    guardar("sala", c); guardar("nombre", n);
+    $("txtNombre").textContent = n;
+    $("entrar").classList.remove("activa");
+    $("mando").classList.add("activa");
+    conectar();
+    pedirPantallaEncendida();
+  }
+
+  function conectar() {
+    const url = (location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/sala/" + sala + "/ws?rol=mando&id=" + encodeURIComponent(miId) + "&nombre=" + encodeURIComponent(nombre);
+    try { ws = new WebSocket(url); } catch (e) { return reintentar(); }
+    ws.onopen = () => { vivo = true; espera = 1000; $("punto").classList.add("ok"); };
+    ws.onclose = () => { vivo = false; $("punto").classList.remove("ok"); setTurno("Reconectando…", false); reintentar(); };
+    ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } recibir(m); };
+  }
+  function reintentar() { espera = Math.min(espera * 2, 15000); setTimeout(conectar, espera); }
+  function enviar(d) { if (ws && vivo) try { ws.send(JSON.stringify(d)); } catch (e) {} }
+
+  function recibir(m) {
+    if (m.t === "hola" || m.t === "tele") {
+      const on = m.t === "hola" ? m.tele : m.on;
+      if (!on) setTurno("La tele no está abierta. Abre el salón en la tele.", false);
+      else setTurno("", false);
+      return;
+    }
+    if (m.t !== "tv" || !m.d) return;
+    const d = m.d;
+    if (d.vibrar && navigator.vibrate) try { navigator.vibrate([60, 60, 60]); } catch (e) {}
+    if (d.pantalla) aplicarPantalla(d);
+  }
+
+  function aplicarPantalla(d) {
+    $("txtJuego").textContent = d.juego ? d.juego : "Menú del salón";
+    if (d.jugador) $("txtNombre").textContent = d.jugador;
+    else $("txtNombre").textContent = nombre;
+    document.documentElement.style.setProperty("--jugador", d.color || "#e8b85c");
+    let modo = d.pantalla === "juego" ? d.modo : "cruceta";
+    const panel = { cruceta: "pCruceta", apuntar: "pApuntar", respuestas: "pRespuestas", pulsar: "pPulsar", letras: "pLetras" }[modo] || "pCruceta";
+    document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("activo", p.id === panel));
+    $("pistaCruceta").textContent = d.pantalla === "juego" ? "" : (d.texto || "");
+    if (d.pantalla === "juego") setTurno(d.tuTurno ? "¡Te toca!" : "Turno de otro jugador", d.tuTurno);
+    else if (d.pantalla === "mirando") setTurno("Mirando la partida", false);
+    else setTurno("", false);
+    if (panel === "pRespuestas") { $("respuestas").classList.remove("elegida"); document.querySelectorAll("#respuestas button").forEach((b) => b.classList.remove("marcada")); }
+  }
+  function setTurno(t, tuyo) { $("turno").textContent = t; $("turno").classList.toggle("tuyo", !!tuyo); }
+
+  // ---------- Botones con repetición al mantener ----------
+  function tecla(accion, estado) { enviar({ tipo: "tecla", accion, estado }); }
+  document.querySelectorAll("[data-a]").forEach((b) => {
+    let rep = null, ini = null;
+    const soltar = () => {
+      if (!b.classList.contains("pulsado")) return;
+      b.classList.remove("pulsado"); clearTimeout(ini); clearInterval(rep);
+      tecla(b.dataset.a, "arriba");
+    };
+    b.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      b.classList.add("pulsado");
+      tecla(b.dataset.a, "abajo");
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (x) {}
+      if (b.dataset.a !== "ok") ini = setTimeout(() => { rep = setInterval(() => tecla(b.dataset.a, null), 130); }, 380);
+    });
+    ["pointerup", "pointercancel", "pointerleave"].forEach((ev) => b.addEventListener(ev, soltar));
+  });
+  $("pausa").addEventListener("click", () => tecla("atras", "abajo"));
+
+  // ---------- Respuestas ----------
+  document.querySelectorAll("#respuestas button").forEach((b) => {
+    b.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      enviar({ tipo: "respuesta", n: +b.dataset.n });
+      $("respuestas").classList.add("elegida");
+      document.querySelectorAll("#respuestas button").forEach((x) => x.classList.toggle("marcada", x === b));
+      if (navigator.vibrate) try { navigator.vibrate(30); } catch (x) {}
+    });
+  });
+
+  // ---------- Letras ----------
+  "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach((l) => {
+    const b = document.createElement("button");
+    b.textContent = l;
+    b.addEventListener("pointerdown", (e) => { e.preventDefault(); enviar({ tipo: "letra", ch: l }); b.classList.add("usada"); });
+    $("teclado").appendChild(b);
+  });
+
+  // ---------- Apuntar ----------
+  const diana = $("diana"), flecha = $("flecha");
+  let apuntando = false, ultimoEnvio = 0, ultimo = null;
+  function leerApunte(e) {
+    const r = diana.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const dx = e.clientX - cx, dy = e.clientY - cy;
+    const radio = r.width / 2;
+    const fuerza = Math.min(1, Math.hypot(dx, dy) / radio);
+    const angulo = Math.atan2(dy, dx);
+    flecha.style.width = fuerza * radio + "px";
+    flecha.style.transform = "rotate(" + angulo + "rad)";
+    $("fuerzaTxt").textContent = "Fuerza " + Math.round(fuerza * 100) + "%";
+    return { angulo, fuerza };
+  }
+  diana.addEventListener("pointerdown", (e) => { e.preventDefault(); apuntando = true; diana.setPointerCapture(e.pointerId); ultimo = leerApunte(e); enviar(Object.assign({ tipo: "apuntar", disparar: false }, ultimo)); });
+  diana.addEventListener("pointermove", (e) => {
+    if (!apuntando) return;
+    ultimo = leerApunte(e);
+    const ahora = Date.now();
+    if (ahora - ultimoEnvio > 50) { ultimoEnvio = ahora; enviar(Object.assign({ tipo: "apuntar", disparar: false }, ultimo)); }
+  });
+  const fin = (e) => {
+    if (!apuntando) return;
+    apuntando = false;
+    if (ultimo && ultimo.fuerza > 0.08) {
+      enviar(Object.assign({ tipo: "apuntar", disparar: true }, ultimo));
+      if (navigator.vibrate) try { navigator.vibrate(40); } catch (x) {}
+    } else enviar(Object.assign({ tipo: "apuntar", disparar: false }, ultimo || { angulo: 0, fuerza: 0 }));
+    flecha.style.width = "0";
+    $("fuerzaTxt").textContent = "Arrastra para apuntar";
+  };
+  diana.addEventListener("pointerup", fin);
+  diana.addEventListener("pointercancel", fin);
+
+  // ---------- Pantalla encendida ----------
+  async function pedirPantallaEncendida() {
+    try { if (navigator.wakeLock) await navigator.wakeLock.request("screen"); } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && sala) pedirPantallaEncendida(); });
+
+  // Si ya habíamos entrado antes con este código, conecta solo.
+  if (params.get("sala") && leer("nombre") && params.get("sala").toUpperCase() === (leer("sala") || "")) entrar();
+})();
+</script>
+</body>
+</html>

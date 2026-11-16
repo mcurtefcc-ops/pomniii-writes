@@ -23,3 +23,6 @@ assets/avatar_*.png
 # Son la memoria de que se ha publicado y de que esta esperando respuesta.
 # Si se ignoraran, cada ejecucion en el servidor empezaria de cero y
 # republicaria el #0001 todos los dias.
+
+# Estado local de "wrangler dev" (pruebas del Worker en local)
+.wrangler/
