@@ -19,11 +19,20 @@ compatibility_date = "2026-01-01"
 # https gratuita del tipo pomniii-bot.<cuenta>.workers.dev
 workers_dev = true
 
-# Permite importar juegos.html como texto desde el Worker (sala de juegos en /juegos).
-[[rules]]
-type = "Text"
-globs = ["**/*.html"]
-fallthrough = true
+# Salon de juegos para la tele: Cloudflare sirve tal cual los ficheros de esta
+# carpeta (https://pomniii-bot.<cuenta>.workers.dev/juegos/). Gratis.
+[assets]
+directory = "./cloudflare/publico"
+
+# Salas que unen el movil (mando) con la tele. Durable Objects con SQLite, que
+# entran en el plan gratuito de Workers.
+[[durable_objects.bindings]]
+name = "SALAS"
+class_name = "Sala"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Sala"]
 
 [vars]
 GITHUB_REPO = "mcurtefcc-ops/pomniii-writes"
