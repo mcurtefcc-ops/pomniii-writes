@@ -717,6 +717,8 @@
   const FUENTE = "Barlow, system-ui, sans-serif";
   const FUENTE_TIT = "'Playfair Display', Georgia, serif";
   function hex(c) {
+    const rgb = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
+    if (rgb) return [+rgb[1], +rgb[2], +rgb[3]];
     c = c.replace("#", "");
     if (c.length === 3) c = c.split("").map((x) => x + x).join("");
     return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
@@ -924,6 +926,43 @@
       while (t < maxT) { S.fisica.paso(m, 1 / 60, ev); t += 1 / 60; if (S.fisica.quieto(m)) break; }
       return t;
     }
+  };
+
+  // ============================================================
+  // Puntería (billar, carrom, minigolf, bolos, tanques)
+  // Mando: ◀ ▶ ángulo (mantener acelera), ▲ ▼ fuerza, OK tira.
+  // Móvil: arrastrar fija ángulo y fuerza; soltar tira.
+  // ============================================================
+  S.punteria = function (J, o) {
+    o = o || {};
+    const P = { angulo: o.angulo || 0, fuerza: o.fuerza == null ? 0.55 : o.fuerza, vel: 0, min: o.min, max: o.max, paso: o.paso || 0.012 };
+    P.limitar = () => {
+      if (P.min != null) P.angulo = Math.max(P.min, Math.min(P.max, P.angulo));
+      P.fuerza = Math.max(0.05, Math.min(1, P.fuerza));
+    };
+    P.tecla = (a) => {
+      if (a === "izquierda") P.angulo -= P.paso;
+      else if (a === "derecha") P.angulo += P.paso;
+      else if (a === "arriba") P.fuerza += 0.05;
+      else if (a === "abajo") P.fuerza -= 0.05;
+      else if (a === "ok") return true;
+      P.limitar();
+      return false;
+    };
+    P.apuntar = (a) => { P.angulo = a.angulo; P.fuerza = a.fuerza; P.limitar(); return !!a.disparar; };
+    P.actualizar = (dt, jug) => {
+      const iz = J.pulsada(jug, "izquierda"), de = J.pulsada(jug, "derecha");
+      if (iz || de) { P.vel = Math.min(2, P.vel + dt * 2); P.angulo += (de ? 1 : -1) * (0.15 + P.vel) * dt; P.limitar(); }
+      else P.vel = 0;
+    };
+    return P;
+  };
+  dib.barraFuerza = function (g, x, y, w, h, f, color) {
+    dib.caja(g, x, y, w, h, { relleno: "rgba(0,0,0,.45)", r: h / 2, borde: "rgba(255,255,255,.25)", grosor: 2 });
+    const gr = g.createLinearGradient(x, 0, x + w, 0);
+    gr.addColorStop(0, "#5fd38d"); gr.addColorStop(0.6, "#f2b84b"); gr.addColorStop(1, "#ef5b5b");
+    g.save(); dib.ruta(g, x + 3, y + 3, Math.max(h - 6, (w - 6) * f), h - 6, (h - 6) / 2); g.fillStyle = gr; g.fill(); g.restore();
+    dib.texto(g, "Fuerza " + Math.round(f * 100) + "%", x + w / 2, y + h / 2 + 1, { tam: h * 0.55, alin: "center", color: color || "#fff" });
   };
 
   // ============================================================
