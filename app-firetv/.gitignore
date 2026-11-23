@@ -13,3 +13,6 @@ npm-debug.log
 # El salón se copia aquí al fabricar la app (el original está en cloudflare/publico/juegos)
 assets/juegos
 buildinfo.json
+
+# Datos privados (código de la agenda, ciudad): nunca al repositorio público
+privado.json

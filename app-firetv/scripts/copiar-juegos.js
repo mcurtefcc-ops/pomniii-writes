@@ -18,8 +18,18 @@ const fichero = path.join(__dirname, '..', 'servidor.txt');
 if (!servidor && fs.existsSync(fichero)) servidor = fs.readFileSync(fichero, 'utf8').trim();
 servidor = servidor.replace(/\/+$/, '');
 
+// Datos privados (agenda y ciudad): solo en privado.json, que NO se sube al
+// repositorio (está en .gitignore). Ejemplo:
+//   {"ciudad": "Zaragoza", "agenda": {"servidor": "https://…workers.dev", "grupo": "CODIGO"}}
+let privado = {};
+const fPrivado = path.join(__dirname, '..', 'privado.json');
+if (fs.existsSync(fPrivado)) privado = JSON.parse(fs.readFileSync(fPrivado, 'utf8'));
+
 fs.writeFileSync(
   path.join(destino, 'config.js'),
-  '/* Generado al fabricar la app. */\nwindow.SALON_SERVIDOR = ' + JSON.stringify(servidor) + ';\n',
+  '/* Generado al fabricar la app. */\nwindow.SALON_SERVIDOR = ' + JSON.stringify(servidor) + ';\n' +
+    (privado.ciudad ? 'window.SALON_CIUDAD = ' + JSON.stringify(privado.ciudad) + ';\n' : '') +
+    (privado.agenda ? 'window.SALON_AGENDA = ' + JSON.stringify(privado.agenda) + ';\n' : ''),
 );
+if (privado.agenda) console.log('[pomniii] Agenda incluida (dato privado, no se sube a GitHub)');
 console.log('[pomniii] Salón copiado en assets/juegos' + (servidor ? ' · sala: ' + servidor : ' · SIN dirección de sala: el mando del móvil no funcionará'));

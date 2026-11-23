@@ -206,7 +206,8 @@ export class Sala {
   }
 
   webSocketMessage(ws, mensaje) {
-    if (typeof mensaje !== "string" || mensaje.length > 8000) return;
+    // Hasta ~900 KB: deja pasar las fotos que el movil manda a la tele (ya reducidas).
+    if (typeof mensaje !== "string" || mensaje.length > 950000) return;
     let m;
     try { m = JSON.parse(mensaje); } catch { return; }
     const yo = ws.deserializeAttachment();
