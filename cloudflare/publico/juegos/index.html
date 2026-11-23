@@ -69,6 +69,25 @@
   .pie { margin-top: 5vh; text-align: center; color: var(--suave); font-size: 1.9vh; }
   .pie button { margin-left: 1vw; padding: .6vh 1.4vw; border-radius: 99px; background: var(--panel); border: 2px solid var(--borde); }
 
+  /* ---------- Clasificación ---------- */
+  #ranking { overflow-y: auto; padding: 4vh 4vw 8vh; }
+  #ranking h1 { font-size: 7vh; }
+  .cabRanking, .filaRanking { display: grid; grid-template-columns: 7vw 1.6fr 1fr 1fr 1fr 1.6fr 1.6fr; align-items: center; gap: 1vw; padding: 1.4vh 1.6vw; }
+  .cabRanking { color: var(--suave); font-size: 1.9vh; text-transform: uppercase; letter-spacing: .08em; margin-top: 2vh; }
+  .filaRanking { background: var(--panel); border: 2px solid var(--borde); border-radius: 1.4vh; margin-top: 1vh; font-size: 2.6vh; }
+  .filaRanking:first-child { border-color: var(--oro); background: rgba(232,184,92,.12); }
+  .filaRanking .pos { font-size: 3.4vh; font-family: "Playfair Display", serif; }
+  .filaRanking .nom { font-weight: 700; }
+  .filaRanking .num { font-variant-numeric: tabular-nums; }
+  .filaRanking .fav { color: var(--suave); font-size: 2.1vh; }
+  .vacio { color: var(--suave); font-size: 2.6vh; margin-top: 3vh; }
+  .tituloLogros { font-size: 4vh; margin: 5vh 0 2vh; color: var(--oro2); }
+  #listaLogros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4vh 1.4vw; }
+  .logro { display: flex; gap: 1.2vw; align-items: center; padding: 1.6vh 1.4vw; border-radius: 1.4vh; background: var(--panel); border: 2px solid var(--borde); opacity: .5; font-size: 2.2vh; }
+  .logro.conseguido { opacity: 1; border-color: rgba(232,184,92,.5); }
+  .logro .ic { font-size: 4.6vh; }
+  .logro small { color: var(--suave); font-size: 1.8vh; }
+
   /* ---------- Configuración ---------- */
   #config { display: none; }
   #config.activa { display: flex; align-items: center; justify-content: center; gap: 6vw; padding: 0 6vw; }
@@ -129,7 +148,16 @@
     </div>
   </div>
   <div id="listaJuegos"></div>
-  <div class="pie">◀ ▲ ▼ ▶ moverte · OK elegir · Atrás volver <button data-nav id="pantallaCompleta">Pantalla completa</button></div>
+  <div class="pie">◀ ▲ ▼ ▶ moverte · OK elegir · Atrás volver <button data-nav id="verRanking">🏆 Clasificación y logros</button> <button data-nav id="pantallaCompleta">Pantalla completa</button></div>
+</section>
+
+<section class="pantalla" id="ranking">
+  <div class="cabecera"><div><h1>Clasificación</h1><div class="lema">Cada persona cuenta por el nombre de su móvil · «Tú» es el mando de la tele</div></div>
+  <button class="secundario" data-nav id="volverRanking">◀ Volver</button></div>
+  <div class="cabRanking"><span></span><span>Jugador</span><span>Victorias</span><span>Partidas</span><span>Ganadas</span><span>Su juego</span><span>Logros</span></div>
+  <div id="tablaRanking"></div>
+  <h2 class="tituloLogros">Logros</h2>
+  <div id="listaLogros"></div>
 </section>
 
 <section class="pantalla" id="config">

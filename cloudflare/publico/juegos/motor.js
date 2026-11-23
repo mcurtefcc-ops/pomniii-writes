@@ -204,7 +204,7 @@
     }
     if (a === "atras") {
       if (dialogo && dialogo.alCancelar) return dialogo.alCancelar();
-      if (!dialogo && pantalla === "config") return mostrar("inicio");
+      if (!dialogo && (pantalla === "config" || pantalla === "ranking")) return mostrar("inicio");
       return;
     }
     if ((a === "izquierda" || a === "derecha") && foco && foco.dataset.cambia) {
@@ -275,6 +275,7 @@
     pantalla = id;
     document.querySelectorAll(".pantalla").forEach((p) => p.classList.toggle("activa", p.id === id));
     if (id === "inicio") pintarInicio();
+    if (id === "ranking") pintarClasificacion();
     if (id !== "juego") primerFoco();
     else if (document.activeElement) document.activeElement.blur();
     avisarMoviles();
@@ -331,9 +332,9 @@
   function abrirConfig(def) {
     cfgDef = def;
     const previa = leer("cfg." + def.id, null);
-    cfg = { n: def.min === 1 && def.max > 1 ? Math.min(2, def.max) : def.min, dificultad: 2, opciones: {}, slots: [] };
+    cfg = { n: def.min === 1 && def.max > 1 ? Math.min(2, def.max) : def.min, dificultad: 2, opciones: {}, slots: [], serie: 1 };
     if (def.maquina && def.min === 1 && def.max > 1 && def.id !== "minigolf" && def.id !== "bolos") cfg.n = 2;
-    if (previa) Object.assign(cfg, { n: previa.n || cfg.n, dificultad: previa.dificultad || 2, opciones: previa.opciones || {}, slots: previa.slots || [] });
+    if (previa) Object.assign(cfg, { n: previa.n || cfg.n, dificultad: previa.dificultad || 2, opciones: previa.opciones || {}, slots: previa.slots || [], serie: previa.serie || 1 });
     (def.opciones || []).forEach((o) => { if (cfg.opciones[o.id] == null) cfg.opciones[o.id] = o.def; });
     cfg.n = Math.max(def.min, Math.min(def.max, cfg.n));
     asignarPorDefecto();
@@ -411,6 +412,11 @@
       add("o_" + o.id, fila(o.nombre, v[1], (p) => { cfg.opciones[o.id] = ciclar(o.valores, cfg.opciones[o.id], p); repintar(); }));
     });
 
+    if (def.max > 1 && cfg.n > 1) {
+      const SERIES = [[1, "Una partida"], [3, "Al mejor de 3"], [5, "Al mejor de 5"]];
+      add("serie", fila("Partidas", SERIES.find((v) => v[0] === cfg.serie)[1], (p) => { cfg.serie = ciclar(SERIES, cfg.serie, p); repintar(); }));
+    }
+
     // Aviso si hace falta un mando por jugador
     const humanos = cfg.slots.slice(0, cfg.n).filter((s) => s !== "cpu");
     const tvs = humanos.filter((s) => s === "tv").length;
@@ -467,6 +473,121 @@
   S.aviso = aviso;
 
   // ============================================================
+  // Perfiles, logros y clasificación
+  // Cada persona se identifica por el nombre de su móvil ("Tú" es el mando de la tele).
+  // ============================================================
+  const LOGROS = [
+    ["primera", "🥇", "Primera victoria", "Gana una partida"],
+    ["diez", "🎮", "Jugón", "Juega 10 partidas"],
+    ["cincuenta", "🕹", "Veterano", "Juega 50 partidas"],
+    ["racha3", "🔥", "En racha", "Gana 3 partidas seguidas"],
+    ["racha5", "☄", "Imparable", "Gana 5 partidas seguidas"],
+    ["maquina", "🤖", "Le ganas a la máquina", "Gana a la máquina en difícil"],
+    ["explorador", "🧭", "Curiosidad", "Juega a 10 juegos distintos"],
+    ["coleccion", "🗺", "Lo he probado todo", "Juega a 30 juegos distintos"],
+    ["record", "📈", "Superándote", "Bate uno de tus récords"],
+    ["fiesta", "🎉", "Fiestón", "Juega una partida con 4 personas o más"],
+    ["serie", "🏆", "Campeonato", "Gana una serie"],
+    ["todoterreno", "🌈", "Todoterreno", "Gana en 4 tipos de juego distintos"]
+  ];
+  S.LOGROS = LOGROS;
+  function perfilDe(j) {
+    if (!j || j.cpu) return null;
+    if (j.control === "tv") return j.nombre === "Tú" ? "Tú" : null;
+    return j.nombre;
+  }
+  const colaLogros = [];
+  let mostrandoLogro = false;
+  function siguienteLogro() {
+    if (mostrandoLogro || !colaLogros.length) return;
+    mostrandoLogro = true;
+    const [nombre, id] = colaLogros.shift(), l = LOGROS.find((x) => x[0] === id);
+    aviso(l[1] + " ¡Logro de " + nombre + "! " + l[2]);
+    S.sonido("punto");
+    setTimeout(() => { mostrandoLogro = false; siguienteLogro(); }, 2900);
+  }
+  function darLogro(nombre, id) {
+    const todos = leer("jugadores", {});
+    const p = todos[nombre] = todos[nombre] || nuevoPerfil();
+    if (p.logros.includes(id)) return;
+    p.logros.push(id);
+    guardar("jugadores", todos);
+    colaLogros.push([nombre, id]);
+    siguienteLogro();
+  }
+  function nuevoPerfil() { return { partidas: 0, victorias: 0, racha: 0, mejorRacha: 0, juegos: {}, cats: {}, logros: [] }; }
+  function actualizarPerfiles(P, ganador) {
+    const todos = leer("jugadores", {});
+    const personas = P.jugadores.filter((j) => !j.cpu).length;
+    const compiten = P.jugadores.length > 1;
+    const nuevos = [];
+    P.jugadores.forEach((j, i) => {
+      const n = perfilDe(j);
+      if (!n) return;
+      const p = todos[n] = todos[n] || nuevoPerfil();
+      p.partidas++;
+      const jg = p.juegos[P.def.id] = p.juegos[P.def.id] || { p: 0, v: 0 };
+      jg.p++;
+      const gana = compiten && ganador === i;
+      if (gana) { p.victorias++; jg.v++; p.racha++; p.mejorRacha = Math.max(p.mejorRacha, p.racha); p.cats[P.def.cat] = 1; }
+      else if (compiten && ganador != null) p.racha = 0;
+      const dar = (id) => { if (!p.logros.includes(id)) { p.logros.push(id); nuevos.push([n, id]); } };
+      if (gana) dar("primera");
+      if (p.partidas >= 10) dar("diez");
+      if (p.partidas >= 50) dar("cincuenta");
+      if (p.racha >= 3) dar("racha3");
+      if (p.racha >= 5) dar("racha5");
+      if (gana && P.jugadores.some((x) => x.cpu) && P.conf.dificultad === 3) dar("maquina");
+      if (Object.keys(p.juegos).length >= 10) dar("explorador");
+      if (Object.keys(p.juegos).length >= 30) dar("coleccion");
+      if (personas >= 4) dar("fiesta");
+      if (Object.keys(p.cats).length >= 4) dar("todoterreno");
+    });
+    guardar("jugadores", todos);
+    nuevos.forEach((x) => colaLogros.push(x));
+    setTimeout(siguienteLogro, 1400 / S.vel);
+  }
+  function pintarClasificacion() {
+    const todos = leer("jugadores", {});
+    const lista = Object.keys(todos).map((n) => Object.assign({ nombre: n }, todos[n])).sort((a, b) => b.victorias - a.victorias || b.partidas - a.partidas);
+    const t = $("tablaRanking");
+    t.innerHTML = "";
+    if (!lista.length) {
+      t.innerHTML = "<p class='vacio'>Todavía no hay partidas. Juega una y aquí saldrá quién va ganando.</p>";
+    } else {
+      lista.forEach((p, k) => {
+        const fila = document.createElement("div");
+        fila.className = "filaRanking";
+        const pct = p.partidas ? Math.round((100 * p.victorias) / p.partidas) : 0;
+        const fav = Object.keys(p.juegos).sort((a, b) => p.juegos[b].p - p.juegos[a].p)[0];
+        const favDef = S.catalogo.find((d) => d.id === fav);
+        fila.innerHTML = "<span class='pos'></span><span class='nom'></span><span class='num'></span><span class='num'></span><span class='num'></span><span class='fav'></span><span class='insignias'></span>";
+        const c = fila.children;
+        c[0].textContent = k === 0 ? "🥇" : k === 1 ? "🥈" : k === 2 ? "🥉" : k + 1 + "º";
+        c[1].textContent = p.nombre;
+        c[2].textContent = p.victorias;
+        c[3].textContent = p.partidas;
+        c[4].textContent = pct + " %";
+        c[5].textContent = favDef ? favDef.icono + " " + favDef.nombre : "";
+        c[6].textContent = p.logros.map((id) => (LOGROS.find((l) => l[0] === id) || [])[1]).join(" ");
+        t.appendChild(fila);
+      });
+    }
+    const lg = $("listaLogros");
+    lg.innerHTML = "";
+    LOGROS.forEach((l) => {
+      const quien = lista.filter((p) => p.logros.includes(l[0])).map((p) => p.nombre);
+      const d = document.createElement("div");
+      d.className = "logro" + (quien.length ? " conseguido" : "");
+      d.innerHTML = "<span class='ic'></span><span><b></b><br><small></small></span>";
+      d.querySelector(".ic").textContent = l[1];
+      d.querySelector("b").textContent = l[2];
+      d.querySelector("small").textContent = l[3] + (quien.length ? " · " + quien.join(", ") : "");
+      lg.appendChild(d);
+    });
+  }
+
+  // ============================================================
   // Partida
   // ============================================================
   let partida = null;
@@ -512,7 +633,7 @@
     });
   }
 
-  function empezar(def, conf) {
+  function empezar(def, conf, serie) {
     aviso("Cargando " + def.nombre + "…");
     cargarJuego(def.id).then(() => {
       $("aviso").classList.remove("visible");
@@ -522,6 +643,7 @@
         def, conf, turno: 0, pausada: false, terminada: false, timers: [], t: 0,
         jugadores: slots.map((s, i) => ({ nombre: nombres[i], color: S.COLORES[i], cpu: s === "cpu", control: s, indice: i }))
       });
+      P.serie = serie !== undefined ? serie : conf.serie > 1 && conf.n > 1 ? { total: conf.serie, victorias: slots.map(() => 0), jugadas: 0 } : null;
       P.J = crearAPI(P);
       mostrar("juego");
       ajustarLienzo();
@@ -561,6 +683,7 @@
         const ant = st.s.records[clave];
         const nuevo = ant == null || (mayorEsMejor === false ? valor < ant : valor > ant);
         if (nuevo) { st.s.records[clave] = valor; st.guardar(); }
+        if (nuevo && ant != null) { const j = P.jugadores.find((x) => perfilDe(x)); if (j) darLogro(perfilDe(j), "record"); }
         return { nuevo, mejor: nuevo ? valor : ant, anterior: ant };
       },
       sonido: (n) => S.sonido(n),
@@ -603,13 +726,29 @@
     }
     if (res.icono) icono = res.icono;
     st.guardar();
+    actualizarPerfiles(P, g != null && P.jugadores[g] ? g : null);
+    let texto = res.texto || "", botones = [["Otra partida", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]];
+    const SR = P.serie;
+    if (SR) {
+      SR.jugadas++;
+      if (g != null && P.jugadores[g]) SR.victorias[g]++;
+      const necesarias = Math.ceil(SR.total / 2), campeon = SR.victorias.findIndex((v) => v >= necesarias);
+      const marcador = P.jugadores.map((j, i) => j.nombre + " " + SR.victorias[i]).join(" · ");
+      if (campeon >= 0) {
+        icono = "🏆"; titulo = "¡" + P.jugadores[campeon].nombre + " gana la serie!";
+        texto = (res.texto ? res.texto + "\n" : "") + "Serie al mejor de " + SR.total + ": " + marcador;
+        const n = perfilDe(P.jugadores[campeon]); if (n) darLogro(n, "serie");
+        S.sonido("ganar"); confeti();
+        botones = [["Nueva serie", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]];
+      } else {
+        texto = (res.texto ? res.texto + "\n" : "") + "Serie al mejor de " + SR.total + " · partida " + SR.jugadas + ": " + marcador;
+        botones = [["Siguiente partida", () => empezar(P.def, P.conf, SR)], ["Dejar la serie", salirAlMenu]];
+      }
+    }
     avisarMoviles();
     setTimeout(() => {
       if (partida !== P) return;
-      abrirDialogo({
-        icono, titulo, texto: res.texto || "",
-        botones: [["Otra partida", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]]
-      });
+      abrirDialogo({ icono, titulo, texto, botones });
     }, 1100 / S.vel);
   }
 
@@ -1142,6 +1281,8 @@
     ajustarLienzo();
     Red.conectar();
     pintarConexion();
+    $("verRanking").addEventListener("click", () => mostrar("ranking"));
+    $("volverRanking").addEventListener("click", () => mostrar("inicio"));
     $("pantallaCompleta").addEventListener("click", () => {
       const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen;
       try { f && f.call(el); } catch (e) {}
