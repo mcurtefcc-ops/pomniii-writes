@@ -52,7 +52,7 @@ Salon.juego("gomoku", function (J) {
     t[r][c] = turno; ultima = [r, c]; puestas++;
     J.sonido("golpe");
     const l = linea(r, c, turno);
-    if (l) { fin = l; return J.despues(1000, () => J.terminar({ ganador: turno })); }
+    if (l) { fin = l; l.forEach(([r, c]) => J.efecto("chispas", X0 + c * C, Y0 + r * C, { color: J.jugadores[turno].color, n: 12 })); return J.despues(1000, () => J.terminar({ ganador: turno })); }
     if (puestas === N * N) { fin = []; return J.despues(800, () => J.terminar({ ganador: null })); }
     turno = 1 - turno;
     siguiente();

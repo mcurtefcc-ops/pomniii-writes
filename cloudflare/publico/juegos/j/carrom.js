@@ -44,7 +44,7 @@ Salon.juego("carrom", function (J) {
     lanzador.vx = Math.cos(P.angulo) * P.fuerza * VMAX; lanzador.vy = Math.sin(P.angulo) * P.fuerza * VMAX;
     metidas = []; fase = "moviendo"; msg = ""; J.sonido("golpe");
   }
-  const ev = { cae(b) { metidas.push(b.tipo); J.sonido("caida"); }, choque(a, b, v) { if (v > 250) J.sonido("tic"); } };
+  const ev = { cae(b, h) { metidas.push(b.tipo); J.sonido("caida"); J.efecto("chispas", h.x, h.y, { color: b.tipo === "reina" ? "#d8343f" : b.tipo === "negra" ? "#444" : "#efe2c4", n: 14, fuerza: 200 }); }, choque(a, b, v) { if (v > 250) J.sonido("tic"); } };
   function alCentro(b) {
     b.dentro = true; b.vx = b.vy = 0;
     for (let k = 0; k < 60; k++) {

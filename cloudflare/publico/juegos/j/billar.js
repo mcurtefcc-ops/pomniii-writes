@@ -40,7 +40,7 @@ Salon.juego("billar", function (J) {
   }
   const eventos = {
     choque(a, b, v) { if (primerToque === null && (a === blanca || b === blanca)) primerToque = (a === blanca ? b : a).n; if (v > 200) J.sonido("tic"); },
-    cae(b) { metidas.push(b.n); J.sonido("caida"); }
+    cae(b, h) { metidas.push(b.n); J.sonido("caida"); J.efecto("chispas", h.x, h.y, { color: b.n ? COL[b.n > 8 ? b.n - 8 : b.n] : "#ffffff", n: 16, fuerza: 220 }); J.efecto("anillo", h.x, h.y, { color: "#ffd98a", r: 50 }); }
   };
   function evaluar(j, primer, mets, estadoGrupo) {
     // devuelve {falta, gana, pierde, sigue, asigna}

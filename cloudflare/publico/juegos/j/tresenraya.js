@@ -36,6 +36,7 @@ Salon.juego("tresenraya", function (J) {
     const g = ganador(tab);
     if (g) {
       linea = g;
+      if (g.l) g.l.forEach((k) => J.efecto("chispas", X0 + (k % 3) * T + T / 2, Y0 + ((k / 3) | 0) * T + T / 2, { color: J.jugadores[g.j].color }));
       J.despues(900, () => J.terminar({ ganador: g.j }));
       return;
     }

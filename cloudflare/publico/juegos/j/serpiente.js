@@ -58,7 +58,7 @@ Salon.juego("serpiente", function (J) {
       if (mueren.includes(i)) { s.viva = false; J.sonido("perder"); return; }
       s.cuerpo.unshift(cabezas[i]);
       const k = comida.findIndex(([a, b]) => a === cabezas[i][0] && b === cabezas[i][1]);
-      if (k >= 0) { comida.splice(k, 1); s.crecer += 2; s.puntos++; J.sonido("punto"); nuevaComida(); }
+      if (k >= 0) { comida.splice(k, 1); s.crecer += 2; s.puntos++; J.sonido("punto"); J.efecto("chispas", X0 + cabezas[i][0] * C + C / 2, Y0 + cabezas[i][1] * C + C / 2, { color: "#ef5b5b", n: 10, fuerza: 180 }); nuevaComida(); }
       if (s.crecer > 0) s.crecer--; else s.cuerpo.pop();
     });
     const vivas = serps.map((s, i) => (s.viva ? i : -1)).filter((i) => i >= 0);

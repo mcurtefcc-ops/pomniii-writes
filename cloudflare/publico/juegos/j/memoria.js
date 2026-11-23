@@ -21,6 +21,7 @@ Salon.juego("memoria", function (J) {
         J.despues(500, () => {
           estado[a].abierta = estado[b].abierta = true; estado[a].de = estado[b].de = turno;
           recuerdo.delete(a); recuerdo.delete(b);
+          [a, b].forEach((i) => J.efecto("chispas", X0 + (i % COLS) * C + C / 2, Y0 + Math.floor(i / COLS) * C + C / 2, { color: J.jugadores[turno].color, n: 14 }));
           puntos[turno]++; elegidas = []; bloqueo = false; J.sonido("punto");
           if (estado.every((e) => e.abierta)) return acabar();
           siguiente();

@@ -134,7 +134,7 @@ Salon.juego("minigolf", function (J) {
       if (fase === "moviendo") {
         let dentro = false;
         F.paso(mundo, dt, { cae() { dentro = true; }, pared(b, s, v) { if (v > 120) J.sonido("tic"); } });
-        if (dentro) { fase = "fin"; entrando = { t: 0 }; J.sonido("caida"); J.despues(700, () => { entrando = null; trasTiro(true); }); }
+        if (dentro) { fase = "fin"; entrando = { t: 0 }; J.sonido("caida"); J.efecto("chispas", HOYOS[h].hoyo[0], HOYOS[h].hoyo[1], { color: J.jugadores[turno].color }); if (golpesHoyo[turno] === 1) J.efecto("texto", HOYOS[h].hoyo[0], HOYOS[h].hoyo[1] - 60, { texto: "¡Hoyo en uno!", color: "#ffd98a" }); J.despues(700, () => { entrando = null; trasTiro(true); }); }
         else if (F.quieto(mundo)) { fase = "fin"; J.despues(300, () => trasTiro(false)); }
       }
     },

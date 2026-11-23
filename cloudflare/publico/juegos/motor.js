@@ -291,6 +291,7 @@
         if (!juegos.length) return;
         const sec = document.createElement("section");
         sec.className = "categoria";
+        sec.dataset.cat = cat;
         sec.innerHTML = "<h2>" + titulo + "</h2><div class='rejilla'></div>";
         const rej = sec.querySelector(".rejilla");
         juegos.forEach((d) => {
@@ -640,7 +641,7 @@
       const slots = conf.slots.slice(0, conf.n);
       const nombres = nombresJugadores(slots);
       const P = (partida = {
-        def, conf, turno: 0, pausada: false, terminada: false, timers: [], t: 0,
+        def, conf, turno: 0, pausada: false, terminada: false, timers: [], t: 0, efectos: [],
         jugadores: slots.map((s, i) => ({ nombre: nombres[i], color: S.COLORES[i], cpu: s === "cpu", control: s, indice: i }))
       });
       P.serie = serie !== undefined ? serie : conf.serie > 1 && conf.n > 1 ? { total: conf.serie, victorias: slots.map(() => 0), jugadas: 0 } : null;
@@ -687,6 +688,7 @@
         return { nuevo, mejor: nuevo ? valor : ant, anterior: ant };
       },
       sonido: (n) => S.sonido(n),
+      efecto: (tipo, x, y, o) => nuevoEfecto(P, tipo, x, y, o),
       aviso: (t) => aviso(t),
       azar: (a, b) => (b === undefined ? Math.random() * a : a + Math.random() * (b - a)),
       entero: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
@@ -787,18 +789,44 @@
             if (t.quedan <= 0) { P.timers.splice(i, 1); i--; t.fn(); if (partida !== P) return; }
           }
           if (P.juego.actualizar) P.juego.actualizar(dt);
+          moverEfectos(P, dt);
           if (partida !== P) return;
         }
       }
       g.setTransform(S.escala, 0, 0, S.escala, 0, 0);
       g.clearRect(0, 0, S.ANCHO, S.ALTO);
       if (P.juego.dibujar) P.juego.dibujar(g);
+      dibujarEfectos(g, P);
       dibujarPie(g, P);
     } catch (e) {
       fallo(e);
       P.pausada = true;
       abrirDialogo({ icono: "⚠️", titulo: "Algo ha fallado", texto: String(e.message || e), botones: [["Volver al menú", salirAlMenu]] });
     }
+  }
+  // Efectos que cualquier juego puede lanzar con J.efecto(tipo, x, y, opciones)
+  function nuevoEfecto(P, tipo, x, y, o) {
+    o = o || {};
+    const c = o.color || "#ffd98a";
+    if (tipo === "chispas") for (let k = 0; k < (o.n || 22); k++) { const a = Math.random() * 7, v = 120 + Math.random() * (o.fuerza || 380); P.efectos.push({ tipo: "p", x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, t: 0, vida: 0.5 + Math.random() * 0.5, c: Math.random() < 0.3 ? "#fff" : c, r: 2 + Math.random() * 4 }); }
+    else if (tipo === "anillo") P.efectos.push({ tipo: "a", x, y, t: 0, vida: 0.6, c, r: o.r || 60 });
+    else if (tipo === "texto") P.efectos.push({ tipo: "t", x, y, t: 0, vida: 1.2, c, texto: o.texto || "", tam: o.tam || 44 });
+    else if (tipo === "destello") P.efectos.push({ tipo: "d", t: 0, vida: 0.35, c });
+  }
+  function moverEfectos(P, dt) {
+    P.efectos.forEach((e) => { e.t += dt; if (e.tipo === "p") { e.x += e.vx * dt; e.y += e.vy * dt; e.vy += 600 * dt; e.vx *= 1 - 1.5 * dt; } });
+    P.efectos = P.efectos.filter((e) => e.t < e.vida);
+  }
+  function dibujarEfectos(g, P) {
+    P.efectos.forEach((e) => {
+      const k = e.t / e.vida;
+      g.save();
+      if (e.tipo === "p") { g.globalAlpha = 1 - k; g.fillStyle = e.c; g.beginPath(); g.arc(e.x, e.y, e.r * (1 - k * 0.5), 0, 7); g.fill(); }
+      else if (e.tipo === "a") { g.globalAlpha = 1 - k; g.strokeStyle = e.c; g.lineWidth = 8 * (1 - k) + 1; g.beginPath(); g.arc(e.x, e.y, e.r * (0.3 + k), 0, 7); g.stroke(); }
+      else if (e.tipo === "t") { g.globalAlpha = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3; dib.texto(g, e.texto, e.x, e.y - k * 70, { tam: e.tam * (k < 0.15 ? 0.6 + k * 2.7 : 1), alin: "center", peso: 700, titulo: true, color: e.c, sombra: 14 }); }
+      else if (e.tipo === "d") { g.globalAlpha = (1 - k) * 0.35; g.fillStyle = e.c; g.fillRect(0, 0, S.ANCHO, S.ALTO); }
+      g.restore();
+    });
   }
   function dibujarPie(g, P) {
     S.dib.texto(g, "Atrás: pausa", 1890, 1060, { tam: 22, color: "rgba(255,255,255,.35)", alin: "right" });
@@ -878,14 +906,29 @@
     return "rgb(" + m(r) + "," + m(gg) + "," + m(b) + ")";
   }
   function alfa(c, a) { const [r, gg, b] = hex(c); return "rgba(" + r + "," + gg + "," + b + "," + a + ")"; }
+  const fondos = {};
   const dib = (S.dib = {
     mezclar, alfa, FUENTE, FUENTE_TIT,
     fondo(g, c1, c2) {
-      const gr = g.createRadialGradient(960, 300, 100, 960, 540, 1300);
-      gr.addColorStop(0, c1 || "#2a1f33");
-      gr.addColorStop(1, c2 || "#0d0a12");
-      g.fillStyle = gr;
-      g.fillRect(0, 0, S.ANCHO, S.ALTO);
+      c1 = c1 || "#2a1f33"; c2 = c2 || "#0d0a12";
+      const clave = c1 + c2 + (S.escala || 1);
+      let cv = fondos[clave];
+      if (!cv) {
+        // se pinta una vez: degradado, textura de grano y viñeta
+        const esc = S.escala || 1;
+        cv = fondos[clave] = document.createElement("canvas");
+        cv.width = Math.ceil(S.ANCHO * esc / 2); cv.height = Math.ceil(S.ALTO * esc / 2);
+        const f = cv.getContext("2d");
+        f.scale(cv.width / S.ANCHO, cv.height / S.ALTO);
+        const gr = f.createRadialGradient(960, 300, 100, 960, 540, 1300);
+        gr.addColorStop(0, c1); gr.addColorStop(1, c2);
+        f.fillStyle = gr; f.fillRect(0, 0, S.ANCHO, S.ALTO);
+        for (let k = 0; k < 3500; k++) { f.fillStyle = k % 2 ? "rgba(255,255,255,.025)" : "rgba(0,0,0,.05)"; f.fillRect((k * 7919) % S.ANCHO, (k * 104729) % S.ALTO, 3, 3); }
+        const v = f.createRadialGradient(960, 540, 500, 960, 540, 1150);
+        v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.45)");
+        f.fillStyle = v; f.fillRect(0, 0, S.ANCHO, S.ALTO);
+      }
+      g.drawImage(cv, 0, 0, S.ANCHO, S.ALTO);
     },
     texto(g, s, x, y, o) {
       o = o || {};
@@ -920,25 +963,34 @@
       g.restore();
     },
     ficha(g, x, y, r, color, o) {
+      // Ficha con relieve: sombra en el suelo, canto, cara superior con luz, surco y brillo
       o = o || {};
+      const canto = o.plana ? 0 : r * 0.14;
       g.save();
-      if (o.sombra !== false) { g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = r * 0.5; g.shadowOffsetY = r * 0.18; }
-      const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
-      gr.addColorStop(0, mezclar(color, 0.45));
-      gr.addColorStop(0.55, color);
-      gr.addColorStop(1, mezclar(color, -0.45));
-      g.fillStyle = gr;
-      g.beginPath();
-      g.arc(x, y, r, 0, Math.PI * 2);
-      g.fill();
-      g.shadowColor = "transparent";
-      if (o.anillo !== false) {
-        g.strokeStyle = "rgba(255,255,255,.18)";
-        g.lineWidth = Math.max(1, r * 0.08);
-        g.beginPath();
-        g.arc(x, y, r * 0.72, 0, Math.PI * 2);
-        g.stroke();
+      if (o.sombra !== false) {
+        const sg = g.createRadialGradient(x + r * 0.12, y + canto + r * 0.22, r * 0.2, x + r * 0.12, y + canto + r * 0.22, r * 1.25);
+        sg.addColorStop(0, "rgba(0,0,0,.45)"); sg.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = sg; g.beginPath(); g.arc(x + r * 0.12, y + canto + r * 0.22, r * 1.25, 0, 7); g.fill();
       }
+      if (canto) {
+        g.fillStyle = mezclar(color, -0.5);
+        g.beginPath(); g.arc(x, y + canto, r, 0, Math.PI * 2); g.fill();
+        g.fillRect(x - r, y, 2 * r, canto);
+      }
+      const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.45, r * 0.05, x, y, r * 1.05);
+      gr.addColorStop(0, mezclar(color, 0.5));
+      gr.addColorStop(0.45, color);
+      gr.addColorStop(1, mezclar(color, -0.3));
+      g.fillStyle = gr;
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      if (o.anillo !== false && r > 9) {
+        g.lineWidth = Math.max(1, r * 0.07);
+        g.strokeStyle = mezclar(color, -0.35); g.beginPath(); g.arc(x, y, r * 0.7, 0, Math.PI * 2); g.stroke();
+        g.strokeStyle = "rgba(255,255,255,.22)"; g.beginPath(); g.arc(x, y + r * 0.05, r * 0.7, 0.2, Math.PI - 0.2); g.stroke();
+      }
+      // brillo
+      g.fillStyle = "rgba(255,255,255,.28)";
+      g.beginPath(); g.ellipse(x - r * 0.32, y - r * 0.42, r * 0.38, r * 0.2, -0.5, 0, Math.PI * 2); g.fill();
       g.restore();
     },
     cursor(g, x, y, w, h, color, t) {
@@ -1159,40 +1211,75 @@
       if (o.resaltada) { g.lineWidth = w * 0.06; g.strokeStyle = "#ffd98a"; g.stroke(); }
       else { g.lineWidth = 1.5; g.strokeStyle = "rgba(0,0,0,.2)"; g.stroke(); }
       if (c.es) dibujarEspanola(g, c, x, y, w, h);
-      else {
-        const col = S.cartas.roja(c) ? "#c62f3a" : "#1d1b24";
-        const rango = ({ 1: "A", 11: "J", 12: "Q", 13: "K" }[c.valor] || String(c.valor));
-        g.fillStyle = col; g.textAlign = "center"; g.textBaseline = "middle";
-        g.font = "700 " + w * 0.24 + "px " + FUENTE;
-        g.fillText(rango, x + w * 0.17, y + w * 0.2);
-        g.font = w * 0.2 + "px serif";
-        g.fillText(SIMB[c.palo], x + w * 0.17, y + w * 0.42);
-        if (c.valor > 10) {
-          g.font = "700 " + w * 0.5 + "px " + FUENTE_TIT;
-          g.fillText(rango, x + w * 0.55, y + h * 0.52);
-          g.font = w * 0.24 + "px serif";
-          g.fillText(SIMB[c.palo], x + w * 0.55, y + h * 0.78);
-        } else {
-          g.font = w * (c.valor === 1 ? 0.62 : 0.46) + "px serif";
-          g.fillText(SIMB[c.palo], x + w * 0.56, y + h * 0.56);
-        }
-      }
+      else dibujarFrancesa(g, c, x, y, w, h);
       g.restore();
     }
   };
+  // Posiciones de los palos en las cartas del 2 al 10 (fracciones del ancho y alto)
+  const PIPS = {
+    2: [[.5, .2], [.5, .8]], 3: [[.5, .2], [.5, .5], [.5, .8]],
+    4: [[.3, .2], [.7, .2], [.3, .8], [.7, .8]], 5: [[.3, .2], [.7, .2], [.5, .5], [.3, .8], [.7, .8]],
+    6: [[.3, .2], [.7, .2], [.3, .5], [.7, .5], [.3, .8], [.7, .8]],
+    7: [[.3, .2], [.7, .2], [.5, .35], [.3, .5], [.7, .5], [.3, .8], [.7, .8]],
+    8: [[.3, .2], [.7, .2], [.5, .35], [.3, .5], [.7, .5], [.5, .65], [.3, .8], [.7, .8]],
+    9: [[.3, .2], [.7, .2], [.3, .4], [.7, .4], [.5, .5], [.3, .6], [.7, .6], [.3, .8], [.7, .8]],
+    10: [[.3, .2], [.7, .2], [.5, .3], [.3, .4], [.7, .4], [.3, .6], [.7, .6], [.5, .7], [.3, .8], [.7, .8]]
+  };
+  function dibujarFrancesa(g, c, x, y, w, h) {
+    const roja = S.cartas.roja(c), col = roja ? "#c62f3a" : "#1d1b24";
+    const rango = { 1: "A", 11: "J", 12: "Q", 13: "K" }[c.valor] || String(c.valor);
+    const simb = SIMB[c.palo];
+    g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = col;
+    // índices en dos esquinas
+    const indice = () => {
+      g.font = "700 " + w * 0.2 + "px " + FUENTE; g.fillText(rango, x + w * 0.13, y + w * 0.15);
+      g.font = w * 0.15 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w * 0.13, y + w * 0.32);
+    };
+    indice();
+    g.save(); g.translate(x + w, y + h); g.rotate(Math.PI); g.translate(-x, -y); indice(); g.restore();
+    const ix = x + w * 0.24, iy = y + h * 0.1, iw = w * 0.52, ih = h * 0.8;
+    if (c.valor === 1) {
+      g.font = w * 0.62 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w / 2, y + h / 2 + w * 0.03);
+    } else if (c.valor <= 10) {
+      g.font = w * (c.valor >= 8 ? 0.16 : 0.2) + "px 'DejaVu Sans', serif";
+      PIPS[c.valor].forEach(([fx, fy]) => {
+        const px = x + w * 0.2 + fx * w * 0.6, py = y + h * 0.08 + fy * h * 0.84;
+        if (fy > 0.55) { g.save(); g.translate(px, py); g.rotate(Math.PI); g.fillText(simb, 0, 0); g.restore(); }
+        else g.fillText(simb, px, py);
+      });
+    } else {
+      // figura: marco con degradado, letra grande y un adorno
+      const gr = g.createLinearGradient(ix, iy, ix + iw, iy + ih);
+      gr.addColorStop(0, roja ? "#fde6e2" : "#e6e8f3"); gr.addColorStop(1, roja ? "#f6c9c2" : "#c9cde3");
+      g.fillStyle = gr; dib.ruta(g, ix, iy, iw, ih, w * 0.05); g.fill();
+      g.strokeStyle = "#c79a3b"; g.lineWidth = w * 0.025; g.stroke();
+      g.fillStyle = col;
+      g.font = w * 0.26 + "px 'DejaVu Sans', serif";
+      g.fillText({ 11: "♞", 12: "♛", 13: "♚" }[c.valor], x + w / 2, y + h * 0.36);
+      g.font = "700 " + w * 0.3 + "px " + FUENTE_TIT; g.fillText(rango, x + w / 2, y + h * 0.62);
+      g.font = w * 0.14 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w / 2, y + h * 0.8);
+    }
+  }
   function dibujarEspanola(g, c, x, y, w, h) {
     const COL = { oros: "#d29a1e", copas: "#c62f3a", espadas: "#2c5fa8", bastos: "#3d7a3a" };
     const col = COL[c.palo];
     g.fillStyle = col; g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = "700 " + w * 0.24 + "px " + FUENTE;
-    g.fillText(String(c.valor), x + w * 0.17, y + w * 0.2);
     // marco típico de la baraja española (cortes según el palo)
     g.strokeStyle = col; g.lineWidth = w * 0.02;
     dib.ruta(g, x + w * 0.08, y + w * 0.08, w * 0.84, h - w * 0.16, w * 0.05); g.stroke();
-    const cx = x + w / 2, cy = y + h * 0.55, s = w * 0.2;
-    g.save(); g.translate(cx, cy);
-    simboloEspanol(g, c.palo, s, col);
-    g.restore();
+    // número sobre un recuadro del color de la carta, para que no pise el marco
+    g.font = "700 " + w * 0.22 + "px " + FUENTE;
+    const tw = g.measureText(String(c.valor)).width;
+    g.fillStyle = "#fbf7ee"; g.fillRect(x + w * 0.05, y + w * 0.06, tw + w * 0.08, w * 0.26);
+    g.fillStyle = col; g.textAlign = "left"; g.fillText(String(c.valor), x + w * 0.09, y + w * 0.2); g.textAlign = "center";
+    const cx = x + w / 2, cy = y + h * 0.55;
+    if (c.valor >= 2 && c.valor <= 7) {
+      const s = w * 0.1;
+      PIPS[c.valor].forEach(([fx, fy]) => { g.save(); g.translate(x + w * 0.22 + fx * w * 0.56, y + h * 0.14 + fy * h * 0.72); simboloEspanol(g, c.palo, s, col); g.restore(); });
+    } else {
+      const s = w * 0.2;
+      g.save(); g.translate(cx, c.valor >= 10 ? y + h * 0.5 : cy); simboloEspanol(g, c.palo, s, col); g.restore();
+    }
     if (c.valor >= 10) {
       g.font = "600 " + w * 0.13 + "px " + FUENTE;
       g.fillStyle = "#3a3346";

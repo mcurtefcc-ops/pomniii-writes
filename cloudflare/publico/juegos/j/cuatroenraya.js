@@ -77,7 +77,7 @@ Salon.juego("cuatroenraya", function (J) {
     caida = null;
     J.sonido("golpe");
     const l = cuatro(tab, r, c);
-    if (l) { fin = l; return J.despues(1000, () => J.terminar({ ganador: j })); }
+    if (l) { fin = l; l.forEach(([r, c]) => J.efecto("chispas", X0 + c * C + C / 2, Y0 + r * C + C / 2, { color: J.jugadores[j].color, n: 14 })); return J.despues(1000, () => J.terminar({ ganador: j })); }
     if (tab[0].every((v) => v >= 0)) { fin = []; return J.despues(800, () => J.terminar({ ganador: null })); }
     turno = 1 - turno;
     siguiente();
