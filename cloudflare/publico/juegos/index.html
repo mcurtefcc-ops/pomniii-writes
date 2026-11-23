@@ -89,6 +89,41 @@
   .pie { margin-top: 5vh; text-align: center; color: var(--suave); font-size: 1.9vh; }
   .pie button { margin-left: 1vw; padding: .6vh 1.4vw; border-radius: 99px; background: var(--panel); border: 2px solid var(--borde); }
 
+  /* ---------- Inicio (casa) ---------- */
+  #casa { overflow: hidden; }
+  #casa .foto { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s; }
+  #casa .foto.visible { opacity: 1; }
+  #casa .velo-foto { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(13,10,18,.88) 0%, rgba(13,10,18,.45) 45%, rgba(13,10,18,.85) 72%), linear-gradient(0deg, rgba(13,10,18,.9), transparent 35%); }
+  .casa-izq { position: absolute; left: 5vw; top: 7vh; }
+  #casaSaludo { font-size: 3.4vh; color: var(--oro2); }
+  #casaHora { font-family: "Playfair Display", serif; font-size: 22vh; line-height: .95; font-weight: 700; letter-spacing: -.02em; text-shadow: 0 1vh 4vh rgba(0,0,0,.5); font-variant-numeric: tabular-nums; }
+  #casaFecha { font-size: 4vh; margin-top: 1vh; }
+  #casaTiempo { margin-top: 4vh; font-size: 2.6vh; color: var(--suave); }
+  #casaTiempo .t1 { display: flex; align-items: center; gap: 1.6vw; color: var(--texto); }
+  #casaTiempo .ic { font-size: 9vh; line-height: 1; }
+  #casaTiempo .t1 b { font-size: 9vh; font-family: "Playfair Display", serif; }
+  #casaTiempo .t2 { display: flex; gap: 2vw; margin-top: 1.4vh; font-size: 2.4vh; text-transform: capitalize; }
+  .casa-der { position: absolute; right: 4vw; top: 7vh; width: 36vw; padding: 3vh 2vw; border-radius: 2.4vh; background: rgba(20,15,26,.72); border: 2px solid rgba(255,255,255,.08); backdrop-filter: blur(1vh); }
+  .casa-der h2 { font-size: 3.6vh; margin-bottom: 2vh; }
+  .casa-der .plan { display: grid; grid-template-columns: 7vh 1fr auto; gap: 1.2vw; align-items: center; padding: 1.4vh 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .casa-der .plan:last-child { border-bottom: 0; }
+  .casa-der .plan .em { font-size: 5vh; text-align: center; }
+  .casa-der .plan b { display: block; font-size: 2.8vh; }
+  .casa-der .plan small { color: var(--suave); font-size: 2vh; }
+  .casa-der .plan .cu { font-size: 2.2vh; font-weight: 700; color: var(--oro2); white-space: nowrap; }
+  .casa-der .plan.hoy .cu { color: #ff8fb0; animation: brilla 1.5s ease-in-out infinite; }
+  @keyframes brilla { 50% { opacity: .5; } }
+  .casa-der .vacio, #casaIdeas { color: var(--suave); font-size: 2.2vh; }
+  #casaIdeas { margin-top: 1.4vh; }
+  .casa-abajo { position: absolute; left: 5vw; right: 4vw; bottom: 5vh; display: flex; gap: 1.4vw; align-items: stretch; }
+  .acceso { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6vh; min-width: 14vw; padding: 2vh 1.4vw; border-radius: 2vh; background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.12); font-size: 2.6vh; font-weight: 700; }
+  .acceso span { font-size: 6vh; line-height: 1; }
+  .casa-qr { margin-left: auto; display: flex; gap: 1.4vw; align-items: center; padding: 1.4vh 1.4vw; border-radius: 2vh; background: rgba(20,15,26,.72); font-size: 2.2vh; max-width: 34vw; }
+  #qrCasa { width: 12vh; height: 12vh; background: #fff; border-radius: 1vh; padding: .6vh; flex: none; }
+  #qrCasa svg { width: 100%; height: 100%; display: block; }
+  .casa-qr small { color: var(--suave); font-size: 1.8vh; }
+  #casaFotoDe.nueva { color: var(--oro2); }
+
   /* ---------- Clasificación ---------- */
   #ranking { overflow-y: auto; padding: 4vh 4vw 8vh; }
   #ranking h1 { font-size: 7vh; }
@@ -150,6 +185,28 @@
 </head>
 <body>
 
+<section class="pantalla" id="casa">
+  <div class="foto" id="fotoA"></div><div class="foto" id="fotoB"></div>
+  <div class="velo-foto"></div>
+  <div class="casa-izq">
+    <div id="casaSaludo">Hola</div>
+    <div id="casaHora">--:--</div>
+    <div id="casaFecha"></div>
+    <div id="casaTiempo"></div>
+  </div>
+  <div class="casa-der">
+    <h2>Próximos planes 💞</h2>
+    <div id="casaAgenda"></div>
+    <div id="casaIdeas"></div>
+  </div>
+  <div class="casa-abajo">
+    <button class="acceso" data-nav id="irJuegos"><span>🎮</span>Juegos</button>
+    <button class="acceso" data-nav id="irRanking"><span>🏆</span>Clasificación</button>
+    <button class="acceso" data-nav id="irCompleta"><span>⛶</span>Pantalla completa</button>
+    <div class="casa-qr"><div id="qrCasa"></div><div><b>Manda fotos desde el móvil</b><br><span id="casaCodigo">Código ----</span><br><small id="casaFotoDe"></small><small id="casaSinFotos">Aún no hay fotos: escanea el QR y pulsa «Fotos a la tele»</small></div></div>
+  </div>
+</section>
+
 <section class="pantalla" id="inicio">
   <div class="cabecera">
     <div>
@@ -198,9 +255,11 @@
 <div id="aviso"></div>
 <canvas id="confeti"></canvas>
 
+<script src="config.js"></script>
 <script src="qrcode.js"></script>
 <script src="motor.js?v=1"></script>
 <script src="catalogo.js?v=1"></script>
+<script src="casa.js?v=1"></script>
 <script>Salon.arrancar();</script>
 </body>
 </html>

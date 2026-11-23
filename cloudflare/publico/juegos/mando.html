@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#140f1b">
-<title>Mando del salón</title>
+<title>pomniii mando</title>
+<link rel="manifest" href="mando.webmanifest">
+<link rel="apple-touch-icon" href="icono-mando-apple.png">
+<link rel="icon" href="icono-mando-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="pomniii">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -43,6 +50,10 @@
   #codigo { text-transform: uppercase; letter-spacing: .3em; text-align: center; font-weight: 700; font-size: 30px; }
   .grande { padding: 18px; border-radius: 16px; background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; font-weight: 700; font-size: 22px; }
   #errorEntrar { color: #ff8f7a; text-align: center; min-height: 20px; }
+  .instalar { display: none; padding: 14px; border-radius: 16px; background: var(--panel2); color: var(--texto); font-size: 17px; text-align: center; line-height: 1.4; }
+  .instalar.visible { display: block; }
+  .instalar b { color: var(--oro2); }
+  #cambiar { padding: 6px 10px; border-radius: 10px; background: transparent; color: var(--suave); font-size: 13px; text-decoration: underline; }
 
   /* ---------- Mando ---------- */
   #mando { padding: 12px 0 16px; gap: 12px; }
@@ -95,6 +106,17 @@
   .teclado { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; }
   .teclado button { padding: 14px 0; border-radius: 12px; background: var(--panel2); font-size: 22px; font-weight: 700; }
   .teclado button.usada { opacity: .25; }
+  /* Extras del menú: fotos y ajustes de la tele */
+  #extras { display: flex; gap: 10px; width: 100%; max-width: 420px; }
+  #extras button, #extras label { flex: 1; padding: 14px 10px; border-radius: 16px; background: var(--panel2); font-size: 16px; font-weight: 700; text-align: center; cursor: pointer; }
+  #envio { min-height: 20px; color: var(--oro2); text-align: center; font-size: 14px; }
+  #ajustes { position: fixed; inset: 0; background: rgba(10,7,14,.92); display: none; flex-direction: column; gap: 14px; padding: max(20px, env(safe-area-inset-top)) 20px 20px; overflow-y: auto; z-index: 10; touch-action: auto; }
+  #ajustes.visible { display: flex; }
+  #ajustes h2 { font-family: "Playfair Display", serif; font-size: 26px; }
+  #ajustes .bloque { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: var(--panel); }
+  #ajustes .bloque p { color: var(--suave); font-size: 14px; line-height: 1.4; }
+  #ajustes button { padding: 14px; border-radius: 14px; background: var(--panel2); font-weight: 700; font-size: 16px; }
+  #ajustes button.ok { background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; }
   .teclado button:active { background: var(--oro); color: #2a1a05; }
 </style>
 </head>
@@ -107,12 +129,15 @@
   <label>Tu nombre <input id="nombre" maxlength="16" autocomplete="nickname" placeholder="Ana"></label>
   <button class="grande" id="btnEntrar">Conectar</button>
   <div id="errorEntrar"></div>
+  <button class="instalar" id="btnInstalar">📲 <b>Instalar la app</b> en este móvil<br><small>Así la tienes con su icono y se conecta sola</small></button>
+  <div class="instalar" id="ayudaIos">📲 Para tenerla como app: pulsa <b>Compartir</b> (el cuadrado con la flecha) y luego <b>Añadir a pantalla de inicio</b>.</div>
 </section>
 
 <section class="vista" id="mando">
   <div class="barra">
     <span class="punto" id="punto"></span>
     <div class="quien"><div class="juego" id="txtJuego">Menú del salón</div><div class="nombre" id="txtNombre"></div></div>
+    <button id="cambiar">cambiar</button>
     <span class="ficha" id="ficha"></span>
     <button id="pausa">Atrás</button>
   </div>
@@ -127,6 +152,12 @@
         <button data-a="abajo">▼</button>
       </div>
       <div class="pista" id="pistaCruceta">Usa la cruceta para moverte por el menú de la tele</div>
+      <div id="extras">
+        <label for="fotosTele">📷 Fotos a la tele</label>
+        <button id="abrirAjustes">⚙️ Ajustes de la tele</button>
+      </div>
+      <input type="file" id="fotosTele" accept="image/*" multiple hidden>
+      <div id="envio"></div>
     </div>
     <div class="panel" id="pApuntar">
       <div id="fuerzaTxt">Arrastra para apuntar</div>
@@ -152,6 +183,18 @@
   </div>
 </section>
 
+<div id="ajustes">
+  <h2>Ajustes de la tele</h2>
+  <div class="bloque"><b>Ciudad para el tiempo</b><input id="ajCiudad" placeholder="Zaragoza" autocomplete="address-level2"><button class="ok" id="guardaCiudad">Guardar ciudad</button></div>
+  <div class="bloque"><b>Vuestra agenda (saritaquedaconmary)</b>
+    <p>Pega la dirección de la agenda y el código de vuestro espacio. Se guardan solo en la tele, no en internet.</p>
+    <input id="ajAgSrv" placeholder="https://…workers.dev" autocomplete="off" inputmode="url">
+    <input id="ajAgCod" placeholder="Código del espacio" autocomplete="off" style="text-transform: uppercase; letter-spacing: .2em">
+    <button class="ok" id="guardaAgenda">Conectar agenda</button></div>
+  <div class="bloque"><b>Fotos</b><button id="borraFotos">Borrar las fotos de la tele</button></div>
+  <button id="cerrarAjustes">Cerrar</button>
+</div>
+
 <script>
 (function () {
   "use strict";
@@ -166,7 +209,7 @@
   $("nombre").value = leer("nombre") || "";
   if (!$("codigo").value) $("codigo").focus(); else $("nombre").focus();
 
-  let ws = null, sala = null, nombre = null, espera = 1000, vivo = false;
+  let ws = null, sala = null, nombre = null, espera = 1000, vivo = false, apagado = false;
 
   $("btnEntrar").addEventListener("click", entrar);
   $("nombre").addEventListener("keydown", (e) => { if (e.key === "Enter") entrar(); });
@@ -177,7 +220,7 @@
     const n = $("nombre").value.trim().slice(0, 16);
     if (c.length < 4) { $("errorEntrar").textContent = "El código tiene 4 letras: míralo en la tele."; return; }
     if (!n) { $("errorEntrar").textContent = "Pon tu nombre para que salga en la tele."; return; }
-    sala = c; nombre = n;
+    sala = c; nombre = n; apagado = false;
     guardar("sala", c); guardar("nombre", n);
     $("txtNombre").textContent = n;
     $("entrar").classList.remove("activa");
@@ -193,7 +236,7 @@
     ws.onclose = () => { vivo = false; $("punto").classList.remove("ok"); setTurno("Reconectando…", false); reintentar(); };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } recibir(m); };
   }
-  function reintentar() { espera = Math.min(espera * 2, 15000); setTimeout(conectar, espera); }
+  function reintentar() { if (apagado) return; espera = Math.min(espera * 2, 15000); setTimeout(() => { if (!apagado) conectar(); }, espera); }
   function enviar(d) { if (ws && vivo) try { ws.send(JSON.stringify(d)); } catch (e) {} }
 
   function recibir(m) {
@@ -218,6 +261,7 @@
     const panel = { cruceta: "pCruceta", apuntar: "pApuntar", respuestas: "pRespuestas", pulsar: "pPulsar", letras: "pLetras" }[modo] || "pCruceta";
     document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("activo", p.id === panel));
     $("pistaCruceta").textContent = d.pantalla === "juego" ? "" : (d.texto || "");
+    $("extras").style.display = d.pantalla === "juego" ? "none" : "";
     if (d.pantalla === "juego") setTurno(d.tuTurno ? "¡Te toca!" : "Turno de otro jugador", d.tuTurno);
     else if (d.pantalla === "mirando") setTurno("Mirando la partida", false);
     else setTurno("", false);
@@ -299,14 +343,87 @@
   diana.addEventListener("pointerup", fin);
   diana.addEventListener("pointercancel", fin);
 
+  // ---------- Fotos a la tele: se reducen en el móvil antes de mandarlas ----------
+  function reducir(archivo) {
+    return new Promise((ok, mal) => {
+      const url = URL.createObjectURL(archivo), img = new Image();
+      img.onload = () => {
+        let lado = 1600, calidad = 0.82, datos = "";
+        for (let intento = 0; intento < 5; intento++) {
+          const esc = Math.min(1, lado / Math.max(img.width, img.height));
+          const cv = document.createElement("canvas");
+          cv.width = Math.round(img.width * esc); cv.height = Math.round(img.height * esc);
+          cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+          datos = cv.toDataURL("image/jpeg", calidad);
+          if (datos.length < 850000) break;
+          lado *= 0.8; calidad -= 0.08;
+        }
+        URL.revokeObjectURL(url); ok(datos);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); mal(new Error("imagen")); };
+      img.src = url;
+    });
+  }
+  $("fotosTele").addEventListener("change", async (e) => {
+    const lista = Array.from(e.target.files || []);
+    e.target.value = "";
+    if (!lista.length) return;
+    if (!vivo) { $("envio").textContent = "No estás conectado a la tele"; return; }
+    for (let k = 0; k < lista.length; k++) {
+      $("envio").textContent = "Enviando " + (k + 1) + " de " + lista.length + "…";
+      try { const datos = await reducir(lista[k]); enviar({ tipo: "foto", datos, de: nombre }); }
+      catch (x) { $("envio").textContent = "Una foto no se ha podido leer"; }
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    $("envio").textContent = lista.length === 1 ? "✓ Foto enviada a la tele" : "✓ " + lista.length + " fotos enviadas a la tele";
+    setTimeout(() => ($("envio").textContent = ""), 4000);
+  });
+
+  // ---------- Ajustes de la tele ----------
+  $("abrirAjustes").addEventListener("click", () => { $("ajCiudad").value = leer("ciudad") || ""; $("ajAgSrv").value = leer("agSrv") || ""; $("ajustes").classList.add("visible"); });
+  $("cerrarAjustes").addEventListener("click", () => $("ajustes").classList.remove("visible"));
+  $("guardaCiudad").addEventListener("click", () => {
+    const c = $("ajCiudad").value.trim(); if (!c) return;
+    guardar("ciudad", c); enviar({ tipo: "ajuste", clave: "ciudad", valor: c });
+    $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Ciudad guardada en la tele";
+  });
+  $("guardaAgenda").addEventListener("click", () => {
+    const srv = $("ajAgSrv").value.trim(), cod = $("ajAgCod").value.trim().toUpperCase();
+    if (!/^https:\/\//.test(srv) || cod.length < 4) { alert("Pon la dirección (empieza por https://) y el código del espacio"); return; }
+    guardar("agSrv", srv); enviar({ tipo: "ajuste", clave: "agenda", valor: { servidor: srv, grupo: cod } });
+    $("ajAgCod").value = ""; $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Agenda conectada en la tele";
+  });
+  $("borraFotos").addEventListener("click", () => { enviar({ tipo: "ajuste", clave: "borrarFotos" }); $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Fotos borradas de la tele"; });
+
   // ---------- Pantalla encendida ----------
   async function pedirPantallaEncendida() {
     try { if (navigator.wakeLock) await navigator.wakeLock.request("screen"); } catch (e) {}
   }
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && sala) pedirPantallaEncendida(); });
 
-  // Si ya habíamos entrado antes con este código, conecta solo.
-  if (params.get("sala") && leer("nombre") && params.get("sala").toUpperCase() === (leer("sala") || "")) entrar();
+  // Si ya sabemos tu nombre y el código de la tele, entra directamente.
+  if (leer("nombre") && $("codigo").value.trim().length >= 4) entrar();
+
+  // "cambiar": volver a la pantalla de código y nombre (otra tele u otro nombre)
+  $("cambiar").addEventListener("click", () => {
+    apagado = true;
+    try { ws && ws.close(); } catch (e) {}
+    $("mando").classList.remove("activa");
+    $("entrar").classList.add("activa");
+  });
+
+  // ---------- Instalar como app ----------
+  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw-mando.js").catch(() => {});
+  const instalada = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  let pedirInstalar = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); pedirInstalar = e; if (!instalada) $("btnInstalar").classList.add("visible"); });
+  $("btnInstalar").addEventListener("click", async () => {
+    if (!pedirInstalar) return;
+    pedirInstalar.prompt();
+    try { await pedirInstalar.userChoice; } catch (e) {}
+    pedirInstalar = null; $("btnInstalar").classList.remove("visible");
+  });
+  if (!instalada && /iphone|ipad|ipod/i.test(navigator.userAgent)) $("ayudaIos").classList.add("visible");
 })();
 </script>
 </body>

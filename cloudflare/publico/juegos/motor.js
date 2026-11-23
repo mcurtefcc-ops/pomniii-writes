@@ -45,13 +45,17 @@
     }
     return c;
   }
-  Red.urlMando = () => location.origin + location.pathname.replace(/[^/]*$/, "") + "mando.html?sala=" + Red.codigo;
+  // Dónde está la sala que une los móviles: la propia web, o la dirección que
+  // fija config.js cuando el salón va dentro de la app del Fire TV.
+  S.servidor = String(window.SALON_SERVIDOR || (/^https?:$/.test(location.protocol) ? location.origin : "")).replace(/\/+$/, "");
+  S.enApp = !!window.ReactNativeWebView || location.protocol === "file:";
+  Red.urlMando = () => S.servidor + "/juegos/mando.html?sala=" + Red.codigo;
   Red.conectar = function () {
     Red.codigo = codigoSala();
-    if (!/^https?:$/.test(location.protocol) || params.has("sinred")) return;
+    if (!S.servidor || params.has("sinred")) return;
     let ws;
     try {
-      ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/sala/" + Red.codigo + "/ws?rol=tv");
+      ws = new WebSocket(S.servidor.replace(/^http/, "ws") + "/sala/" + Red.codigo + "/ws?rol=tv");
     } catch (e) { return reintentar(); }
     Red.ws = ws;
     ws.onopen = () => { Red.conectado = true; Red.espera = 1000; pintarConexion(); };
@@ -117,12 +121,20 @@
     const caja = $("conexion");
     if (!caja) return;
     caja.querySelector(".codigo").textContent = Red.codigo || "----";
-    caja.querySelector(".estado").textContent = !Red.conectado
+    caja.querySelector(".estado").textContent = !S.servidor
+      ? "Para usar móviles falta la dirección del salón"
+      : !Red.conectado
       ? "Conectando…"
       : n === 0 ? "Ningún móvil conectado" : n === 1 ? "1 móvil conectado" : n + " móviles conectados";
     caja.querySelector(".nombres").textContent = Array.from(Red.mandos.values()).map((m) => m.nombre).join(" · ");
     caja.classList.toggle("ok", Red.conectado);
     const qr = $("qr");
+    const qrCasa = $("qrCasa");
+    if ($("casaCodigo")) $("casaCodigo").textContent = S.servidor ? "Código " + (Red.codigo || "----") + (Red.mandos.size ? " · " + Red.mandos.size + (Red.mandos.size === 1 ? " móvil" : " móviles") : "") : "Falta la dirección del salón";
+    if (qrCasa && S.servidor && Red.codigo && qrCasa.dataset.codigo !== Red.codigo && window.qrcode) {
+      try { const q2 = qrcode(0, "M"); q2.addData(Red.urlMando()); q2.make(); qrCasa.innerHTML = q2.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } catch (e) {}
+      qrCasa.dataset.codigo = Red.codigo;
+    }
     if (qr && Red.codigo && qr.dataset.codigo !== Red.codigo && window.qrcode) {
       try {
         const q = qrcode(0, "M");
@@ -133,7 +145,7 @@
       qr.dataset.codigo = Red.codigo;
     }
     const url = $("urlMando");
-    if (url) url.textContent = Red.urlMando().replace(/^https?:\/\//, "");
+    if (url) url.textContent = S.servidor ? Red.urlMando().replace(/^https?:\/\//, "") : "";
   }
 
   // ============================================================
@@ -172,6 +184,8 @@
 
   S.entrada = function (ev) {
     desbloquearSonido();
+    // fotos y ajustes que manda el móvil para la pantalla de Inicio
+    if (ev.tipo === "foto" || ev.tipo === "ajuste") { if (S.casa) S.casa.recibir(ev); return; }
     if (ev.tipo === "tecla") {
       const p = (pulsadas[ev.fuente] = pulsadas[ev.fuente] || new Set());
       if (ev.estado === "arriba") { p.delete(ev.accion); return; }
@@ -205,6 +219,8 @@
     if (a === "atras") {
       if (dialogo && dialogo.alCancelar) return dialogo.alCancelar();
       if (!dialogo && (pantalla === "config" || pantalla === "ranking")) return mostrar("inicio");
+      if (!dialogo && pantalla === "inicio") return mostrar("casa");
+      if (!dialogo && pantalla === "casa" && window.ReactNativeWebView) { try { window.ReactNativeWebView.postMessage("salir"); } catch (e) {} }
       return;
     }
     if ((a === "izquierda" || a === "derecha") && foco && foco.dataset.cambia) {
@@ -271,11 +287,13 @@
   // ============================================================
   let pantalla = "inicio";
   let dialogo = null;
+  S.pantallaActual = () => pantalla;
   function mostrar(id) {
     pantalla = id;
     document.querySelectorAll(".pantalla").forEach((p) => p.classList.toggle("activa", p.id === id));
     if (id === "inicio") pintarInicio();
     if (id === "ranking") pintarClasificacion();
+    if (id === "casa" && S.casa) S.casa.alMostrar();
     if (id !== "juego") primerFoco();
     else if (document.activeElement) document.activeElement.blur();
     avisarMoviles();
@@ -1369,6 +1387,10 @@
     Red.conectar();
     pintarConexion();
     $("verRanking").addEventListener("click", () => mostrar("ranking"));
+    $("irJuegos").addEventListener("click", () => mostrar("inicio"));
+    $("irRanking").addEventListener("click", () => mostrar("ranking"));
+    $("irCompleta").addEventListener("click", () => { const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen; try { f && f.call(el); } catch (e) {} });
+    if (S.casa) S.casa.arrancar();
     $("volverRanking").addEventListener("click", () => mostrar("inicio"));
     $("pantallaCompleta").addEventListener("click", () => {
       const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen;
@@ -1387,6 +1409,6 @@
       empezar(def, { n, dificultad: parseInt(params.get("dif"), 10) || 2, opciones, slots });
       return;
     }
-    mostrar("inicio");
+    mostrar(params.has("juegos") ? "inicio" : "casa");
   };
 })();
