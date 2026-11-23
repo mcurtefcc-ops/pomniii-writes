@@ -236,7 +236,25 @@
   };
   C.ajustes = ajustes;
 
+  // ---------- Que la tele no se duerma ni salga el salvapantallas ----------
+  // 1) Wake Lock (si el navegador lo tiene); 2) un vídeo negro diminuto en bucle,
+  // porque el Fire TV no pone el salvapantallas mientras se reproduce un vídeo.
+  function despierta() {
+    let cerrojo = null;
+    const pedir = async () => { try { if (navigator.wakeLock && !cerrojo && document.visibilityState === "visible") { cerrojo = await navigator.wakeLock.request("screen"); cerrojo.addEventListener("release", () => { cerrojo = null; }); } } catch (e) {} };
+    const v = document.createElement("video");
+    v.src = "despierta.mp4"; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+    v.style.cssText = "position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1";
+    document.body.appendChild(v);
+    const jugar = () => { if (document.visibilityState === "visible") { const p = v.play(); if (p && p.catch) p.catch(() => {}); pedir(); } };
+    document.addEventListener("visibilitychange", jugar);
+    ["keydown", "click", "pointerdown"].forEach((t) => document.addEventListener(t, jugar, { once: true }));
+    setInterval(() => { if (v.paused) jugar(); }, 60000);
+    jugar();
+  }
+
   C.arrancar = async function () {
+    despierta();
     reloj(); setInterval(reloj, 5000);
     tiempo(); setInterval(tiempo, 30 * 60000);
     agenda(); setInterval(agenda, 5 * 60000);
