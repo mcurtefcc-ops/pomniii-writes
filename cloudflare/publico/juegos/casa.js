@@ -138,33 +138,87 @@
       if (!r.ok) throw new Error(r.status);
       const els = (await r.json()).elementos || [];
       const hoy = isoDia(new Date());
-      const planes = els.filter((e) => e.tipo === "plan" && !e.borrado && e.fecha);
-      const anuales = planes.filter((p) => p.repite === "anual");
+      const planes = els.filter((e) => e.tipo === "plan" && !e.borrado);
+      const anuales = planes.filter((p) => p.repite === "anual" && p.fecha);
       const lista = [];
       planes.forEach((p) => {
         if (p.repite) {
+          if (!p.fecha) return;
           let f = proxima(p, hoy);
           // el día del aniversario no se celebra además el mesiversario
           if (f && p.repite === "mensual" && anuales.some((q) => proxima(q, hoy) === f)) { const d = new Date(f + "T12:00"); d.setDate(d.getDate() + 1); f = proxima(p, isoDia(d)); }
           if (f) lista.push({ p, f });
-        } else if (p.estado === "confirmado" && p.fecha >= hoy) lista.push({ p, f: p.fecha });
+        } else if (p.estado === "confirmado" && p.fecha && p.fecha >= hoy) lista.push({ p, f: p.fecha });
+        else if ((p.estado || "borrador") === "borrador") {
+          // plan propuesto: su primera fecha propuesta que aún no ha pasado
+          const f = (p.propuestas || []).filter((d) => d >= hoy).sort()[0] || (p.fecha && p.fecha >= hoy ? p.fecha : "");
+          if (f) lista.push({ p, f, propuesta: true });
+        }
       });
-      lista.sort((a, b) => (a.f + (a.p.hora || "")).localeCompare(b.f + (b.p.hora || "")));
-      const ideas = planes.filter((p) => !p.repite && (p.estado || "borrador") === "borrador").length;
+      lista.sort((a, b) => (a.f + (a.p.hora || "")).localeCompare(b.f + (b.p.hora || "")) || (a.propuesta ? 1 : 0) - (b.propuesta ? 1 : 0));
+      const ideas = planes.filter((p) => !p.repite && (p.estado || "borrador") === "borrador" && !lista.some((x) => x.p === p)).length;
       caja.innerHTML = lista.slice(0, 4).map(({ p, f }) => {
         const c = cuenta(f, hoy);
         return "<div class='plan" + (c === "¡Hoy!" ? " hoy" : "") + "'><span class='em'></span><span class='tx'><b></b><small></small></span><span class='cu'></span></div>";
-      }).join("") || "<p class='vacio'>No hay planes confirmados a la vista. ¡A proponer alguno!</p>";
+      }).join("") || (planes.length ? "<p class='vacio'>No hay planes con fecha a la vista. ¡A proponer alguno!</p>" : "<p class='vacio'>La agenda está conectada pero no tiene planes todavía.</p>");
       caja.querySelectorAll(".plan").forEach((el, k) => {
         const { p, f } = lista[k];
         el.querySelector(".em").textContent = p.emoji || "💞";
         el.querySelector("b").textContent = p.titulo || "Plan";
         const txt = new Date(f + "T12:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
-        el.querySelector("small").textContent = txt.charAt(0).toUpperCase() + txt.slice(1) + (p.hora && !p.repite ? " · " + p.hora : "");
+        el.querySelector("small").textContent = txt.charAt(0).toUpperCase() + txt.slice(1) + (p.hora && !p.repite ? " · " + p.hora : "") + (lista[k].propuesta ? " · propuesto" : "");
         el.querySelector(".cu").textContent = cuenta(f, hoy);
       });
       $("casaIdeas").textContent = ideas ? "💡 " + ideas + (ideas === 1 ? " idea pendiente de fecha" : " ideas pendientes de fecha") : "";
-    } catch (e) { caja.innerHTML = "<p class='vacio'>No puedo leer la agenda ahora mismo.</p>"; }
+    } catch (e) { caja.innerHTML = "<p class='vacio'>No puedo leer la agenda ahora mismo" + (String(e.message) === "404" ? ": el código del espacio no es correcto." : ". Lo vuelvo a intentar en unos minutos.") + "</p>"; }
+  }
+
+  // ---------- Spotify: la canción que suena, con carátula y controles ----------
+  const SPOTIFY_ID = window.SALON_SPOTIFY_ID || ""; // Client ID público (inicio de sesión PKCE, sin secreto)
+  let sp = S.leer("spotify", null), sonando = null, spPedido = 0;
+  async function spLlave() {
+    if (!sp || !sp.refresh || !SPOTIFY_ID) return null;
+    if (sp.acceso && sp.caduca > Date.now()) return sp.acceso;
+    const r = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: sp.refresh, client_id: SPOTIFY_ID }) });
+    const t = await r.json();
+    if (!t.access_token) { if (t.error === "invalid_grant") { sp = null; S.guardar("spotify", null); } return null; }
+    sp.acceso = t.access_token; sp.caduca = Date.now() + (t.expires_in - 60) * 1000;
+    if (t.refresh_token) sp.refresh = t.refresh_token; // Spotify cambia la llave a veces: hay que guardar la nueva
+    S.guardar("spotify", sp);
+    return sp.acceso;
+  }
+  async function spApi(metodo, ruta) {
+    const llave = await spLlave(); if (!llave) return null;
+    const r = await fetch("https://api.spotify.com/v1/me/player" + ruta, { method: metodo, headers: { Authorization: "Bearer " + llave } });
+    if (r.status === 204 || r.status === 202) return {};
+    if (!r.ok) return null;
+    return r.json().catch(() => ({}));
+  }
+  async function spotify() {
+    const caja = $("casaMusica");
+    if (!caja) return;
+    if (!sp || !SPOTIFY_ID) { caja.hidden = true; return; }
+    caja.hidden = false;
+    try {
+      const d = await spApi("GET", "/currently-playing");
+      if (!d || !d.item) { sonando = null; $("spTitulo").textContent = "No suena nada"; $("spArtista").textContent = "Pon música en Spotify (en el móvil o aquí) y saldrá aquí"; $("spCaratula").style.backgroundImage = ""; $("spBarra").style.width = "0"; $("spPlay").textContent = "▶"; return; }
+      sonando = { pos: d.progress_ms, dur: d.item.duration_ms, play: d.is_playing, t: Date.now() };
+      $("spTitulo").textContent = d.item.name;
+      $("spArtista").textContent = (d.item.artists || []).map((a) => a.name).join(", ") + (d.item.album ? " · " + d.item.album.name : "");
+      const img = d.item.album && d.item.album.images && d.item.album.images[0];
+      $("spCaratula").style.backgroundImage = img ? "url('" + img.url + "')" : "";
+      $("spPlay").textContent = d.is_playing ? "⏸" : "▶";
+    } catch (e) {}
+  }
+  function barra() {
+    if (!sonando) return;
+    const pos = Math.min(sonando.dur, sonando.pos + (sonando.play ? Date.now() - sonando.t : 0));
+    $("spBarra").style.width = (100 * pos) / sonando.dur + "%";
+  }
+  async function spControl(que) {
+    if (que === "play") await spApi("PUT", sonando && sonando.play ? "/pause" : "/play");
+    else await spApi("POST", que === "siguiente" ? "/next" : "/previous");
+    setTimeout(spotify, 600);
   }
 
   // ---------- Mensajes del móvil ----------
@@ -176,14 +230,36 @@
         guardarAjuste("agendaServidor", String(ev.valor.servidor || "").trim()); guardarAjuste("agendaGrupo", ev.valor.grupo.trim());
         agenda(); S.aviso("Agenda conectada");
       } else if (ev.clave === "borrarFotos") { borrarFotos(); S.aviso("Fotos borradas de la tele"); }
+      else if (ev.clave === "spotify" && ev.valor && typeof ev.valor.refresh === "string") { sp = { refresh: ev.valor.refresh, acceso: ev.valor.acceso, caduca: ev.valor.caduca }; S.guardar("spotify", sp); spotify(); S.aviso("🎵 Spotify conectado"); }
+      else if (ev.clave === "spotifyFuera") { sp = null; S.guardar("spotify", null); spotify(); S.aviso("Spotify desconectado"); }
     }
   };
   C.ajustes = ajustes;
 
+  // ---------- Que la tele no se duerma ni salga el salvapantallas ----------
+  // 1) Wake Lock (si el navegador lo tiene); 2) un vídeo negro diminuto en bucle,
+  // porque el Fire TV no pone el salvapantallas mientras se reproduce un vídeo.
+  function despierta() {
+    let cerrojo = null;
+    const pedir = async () => { try { if (navigator.wakeLock && !cerrojo && document.visibilityState === "visible") { cerrojo = await navigator.wakeLock.request("screen"); cerrojo.addEventListener("release", () => { cerrojo = null; }); } } catch (e) {} };
+    const v = document.createElement("video");
+    v.src = "despierta.mp4"; v.muted = true; v.loop = true; v.playsInline = true; v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+    v.style.cssText = "position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1";
+    document.body.appendChild(v);
+    const jugar = () => { if (document.visibilityState === "visible") { const p = v.play(); if (p && p.catch) p.catch(() => {}); pedir(); } };
+    document.addEventListener("visibilitychange", jugar);
+    ["keydown", "click", "pointerdown"].forEach((t) => document.addEventListener(t, jugar, { once: true }));
+    setInterval(() => { if (v.paused) jugar(); }, 60000);
+    jugar();
+  }
+
   C.arrancar = async function () {
+    despierta();
     reloj(); setInterval(reloj, 5000);
     tiempo(); setInterval(tiempo, 30 * 60000);
     agenda(); setInterval(agenda, 5 * 60000);
+    spotify(); setInterval(() => { if (S.pantallaActual() === "casa") spotify(); }, 5000); setInterval(barra, 500);
+    [["spAnt", "anterior"], ["spPlay", "play"], ["spSig", "siguiente"]].forEach(([id, q]) => $(id) && $(id).addEventListener("click", () => spControl(q)));
     await abrirBase(); await cargarFotos(); pintarFoto();
     setInterval(() => { if (fotos.length > 1 && S.pantallaActual() === "casa") { fotoActual = (fotoActual + 1) % fotos.length; pintarFoto(); } }, 12000);
   };
