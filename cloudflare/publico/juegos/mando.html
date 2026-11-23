@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#140f1b">
-<title>Mando del salón</title>
+<title>pomniii mando</title>
+<link rel="manifest" href="mando.webmanifest">
+<link rel="apple-touch-icon" href="icono-mando-apple.png">
+<link rel="icon" href="icono-mando-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="pomniii">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -43,6 +50,10 @@
   #codigo { text-transform: uppercase; letter-spacing: .3em; text-align: center; font-weight: 700; font-size: 30px; }
   .grande { padding: 18px; border-radius: 16px; background: linear-gradient(180deg, var(--oro2), var(--oro)); color: #2a1a05; font-weight: 700; font-size: 22px; }
   #errorEntrar { color: #ff8f7a; text-align: center; min-height: 20px; }
+  .instalar { display: none; padding: 14px; border-radius: 16px; background: var(--panel2); color: var(--texto); font-size: 17px; text-align: center; line-height: 1.4; }
+  .instalar.visible { display: block; }
+  .instalar b { color: var(--oro2); }
+  #cambiar { padding: 6px 10px; border-radius: 10px; background: transparent; color: var(--suave); font-size: 13px; text-decoration: underline; }
 
   /* ---------- Mando ---------- */
   #mando { padding: 12px 0 16px; gap: 12px; }
@@ -107,12 +118,15 @@
   <label>Tu nombre <input id="nombre" maxlength="16" autocomplete="nickname" placeholder="Ana"></label>
   <button class="grande" id="btnEntrar">Conectar</button>
   <div id="errorEntrar"></div>
+  <button class="instalar" id="btnInstalar">📲 <b>Instalar la app</b> en este móvil<br><small>Así la tienes con su icono y se conecta sola</small></button>
+  <div class="instalar" id="ayudaIos">📲 Para tenerla como app: pulsa <b>Compartir</b> (el cuadrado con la flecha) y luego <b>Añadir a pantalla de inicio</b>.</div>
 </section>
 
 <section class="vista" id="mando">
   <div class="barra">
     <span class="punto" id="punto"></span>
     <div class="quien"><div class="juego" id="txtJuego">Menú del salón</div><div class="nombre" id="txtNombre"></div></div>
+    <button id="cambiar">cambiar</button>
     <span class="ficha" id="ficha"></span>
     <button id="pausa">Atrás</button>
   </div>
@@ -166,7 +180,7 @@
   $("nombre").value = leer("nombre") || "";
   if (!$("codigo").value) $("codigo").focus(); else $("nombre").focus();
 
-  let ws = null, sala = null, nombre = null, espera = 1000, vivo = false;
+  let ws = null, sala = null, nombre = null, espera = 1000, vivo = false, apagado = false;
 
   $("btnEntrar").addEventListener("click", entrar);
   $("nombre").addEventListener("keydown", (e) => { if (e.key === "Enter") entrar(); });
@@ -177,7 +191,7 @@
     const n = $("nombre").value.trim().slice(0, 16);
     if (c.length < 4) { $("errorEntrar").textContent = "El código tiene 4 letras: míralo en la tele."; return; }
     if (!n) { $("errorEntrar").textContent = "Pon tu nombre para que salga en la tele."; return; }
-    sala = c; nombre = n;
+    sala = c; nombre = n; apagado = false;
     guardar("sala", c); guardar("nombre", n);
     $("txtNombre").textContent = n;
     $("entrar").classList.remove("activa");
@@ -193,7 +207,7 @@
     ws.onclose = () => { vivo = false; $("punto").classList.remove("ok"); setTurno("Reconectando…", false); reintentar(); };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } recibir(m); };
   }
-  function reintentar() { espera = Math.min(espera * 2, 15000); setTimeout(conectar, espera); }
+  function reintentar() { if (apagado) return; espera = Math.min(espera * 2, 15000); setTimeout(() => { if (!apagado) conectar(); }, espera); }
   function enviar(d) { if (ws && vivo) try { ws.send(JSON.stringify(d)); } catch (e) {} }
 
   function recibir(m) {
@@ -305,8 +319,29 @@
   }
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && sala) pedirPantallaEncendida(); });
 
-  // Si ya habíamos entrado antes con este código, conecta solo.
-  if (params.get("sala") && leer("nombre") && params.get("sala").toUpperCase() === (leer("sala") || "")) entrar();
+  // Si ya sabemos tu nombre y el código de la tele, entra directamente.
+  if (leer("nombre") && $("codigo").value.trim().length >= 4) entrar();
+
+  // "cambiar": volver a la pantalla de código y nombre (otra tele u otro nombre)
+  $("cambiar").addEventListener("click", () => {
+    apagado = true;
+    try { ws && ws.close(); } catch (e) {}
+    $("mando").classList.remove("activa");
+    $("entrar").classList.add("activa");
+  });
+
+  // ---------- Instalar como app ----------
+  if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw-mando.js").catch(() => {});
+  const instalada = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  let pedirInstalar = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); pedirInstalar = e; if (!instalada) $("btnInstalar").classList.add("visible"); });
+  $("btnInstalar").addEventListener("click", async () => {
+    if (!pedirInstalar) return;
+    pedirInstalar.prompt();
+    try { await pedirInstalar.userChoice; } catch (e) {}
+    pedirInstalar = null; $("btnInstalar").classList.remove("visible");
+  });
+  if (!instalada && /iphone|ipad|ipod/i.test(navigator.userAgent)) $("ayudaIos").classList.add("visible");
 })();
 </script>
 </body>
