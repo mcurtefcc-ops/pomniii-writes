@@ -187,9 +187,9 @@
   <h2>Ajustes de la tele</h2>
   <div class="bloque"><b>Ciudad para el tiempo</b><input id="ajCiudad" placeholder="Zaragoza" autocomplete="address-level2"><button class="ok" id="guardaCiudad">Guardar ciudad</button></div>
   <div class="bloque"><b>Vuestra agenda (saritaquedaconmary)</b>
-    <p>Pega la dirección de la agenda y el código de vuestro espacio. Se guardan solo en la tele, no en internet.</p>
-    <input id="ajAgSrv" placeholder="https://…workers.dev" autocomplete="off" inputmode="url">
-    <input id="ajAgCod" placeholder="Código del espacio" autocomplete="off" style="text-transform: uppercase; letter-spacing: .2em">
+    <p>Pega el enlace de invitación de la agenda (o su dirección y el código del espacio). Se guarda solo en la tele, no en internet.</p>
+    <input id="ajAgSrv" placeholder="Enlace de la agenda: https://…" autocomplete="off" inputmode="url">
+    <input id="ajAgCod" placeholder="Código (no hace falta con el enlace)" autocomplete="off" style="text-transform: uppercase; letter-spacing: .2em">
     <button class="ok" id="guardaAgenda">Conectar agenda</button></div>
   <div class="bloque"><b>Spotify</b><p>Muestra en la tele la canción que suena y contrólala con el mando (Spotify Premium).</p>
     <button class="ok" id="conectaSpotify">🎵 Conectar Spotify</button><button id="quitaSpotify">Desconectar Spotify</button></div>
@@ -390,7 +390,11 @@
     $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Ciudad guardada en la tele";
   });
   $("guardaAgenda").addEventListener("click", () => {
-    const srv = $("ajAgSrv").value.trim(), cod = $("ajAgCod").value.trim().toUpperCase();
+    let srv = $("ajAgSrv").value.trim(), cod = $("ajAgCod").value.trim().toUpperCase();
+    // También vale el enlace de invitación de la agenda (https://…/?g=CODIGO)
+    const enlace = srv.match(/^(https:\/\/[^/?#]+)[^?#]*\?(?:.*&)?g=([A-Za-z0-9]+)/);
+    if (enlace) { srv = enlace[1]; if (!cod) cod = enlace[2].toUpperCase(); }
+    srv = srv.replace(/\/+$/, "");
     if (!/^https:\/\//.test(srv) || cod.length < 4) { alert("Pon la dirección (empieza por https://) y el código del espacio"); return; }
     guardar("agSrv", srv); enviar({ tipo: "ajuste", clave: "agenda", valor: { servidor: srv, grupo: cod } });
     $("ajAgCod").value = ""; $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Agenda conectada en la tele";

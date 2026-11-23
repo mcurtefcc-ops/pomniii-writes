@@ -138,33 +138,39 @@
       if (!r.ok) throw new Error(r.status);
       const els = (await r.json()).elementos || [];
       const hoy = isoDia(new Date());
-      const planes = els.filter((e) => e.tipo === "plan" && !e.borrado && e.fecha);
-      const anuales = planes.filter((p) => p.repite === "anual");
+      const planes = els.filter((e) => e.tipo === "plan" && !e.borrado);
+      const anuales = planes.filter((p) => p.repite === "anual" && p.fecha);
       const lista = [];
       planes.forEach((p) => {
         if (p.repite) {
+          if (!p.fecha) return;
           let f = proxima(p, hoy);
           // el día del aniversario no se celebra además el mesiversario
           if (f && p.repite === "mensual" && anuales.some((q) => proxima(q, hoy) === f)) { const d = new Date(f + "T12:00"); d.setDate(d.getDate() + 1); f = proxima(p, isoDia(d)); }
           if (f) lista.push({ p, f });
-        } else if (p.estado === "confirmado" && p.fecha >= hoy) lista.push({ p, f: p.fecha });
+        } else if (p.estado === "confirmado" && p.fecha && p.fecha >= hoy) lista.push({ p, f: p.fecha });
+        else if ((p.estado || "borrador") === "borrador") {
+          // plan propuesto: su primera fecha propuesta que aún no ha pasado
+          const f = (p.propuestas || []).filter((d) => d >= hoy).sort()[0] || (p.fecha && p.fecha >= hoy ? p.fecha : "");
+          if (f) lista.push({ p, f, propuesta: true });
+        }
       });
-      lista.sort((a, b) => (a.f + (a.p.hora || "")).localeCompare(b.f + (b.p.hora || "")));
-      const ideas = planes.filter((p) => !p.repite && (p.estado || "borrador") === "borrador").length;
+      lista.sort((a, b) => (a.f + (a.p.hora || "")).localeCompare(b.f + (b.p.hora || "")) || (a.propuesta ? 1 : 0) - (b.propuesta ? 1 : 0));
+      const ideas = planes.filter((p) => !p.repite && (p.estado || "borrador") === "borrador" && !lista.some((x) => x.p === p)).length;
       caja.innerHTML = lista.slice(0, 4).map(({ p, f }) => {
         const c = cuenta(f, hoy);
         return "<div class='plan" + (c === "¡Hoy!" ? " hoy" : "") + "'><span class='em'></span><span class='tx'><b></b><small></small></span><span class='cu'></span></div>";
-      }).join("") || "<p class='vacio'>No hay planes confirmados a la vista. ¡A proponer alguno!</p>";
+      }).join("") || (planes.length ? "<p class='vacio'>No hay planes con fecha a la vista. ¡A proponer alguno!</p>" : "<p class='vacio'>La agenda está conectada pero no tiene planes todavía.</p>");
       caja.querySelectorAll(".plan").forEach((el, k) => {
         const { p, f } = lista[k];
         el.querySelector(".em").textContent = p.emoji || "💞";
         el.querySelector("b").textContent = p.titulo || "Plan";
         const txt = new Date(f + "T12:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
-        el.querySelector("small").textContent = txt.charAt(0).toUpperCase() + txt.slice(1) + (p.hora && !p.repite ? " · " + p.hora : "");
+        el.querySelector("small").textContent = txt.charAt(0).toUpperCase() + txt.slice(1) + (p.hora && !p.repite ? " · " + p.hora : "") + (lista[k].propuesta ? " · propuesto" : "");
         el.querySelector(".cu").textContent = cuenta(f, hoy);
       });
       $("casaIdeas").textContent = ideas ? "💡 " + ideas + (ideas === 1 ? " idea pendiente de fecha" : " ideas pendientes de fecha") : "";
-    } catch (e) { caja.innerHTML = "<p class='vacio'>No puedo leer la agenda ahora mismo.</p>"; }
+    } catch (e) { caja.innerHTML = "<p class='vacio'>No puedo leer la agenda ahora mismo" + (String(e.message) === "404" ? ": el código del espacio no es correcto." : ". Lo vuelvo a intentar en unos minutos.") + "</p>"; }
   }
 
   // ---------- Spotify: la canción que suena, con carátula y controles ----------
