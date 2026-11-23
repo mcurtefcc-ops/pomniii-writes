@@ -1155,7 +1155,7 @@
       const slots = [];
       for (let i = 0; i < n; i++) slots.push(todosCpu ? "cpu" : "tv");
       const opciones = {};
-      (def.opciones || []).forEach((o) => (opciones[o.id] = o.def));
+      (def.opciones || []).forEach((o) => (opciones[o.id] = params.has("op_" + o.id) ? +params.get("op_" + o.id) : o.def));
       empezar(def, { n, dificultad: parseInt(params.get("dif"), 10) || 2, opciones, slots });
       return;
     }

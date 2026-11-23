@@ -37,6 +37,8 @@
 
     // ---------------- Arcade ----------------
     { id: "serpiente", nombre: "Serpientes", icono: "🐍", cat: "arcade", desc: "Come y crece sin chocarte. Hasta 4 a la vez.", min: 1, max: 4, maquina: true, dificultad: true, control: "cruceta", tiempoReal: true },
+    { id: "karts", nombre: "Karts", icono: "🏎", cat: "arcade", desc: "Carreras a tres vueltas con derrapes, turbos y objetos. Hasta 4 contra la máquina.", min: 1, max: 4, maquina: true, dificultad: true, control: "cruceta", tiempoReal: true,
+      opciones: [{ id: "circuito", nombre: "Circuito", valores: [[1, "Bosque"], [2, "Playa"], [3, "Volcán"]], def: 1 }, { id: "vueltas", nombre: "Vueltas", valores: [[3, "3"], [5, "5"], [7, "7"]], def: 5 }] },
     { id: "tenis", nombre: "Tenis de mesa", icono: "🏓", cat: "arcade", desc: "Pala arriba y abajo. A 11 puntos.", min: 2, max: 2, maquina: true, dificultad: true, control: "cruceta", tiempoReal: true },
     { id: "ladrillos", nombre: "Rompeladrillos", icono: "🧱", cat: "arcade", desc: "Rompe todos los ladrillos con la pelota.", min: 1, max: 1, maquina: false, dificultad: true, control: "cruceta", tiempoReal: true },
     { id: "bloques", nombre: "Bloques", icono: "🟪", cat: "arcade", desc: "Encaja las piezas que caen y completa filas.", min: 1, max: 1, maquina: false, dificultad: true, control: "cruceta", tiempoReal: true },
