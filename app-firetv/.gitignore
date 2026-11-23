@@ -1,0 +1,15 @@
+*.iml
+*.swp
+.idea
+.DS_Store
+.vscode
+.tmp
+
+dist
+build
+node_modules
+CMakeUserPresets.json
+npm-debug.log
+# El salón se copia aquí al fabricar la app (el original está en cloudflare/publico/juegos)
+assets/juegos
+buildinfo.json
