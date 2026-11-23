@@ -37,8 +37,8 @@ Salon.juego("bolos", function (J) {
     const ahora = enPie.filter(Boolean).length, tumbados = antes - ahora;
     tiradas[turno].push(tumbados);
     const decimo = frame === 9;
-    if (tiradaFrame === 0 && ahora === 0) { msg = "¡Pleno!"; J.sonido("ganar"); }
-    else if (tiradaFrame === 1 && ahora === 0 && antes < 10) { msg = "¡Semipleno!"; J.sonido("gol"); }
+    if (tiradaFrame === 0 && ahora === 0) { msg = "¡Pleno!"; J.sonido("ganar"); J.efecto("texto", CX, 420, { texto: "¡PLENO!", tam: 90, color: "#ffd98a" }); J.efecto("chispas", CX, 230, { n: 40 }); J.efecto("destello", 0, 0, { color: "#ffd98a" }); }
+    else if (tiradaFrame === 1 && ahora === 0 && antes < 10) { msg = "¡Semipleno!"; J.sonido("gol"); J.efecto("texto", CX, 420, { texto: "¡SEMIPLENO!", tam: 70, color: "#7fd6ff" }); }
     else msg = tumbados ? tumbados + (tumbados === 1 ? " bolo" : " bolos") : "Ninguno";
     tiradaFrame++;
     let acabaFrame;

@@ -152,10 +152,12 @@ Salon.juego("parchis", function (J) {
     if (m.come) {
       fichas[m.come.j][m.come.i] = -1;
       J.sonido("comer");
+      { const [x, y] = posFicha(turno, m.i, m.a); J.efecto("chispas", x, y, { color: COLORES[colorDe[m.come.j]].c }); J.efecto("texto", x, y - 40, { texto: "+20", color: "#ffd98a" }); }
       msg = "¡" + J.jugadores[turno].nombre + " se come una ficha! Cuenta 20";
       bonus = 20;
     } else if (m.a === META) {
       J.sonido("gol");
+      { const [x, y] = posFicha(turno, m.i, META); J.efecto("chispas", x, y, { color: COLORES[colorDe[turno]].c }); J.efecto("texto", x, y - 40, { texto: "+10", color: "#ffd98a" }); }
       msg = "¡Ficha en la meta! Cuenta 10";
       bonus = 10;
     } else msg = "";

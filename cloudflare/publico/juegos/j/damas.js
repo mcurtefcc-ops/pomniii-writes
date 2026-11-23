@@ -117,7 +117,8 @@ Salon.juego("damas", function (J) {
     const j = anim.j, p0 = anim.pieza;
     t = aplicar(t, j);
     const f = j.camino[j.camino.length - 1];
-    if (Math.abs(t[f[0]][f[1]]) === 2 && Math.abs(p0) === 1) J.sonido("gol");
+    j.comidas.forEach(([r, c]) => { const [x, y] = posPieza(r, c); J.efecto("chispas", x, y, { color: p0 > 0 ? "#3a2f42" : "#efe3cb", n: 18 }); });
+    if (Math.abs(t[f[0]][f[1]]) === 2 && Math.abs(p0) === 1) { J.sonido("gol"); const [x, y] = posPieza(f[0], f[1]); J.efecto("anillo", x, y, { color: "#ffd98a", r: 80 }); J.efecto("texto", x, y - 40, { texto: "¡Dama!", color: "#ffd98a" }); }
     sinCambio = j.comidas.length || Math.abs(p0) === 1 ? 0 : sinCambio + 1;
     ultimo = [j.de, f];
     if (!J.jugadores[turno].cpu) cursor = f.slice();

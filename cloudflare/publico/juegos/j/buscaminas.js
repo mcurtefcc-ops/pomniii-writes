@@ -49,6 +49,7 @@ Salon.juego("buscaminas", function (J) {
   }
   function perder() {
     fin = true; J.sonido("explosion");
+    if (explotada) { J.efecto("chispas", X0 + explotada[1] * C + C / 2, Y0 + explotada[0] * C + C / 2, { color: "#ef5b5b", n: 40 }); J.efecto("destello", 0, 0, { color: "#ef5b5b" }); }
     J.despues(1400, () => J.terminar({ titulo: "¡Boom!", icono: "💣", texto: "Pisaste una mina." }));
   }
   J.turno(0);

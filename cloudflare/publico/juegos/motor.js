@@ -204,7 +204,7 @@
     }
     if (a === "atras") {
       if (dialogo && dialogo.alCancelar) return dialogo.alCancelar();
-      if (!dialogo && pantalla === "config") return mostrar("inicio");
+      if (!dialogo && (pantalla === "config" || pantalla === "ranking")) return mostrar("inicio");
       return;
     }
     if ((a === "izquierda" || a === "derecha") && foco && foco.dataset.cambia) {
@@ -275,6 +275,7 @@
     pantalla = id;
     document.querySelectorAll(".pantalla").forEach((p) => p.classList.toggle("activa", p.id === id));
     if (id === "inicio") pintarInicio();
+    if (id === "ranking") pintarClasificacion();
     if (id !== "juego") primerFoco();
     else if (document.activeElement) document.activeElement.blur();
     avisarMoviles();
@@ -290,6 +291,7 @@
         if (!juegos.length) return;
         const sec = document.createElement("section");
         sec.className = "categoria";
+        sec.dataset.cat = cat;
         sec.innerHTML = "<h2>" + titulo + "</h2><div class='rejilla'></div>";
         const rej = sec.querySelector(".rejilla");
         juegos.forEach((d) => {
@@ -331,9 +333,9 @@
   function abrirConfig(def) {
     cfgDef = def;
     const previa = leer("cfg." + def.id, null);
-    cfg = { n: def.min === 1 && def.max > 1 ? Math.min(2, def.max) : def.min, dificultad: 2, opciones: {}, slots: [] };
+    cfg = { n: def.min === 1 && def.max > 1 ? Math.min(2, def.max) : def.min, dificultad: 2, opciones: {}, slots: [], serie: 1 };
     if (def.maquina && def.min === 1 && def.max > 1 && def.id !== "minigolf" && def.id !== "bolos") cfg.n = 2;
-    if (previa) Object.assign(cfg, { n: previa.n || cfg.n, dificultad: previa.dificultad || 2, opciones: previa.opciones || {}, slots: previa.slots || [] });
+    if (previa) Object.assign(cfg, { n: previa.n || cfg.n, dificultad: previa.dificultad || 2, opciones: previa.opciones || {}, slots: previa.slots || [], serie: previa.serie || 1 });
     (def.opciones || []).forEach((o) => { if (cfg.opciones[o.id] == null) cfg.opciones[o.id] = o.def; });
     cfg.n = Math.max(def.min, Math.min(def.max, cfg.n));
     asignarPorDefecto();
@@ -411,6 +413,11 @@
       add("o_" + o.id, fila(o.nombre, v[1], (p) => { cfg.opciones[o.id] = ciclar(o.valores, cfg.opciones[o.id], p); repintar(); }));
     });
 
+    if (def.max > 1 && cfg.n > 1) {
+      const SERIES = [[1, "Una partida"], [3, "Al mejor de 3"], [5, "Al mejor de 5"]];
+      add("serie", fila("Partidas", SERIES.find((v) => v[0] === cfg.serie)[1], (p) => { cfg.serie = ciclar(SERIES, cfg.serie, p); repintar(); }));
+    }
+
     // Aviso si hace falta un mando por jugador
     const humanos = cfg.slots.slice(0, cfg.n).filter((s) => s !== "cpu");
     const tvs = humanos.filter((s) => s === "tv").length;
@@ -467,6 +474,121 @@
   S.aviso = aviso;
 
   // ============================================================
+  // Perfiles, logros y clasificación
+  // Cada persona se identifica por el nombre de su móvil ("Tú" es el mando de la tele).
+  // ============================================================
+  const LOGROS = [
+    ["primera", "🥇", "Primera victoria", "Gana una partida"],
+    ["diez", "🎮", "Jugón", "Juega 10 partidas"],
+    ["cincuenta", "🕹", "Veterano", "Juega 50 partidas"],
+    ["racha3", "🔥", "En racha", "Gana 3 partidas seguidas"],
+    ["racha5", "☄", "Imparable", "Gana 5 partidas seguidas"],
+    ["maquina", "🤖", "Le ganas a la máquina", "Gana a la máquina en difícil"],
+    ["explorador", "🧭", "Curiosidad", "Juega a 10 juegos distintos"],
+    ["coleccion", "🗺", "Lo he probado todo", "Juega a 30 juegos distintos"],
+    ["record", "📈", "Superándote", "Bate uno de tus récords"],
+    ["fiesta", "🎉", "Fiestón", "Juega una partida con 4 personas o más"],
+    ["serie", "🏆", "Campeonato", "Gana una serie"],
+    ["todoterreno", "🌈", "Todoterreno", "Gana en 4 tipos de juego distintos"]
+  ];
+  S.LOGROS = LOGROS;
+  function perfilDe(j) {
+    if (!j || j.cpu) return null;
+    if (j.control === "tv") return j.nombre === "Tú" ? "Tú" : null;
+    return j.nombre;
+  }
+  const colaLogros = [];
+  let mostrandoLogro = false;
+  function siguienteLogro() {
+    if (mostrandoLogro || !colaLogros.length) return;
+    mostrandoLogro = true;
+    const [nombre, id] = colaLogros.shift(), l = LOGROS.find((x) => x[0] === id);
+    aviso(l[1] + " ¡Logro de " + nombre + "! " + l[2]);
+    S.sonido("punto");
+    setTimeout(() => { mostrandoLogro = false; siguienteLogro(); }, 2900);
+  }
+  function darLogro(nombre, id) {
+    const todos = leer("jugadores", {});
+    const p = todos[nombre] = todos[nombre] || nuevoPerfil();
+    if (p.logros.includes(id)) return;
+    p.logros.push(id);
+    guardar("jugadores", todos);
+    colaLogros.push([nombre, id]);
+    siguienteLogro();
+  }
+  function nuevoPerfil() { return { partidas: 0, victorias: 0, racha: 0, mejorRacha: 0, juegos: {}, cats: {}, logros: [] }; }
+  function actualizarPerfiles(P, ganador) {
+    const todos = leer("jugadores", {});
+    const personas = P.jugadores.filter((j) => !j.cpu).length;
+    const compiten = P.jugadores.length > 1;
+    const nuevos = [];
+    P.jugadores.forEach((j, i) => {
+      const n = perfilDe(j);
+      if (!n) return;
+      const p = todos[n] = todos[n] || nuevoPerfil();
+      p.partidas++;
+      const jg = p.juegos[P.def.id] = p.juegos[P.def.id] || { p: 0, v: 0 };
+      jg.p++;
+      const gana = compiten && ganador === i;
+      if (gana) { p.victorias++; jg.v++; p.racha++; p.mejorRacha = Math.max(p.mejorRacha, p.racha); p.cats[P.def.cat] = 1; }
+      else if (compiten && ganador != null) p.racha = 0;
+      const dar = (id) => { if (!p.logros.includes(id)) { p.logros.push(id); nuevos.push([n, id]); } };
+      if (gana) dar("primera");
+      if (p.partidas >= 10) dar("diez");
+      if (p.partidas >= 50) dar("cincuenta");
+      if (p.racha >= 3) dar("racha3");
+      if (p.racha >= 5) dar("racha5");
+      if (gana && P.jugadores.some((x) => x.cpu) && P.conf.dificultad === 3) dar("maquina");
+      if (Object.keys(p.juegos).length >= 10) dar("explorador");
+      if (Object.keys(p.juegos).length >= 30) dar("coleccion");
+      if (personas >= 4) dar("fiesta");
+      if (Object.keys(p.cats).length >= 4) dar("todoterreno");
+    });
+    guardar("jugadores", todos);
+    nuevos.forEach((x) => colaLogros.push(x));
+    setTimeout(siguienteLogro, 1400 / S.vel);
+  }
+  function pintarClasificacion() {
+    const todos = leer("jugadores", {});
+    const lista = Object.keys(todos).map((n) => Object.assign({ nombre: n }, todos[n])).sort((a, b) => b.victorias - a.victorias || b.partidas - a.partidas);
+    const t = $("tablaRanking");
+    t.innerHTML = "";
+    if (!lista.length) {
+      t.innerHTML = "<p class='vacio'>Todavía no hay partidas. Juega una y aquí saldrá quién va ganando.</p>";
+    } else {
+      lista.forEach((p, k) => {
+        const fila = document.createElement("div");
+        fila.className = "filaRanking";
+        const pct = p.partidas ? Math.round((100 * p.victorias) / p.partidas) : 0;
+        const fav = Object.keys(p.juegos).sort((a, b) => p.juegos[b].p - p.juegos[a].p)[0];
+        const favDef = S.catalogo.find((d) => d.id === fav);
+        fila.innerHTML = "<span class='pos'></span><span class='nom'></span><span class='num'></span><span class='num'></span><span class='num'></span><span class='fav'></span><span class='insignias'></span>";
+        const c = fila.children;
+        c[0].textContent = k === 0 ? "🥇" : k === 1 ? "🥈" : k === 2 ? "🥉" : k + 1 + "º";
+        c[1].textContent = p.nombre;
+        c[2].textContent = p.victorias;
+        c[3].textContent = p.partidas;
+        c[4].textContent = pct + " %";
+        c[5].textContent = favDef ? favDef.icono + " " + favDef.nombre : "";
+        c[6].textContent = p.logros.map((id) => (LOGROS.find((l) => l[0] === id) || [])[1]).join(" ");
+        t.appendChild(fila);
+      });
+    }
+    const lg = $("listaLogros");
+    lg.innerHTML = "";
+    LOGROS.forEach((l) => {
+      const quien = lista.filter((p) => p.logros.includes(l[0])).map((p) => p.nombre);
+      const d = document.createElement("div");
+      d.className = "logro" + (quien.length ? " conseguido" : "");
+      d.innerHTML = "<span class='ic'></span><span><b></b><br><small></small></span>";
+      d.querySelector(".ic").textContent = l[1];
+      d.querySelector("b").textContent = l[2];
+      d.querySelector("small").textContent = l[3] + (quien.length ? " · " + quien.join(", ") : "");
+      lg.appendChild(d);
+    });
+  }
+
+  // ============================================================
   // Partida
   // ============================================================
   let partida = null;
@@ -512,16 +634,17 @@
     });
   }
 
-  function empezar(def, conf) {
+  function empezar(def, conf, serie) {
     aviso("Cargando " + def.nombre + "…");
     cargarJuego(def.id).then(() => {
       $("aviso").classList.remove("visible");
       const slots = conf.slots.slice(0, conf.n);
       const nombres = nombresJugadores(slots);
       const P = (partida = {
-        def, conf, turno: 0, pausada: false, terminada: false, timers: [], t: 0,
+        def, conf, turno: 0, pausada: false, terminada: false, timers: [], t: 0, efectos: [],
         jugadores: slots.map((s, i) => ({ nombre: nombres[i], color: S.COLORES[i], cpu: s === "cpu", control: s, indice: i }))
       });
+      P.serie = serie !== undefined ? serie : conf.serie > 1 && conf.n > 1 ? { total: conf.serie, victorias: slots.map(() => 0), jugadas: 0 } : null;
       P.J = crearAPI(P);
       mostrar("juego");
       ajustarLienzo();
@@ -561,9 +684,11 @@
         const ant = st.s.records[clave];
         const nuevo = ant == null || (mayorEsMejor === false ? valor < ant : valor > ant);
         if (nuevo) { st.s.records[clave] = valor; st.guardar(); }
+        if (nuevo && ant != null) { const j = P.jugadores.find((x) => perfilDe(x)); if (j) darLogro(perfilDe(j), "record"); }
         return { nuevo, mejor: nuevo ? valor : ant, anterior: ant };
       },
       sonido: (n) => S.sonido(n),
+      efecto: (tipo, x, y, o) => nuevoEfecto(P, tipo, x, y, o),
       aviso: (t) => aviso(t),
       azar: (a, b) => (b === undefined ? Math.random() * a : a + Math.random() * (b - a)),
       entero: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
@@ -603,13 +728,29 @@
     }
     if (res.icono) icono = res.icono;
     st.guardar();
+    actualizarPerfiles(P, g != null && P.jugadores[g] ? g : null);
+    let texto = res.texto || "", botones = [["Otra partida", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]];
+    const SR = P.serie;
+    if (SR) {
+      SR.jugadas++;
+      if (g != null && P.jugadores[g]) SR.victorias[g]++;
+      const necesarias = Math.ceil(SR.total / 2), campeon = SR.victorias.findIndex((v) => v >= necesarias);
+      const marcador = P.jugadores.map((j, i) => j.nombre + " " + SR.victorias[i]).join(" · ");
+      if (campeon >= 0) {
+        icono = "🏆"; titulo = "¡" + P.jugadores[campeon].nombre + " gana la serie!";
+        texto = (res.texto ? res.texto + "\n" : "") + "Serie al mejor de " + SR.total + ": " + marcador;
+        const n = perfilDe(P.jugadores[campeon]); if (n) darLogro(n, "serie");
+        S.sonido("ganar"); confeti();
+        botones = [["Nueva serie", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]];
+      } else {
+        texto = (res.texto ? res.texto + "\n" : "") + "Serie al mejor de " + SR.total + " · partida " + SR.jugadas + ": " + marcador;
+        botones = [["Siguiente partida", () => empezar(P.def, P.conf, SR)], ["Dejar la serie", salirAlMenu]];
+      }
+    }
     avisarMoviles();
     setTimeout(() => {
       if (partida !== P) return;
-      abrirDialogo({
-        icono, titulo, texto: res.texto || "",
-        botones: [["Otra partida", () => empezar(P.def, P.conf)], ["Cambiar opciones", () => { partida = null; abrirConfig(P.def); }], ["Menú", salirAlMenu]]
-      });
+      abrirDialogo({ icono, titulo, texto, botones });
     }, 1100 / S.vel);
   }
 
@@ -648,18 +789,44 @@
             if (t.quedan <= 0) { P.timers.splice(i, 1); i--; t.fn(); if (partida !== P) return; }
           }
           if (P.juego.actualizar) P.juego.actualizar(dt);
+          moverEfectos(P, dt);
           if (partida !== P) return;
         }
       }
       g.setTransform(S.escala, 0, 0, S.escala, 0, 0);
       g.clearRect(0, 0, S.ANCHO, S.ALTO);
       if (P.juego.dibujar) P.juego.dibujar(g);
+      dibujarEfectos(g, P);
       dibujarPie(g, P);
     } catch (e) {
       fallo(e);
       P.pausada = true;
       abrirDialogo({ icono: "⚠️", titulo: "Algo ha fallado", texto: String(e.message || e), botones: [["Volver al menú", salirAlMenu]] });
     }
+  }
+  // Efectos que cualquier juego puede lanzar con J.efecto(tipo, x, y, opciones)
+  function nuevoEfecto(P, tipo, x, y, o) {
+    o = o || {};
+    const c = o.color || "#ffd98a";
+    if (tipo === "chispas") for (let k = 0; k < (o.n || 22); k++) { const a = Math.random() * 7, v = 120 + Math.random() * (o.fuerza || 380); P.efectos.push({ tipo: "p", x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, t: 0, vida: 0.5 + Math.random() * 0.5, c: Math.random() < 0.3 ? "#fff" : c, r: 2 + Math.random() * 4 }); }
+    else if (tipo === "anillo") P.efectos.push({ tipo: "a", x, y, t: 0, vida: 0.6, c, r: o.r || 60 });
+    else if (tipo === "texto") P.efectos.push({ tipo: "t", x, y, t: 0, vida: 1.2, c, texto: o.texto || "", tam: o.tam || 44 });
+    else if (tipo === "destello") P.efectos.push({ tipo: "d", t: 0, vida: 0.35, c });
+  }
+  function moverEfectos(P, dt) {
+    P.efectos.forEach((e) => { e.t += dt; if (e.tipo === "p") { e.x += e.vx * dt; e.y += e.vy * dt; e.vy += 600 * dt; e.vx *= 1 - 1.5 * dt; } });
+    P.efectos = P.efectos.filter((e) => e.t < e.vida);
+  }
+  function dibujarEfectos(g, P) {
+    P.efectos.forEach((e) => {
+      const k = e.t / e.vida;
+      g.save();
+      if (e.tipo === "p") { g.globalAlpha = 1 - k; g.fillStyle = e.c; g.beginPath(); g.arc(e.x, e.y, e.r * (1 - k * 0.5), 0, 7); g.fill(); }
+      else if (e.tipo === "a") { g.globalAlpha = 1 - k; g.strokeStyle = e.c; g.lineWidth = 8 * (1 - k) + 1; g.beginPath(); g.arc(e.x, e.y, e.r * (0.3 + k), 0, 7); g.stroke(); }
+      else if (e.tipo === "t") { g.globalAlpha = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3; dib.texto(g, e.texto, e.x, e.y - k * 70, { tam: e.tam * (k < 0.15 ? 0.6 + k * 2.7 : 1), alin: "center", peso: 700, titulo: true, color: e.c, sombra: 14 }); }
+      else if (e.tipo === "d") { g.globalAlpha = (1 - k) * 0.35; g.fillStyle = e.c; g.fillRect(0, 0, S.ANCHO, S.ALTO); }
+      g.restore();
+    });
   }
   function dibujarPie(g, P) {
     S.dib.texto(g, "Atrás: pausa", 1890, 1060, { tam: 22, color: "rgba(255,255,255,.35)", alin: "right" });
@@ -739,14 +906,29 @@
     return "rgb(" + m(r) + "," + m(gg) + "," + m(b) + ")";
   }
   function alfa(c, a) { const [r, gg, b] = hex(c); return "rgba(" + r + "," + gg + "," + b + "," + a + ")"; }
+  const fondos = {};
   const dib = (S.dib = {
     mezclar, alfa, FUENTE, FUENTE_TIT,
     fondo(g, c1, c2) {
-      const gr = g.createRadialGradient(960, 300, 100, 960, 540, 1300);
-      gr.addColorStop(0, c1 || "#2a1f33");
-      gr.addColorStop(1, c2 || "#0d0a12");
-      g.fillStyle = gr;
-      g.fillRect(0, 0, S.ANCHO, S.ALTO);
+      c1 = c1 || "#2a1f33"; c2 = c2 || "#0d0a12";
+      const clave = c1 + c2 + (S.escala || 1);
+      let cv = fondos[clave];
+      if (!cv) {
+        // se pinta una vez: degradado, textura de grano y viñeta
+        const esc = S.escala || 1;
+        cv = fondos[clave] = document.createElement("canvas");
+        cv.width = Math.ceil(S.ANCHO * esc / 2); cv.height = Math.ceil(S.ALTO * esc / 2);
+        const f = cv.getContext("2d");
+        f.scale(cv.width / S.ANCHO, cv.height / S.ALTO);
+        const gr = f.createRadialGradient(960, 300, 100, 960, 540, 1300);
+        gr.addColorStop(0, c1); gr.addColorStop(1, c2);
+        f.fillStyle = gr; f.fillRect(0, 0, S.ANCHO, S.ALTO);
+        for (let k = 0; k < 3500; k++) { f.fillStyle = k % 2 ? "rgba(255,255,255,.025)" : "rgba(0,0,0,.05)"; f.fillRect((k * 7919) % S.ANCHO, (k * 104729) % S.ALTO, 3, 3); }
+        const v = f.createRadialGradient(960, 540, 500, 960, 540, 1150);
+        v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(0,0,0,.45)");
+        f.fillStyle = v; f.fillRect(0, 0, S.ANCHO, S.ALTO);
+      }
+      g.drawImage(cv, 0, 0, S.ANCHO, S.ALTO);
     },
     texto(g, s, x, y, o) {
       o = o || {};
@@ -781,25 +963,34 @@
       g.restore();
     },
     ficha(g, x, y, r, color, o) {
+      // Ficha con relieve: sombra en el suelo, canto, cara superior con luz, surco y brillo
       o = o || {};
+      const canto = o.plana ? 0 : r * 0.14;
       g.save();
-      if (o.sombra !== false) { g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = r * 0.5; g.shadowOffsetY = r * 0.18; }
-      const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
-      gr.addColorStop(0, mezclar(color, 0.45));
-      gr.addColorStop(0.55, color);
-      gr.addColorStop(1, mezclar(color, -0.45));
-      g.fillStyle = gr;
-      g.beginPath();
-      g.arc(x, y, r, 0, Math.PI * 2);
-      g.fill();
-      g.shadowColor = "transparent";
-      if (o.anillo !== false) {
-        g.strokeStyle = "rgba(255,255,255,.18)";
-        g.lineWidth = Math.max(1, r * 0.08);
-        g.beginPath();
-        g.arc(x, y, r * 0.72, 0, Math.PI * 2);
-        g.stroke();
+      if (o.sombra !== false) {
+        const sg = g.createRadialGradient(x + r * 0.12, y + canto + r * 0.22, r * 0.2, x + r * 0.12, y + canto + r * 0.22, r * 1.25);
+        sg.addColorStop(0, "rgba(0,0,0,.45)"); sg.addColorStop(1, "rgba(0,0,0,0)");
+        g.fillStyle = sg; g.beginPath(); g.arc(x + r * 0.12, y + canto + r * 0.22, r * 1.25, 0, 7); g.fill();
       }
+      if (canto) {
+        g.fillStyle = mezclar(color, -0.5);
+        g.beginPath(); g.arc(x, y + canto, r, 0, Math.PI * 2); g.fill();
+        g.fillRect(x - r, y, 2 * r, canto);
+      }
+      const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.45, r * 0.05, x, y, r * 1.05);
+      gr.addColorStop(0, mezclar(color, 0.5));
+      gr.addColorStop(0.45, color);
+      gr.addColorStop(1, mezclar(color, -0.3));
+      g.fillStyle = gr;
+      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+      if (o.anillo !== false && r > 9) {
+        g.lineWidth = Math.max(1, r * 0.07);
+        g.strokeStyle = mezclar(color, -0.35); g.beginPath(); g.arc(x, y, r * 0.7, 0, Math.PI * 2); g.stroke();
+        g.strokeStyle = "rgba(255,255,255,.22)"; g.beginPath(); g.arc(x, y + r * 0.05, r * 0.7, 0.2, Math.PI - 0.2); g.stroke();
+      }
+      // brillo
+      g.fillStyle = "rgba(255,255,255,.28)";
+      g.beginPath(); g.ellipse(x - r * 0.32, y - r * 0.42, r * 0.38, r * 0.2, -0.5, 0, Math.PI * 2); g.fill();
       g.restore();
     },
     cursor(g, x, y, w, h, color, t) {
@@ -1020,40 +1211,75 @@
       if (o.resaltada) { g.lineWidth = w * 0.06; g.strokeStyle = "#ffd98a"; g.stroke(); }
       else { g.lineWidth = 1.5; g.strokeStyle = "rgba(0,0,0,.2)"; g.stroke(); }
       if (c.es) dibujarEspanola(g, c, x, y, w, h);
-      else {
-        const col = S.cartas.roja(c) ? "#c62f3a" : "#1d1b24";
-        const rango = ({ 1: "A", 11: "J", 12: "Q", 13: "K" }[c.valor] || String(c.valor));
-        g.fillStyle = col; g.textAlign = "center"; g.textBaseline = "middle";
-        g.font = "700 " + w * 0.24 + "px " + FUENTE;
-        g.fillText(rango, x + w * 0.17, y + w * 0.2);
-        g.font = w * 0.2 + "px serif";
-        g.fillText(SIMB[c.palo], x + w * 0.17, y + w * 0.42);
-        if (c.valor > 10) {
-          g.font = "700 " + w * 0.5 + "px " + FUENTE_TIT;
-          g.fillText(rango, x + w * 0.55, y + h * 0.52);
-          g.font = w * 0.24 + "px serif";
-          g.fillText(SIMB[c.palo], x + w * 0.55, y + h * 0.78);
-        } else {
-          g.font = w * (c.valor === 1 ? 0.62 : 0.46) + "px serif";
-          g.fillText(SIMB[c.palo], x + w * 0.56, y + h * 0.56);
-        }
-      }
+      else dibujarFrancesa(g, c, x, y, w, h);
       g.restore();
     }
   };
+  // Posiciones de los palos en las cartas del 2 al 10 (fracciones del ancho y alto)
+  const PIPS = {
+    2: [[.5, .2], [.5, .8]], 3: [[.5, .2], [.5, .5], [.5, .8]],
+    4: [[.3, .2], [.7, .2], [.3, .8], [.7, .8]], 5: [[.3, .2], [.7, .2], [.5, .5], [.3, .8], [.7, .8]],
+    6: [[.3, .2], [.7, .2], [.3, .5], [.7, .5], [.3, .8], [.7, .8]],
+    7: [[.3, .2], [.7, .2], [.5, .35], [.3, .5], [.7, .5], [.3, .8], [.7, .8]],
+    8: [[.3, .2], [.7, .2], [.5, .35], [.3, .5], [.7, .5], [.5, .65], [.3, .8], [.7, .8]],
+    9: [[.3, .2], [.7, .2], [.3, .4], [.7, .4], [.5, .5], [.3, .6], [.7, .6], [.3, .8], [.7, .8]],
+    10: [[.3, .2], [.7, .2], [.5, .3], [.3, .4], [.7, .4], [.3, .6], [.7, .6], [.5, .7], [.3, .8], [.7, .8]]
+  };
+  function dibujarFrancesa(g, c, x, y, w, h) {
+    const roja = S.cartas.roja(c), col = roja ? "#c62f3a" : "#1d1b24";
+    const rango = { 1: "A", 11: "J", 12: "Q", 13: "K" }[c.valor] || String(c.valor);
+    const simb = SIMB[c.palo];
+    g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = col;
+    // índices en dos esquinas
+    const indice = () => {
+      g.font = "700 " + w * 0.2 + "px " + FUENTE; g.fillText(rango, x + w * 0.13, y + w * 0.15);
+      g.font = w * 0.15 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w * 0.13, y + w * 0.32);
+    };
+    indice();
+    g.save(); g.translate(x + w, y + h); g.rotate(Math.PI); g.translate(-x, -y); indice(); g.restore();
+    const ix = x + w * 0.24, iy = y + h * 0.1, iw = w * 0.52, ih = h * 0.8;
+    if (c.valor === 1) {
+      g.font = w * 0.62 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w / 2, y + h / 2 + w * 0.03);
+    } else if (c.valor <= 10) {
+      g.font = w * (c.valor >= 8 ? 0.16 : 0.2) + "px 'DejaVu Sans', serif";
+      PIPS[c.valor].forEach(([fx, fy]) => {
+        const px = x + w * 0.2 + fx * w * 0.6, py = y + h * 0.08 + fy * h * 0.84;
+        if (fy > 0.55) { g.save(); g.translate(px, py); g.rotate(Math.PI); g.fillText(simb, 0, 0); g.restore(); }
+        else g.fillText(simb, px, py);
+      });
+    } else {
+      // figura: marco con degradado, letra grande y un adorno
+      const gr = g.createLinearGradient(ix, iy, ix + iw, iy + ih);
+      gr.addColorStop(0, roja ? "#fde6e2" : "#e6e8f3"); gr.addColorStop(1, roja ? "#f6c9c2" : "#c9cde3");
+      g.fillStyle = gr; dib.ruta(g, ix, iy, iw, ih, w * 0.05); g.fill();
+      g.strokeStyle = "#c79a3b"; g.lineWidth = w * 0.025; g.stroke();
+      g.fillStyle = col;
+      g.font = w * 0.26 + "px 'DejaVu Sans', serif";
+      g.fillText({ 11: "♞", 12: "♛", 13: "♚" }[c.valor], x + w / 2, y + h * 0.36);
+      g.font = "700 " + w * 0.3 + "px " + FUENTE_TIT; g.fillText(rango, x + w / 2, y + h * 0.62);
+      g.font = w * 0.14 + "px 'DejaVu Sans', serif"; g.fillText(simb, x + w / 2, y + h * 0.8);
+    }
+  }
   function dibujarEspanola(g, c, x, y, w, h) {
     const COL = { oros: "#d29a1e", copas: "#c62f3a", espadas: "#2c5fa8", bastos: "#3d7a3a" };
     const col = COL[c.palo];
     g.fillStyle = col; g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = "700 " + w * 0.24 + "px " + FUENTE;
-    g.fillText(String(c.valor), x + w * 0.17, y + w * 0.2);
     // marco típico de la baraja española (cortes según el palo)
     g.strokeStyle = col; g.lineWidth = w * 0.02;
     dib.ruta(g, x + w * 0.08, y + w * 0.08, w * 0.84, h - w * 0.16, w * 0.05); g.stroke();
-    const cx = x + w / 2, cy = y + h * 0.55, s = w * 0.2;
-    g.save(); g.translate(cx, cy);
-    simboloEspanol(g, c.palo, s, col);
-    g.restore();
+    // número sobre un recuadro del color de la carta, para que no pise el marco
+    g.font = "700 " + w * 0.22 + "px " + FUENTE;
+    const tw = g.measureText(String(c.valor)).width;
+    g.fillStyle = "#fbf7ee"; g.fillRect(x + w * 0.05, y + w * 0.06, tw + w * 0.08, w * 0.26);
+    g.fillStyle = col; g.textAlign = "left"; g.fillText(String(c.valor), x + w * 0.09, y + w * 0.2); g.textAlign = "center";
+    const cx = x + w / 2, cy = y + h * 0.55;
+    if (c.valor >= 2 && c.valor <= 7) {
+      const s = w * 0.1;
+      PIPS[c.valor].forEach(([fx, fy]) => { g.save(); g.translate(x + w * 0.22 + fx * w * 0.56, y + h * 0.14 + fy * h * 0.72); simboloEspanol(g, c.palo, s, col); g.restore(); });
+    } else {
+      const s = w * 0.2;
+      g.save(); g.translate(cx, c.valor >= 10 ? y + h * 0.5 : cy); simboloEspanol(g, c.palo, s, col); g.restore();
+    }
     if (c.valor >= 10) {
       g.font = "600 " + w * 0.13 + "px " + FUENTE;
       g.fillStyle = "#3a3346";
@@ -1142,6 +1368,8 @@
     ajustarLienzo();
     Red.conectar();
     pintarConexion();
+    $("verRanking").addEventListener("click", () => mostrar("ranking"));
+    $("volverRanking").addEventListener("click", () => mostrar("inicio"));
     $("pantallaCompleta").addEventListener("click", () => {
       const el = document.documentElement, f = el.requestFullscreen || el.webkitRequestFullscreen;
       try { f && f.call(el); } catch (e) {}
@@ -1155,7 +1383,7 @@
       const slots = [];
       for (let i = 0; i < n; i++) slots.push(todosCpu ? "cpu" : "tv");
       const opciones = {};
-      (def.opciones || []).forEach((o) => (opciones[o.id] = o.def));
+      (def.opciones || []).forEach((o) => (opciones[o.id] = params.has("op_" + o.id) ? +params.get("op_" + o.id) : o.def));
       empezar(def, { n, dificultad: parseInt(params.get("dif"), 10) || 2, opciones, slots });
       return;
     }

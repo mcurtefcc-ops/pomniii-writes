@@ -22,6 +22,8 @@ Salon.juego("hockey", function (J) {
   function gol(quien) {
     goles[quien]++; ultimoGol = quien; destello = 1;
     J.sonido("gol");
+    J.efecto("texto", CX, CY, { texto: "¡GOL!", tam: 140, color: J.jugadores[quien].color });
+    J.efecto("chispas", quien === 0 ? X2 : X1, CY, { color: J.jugadores[quien].color, n: 40 });
     if (goles[quien] >= A_GANAR) { fin = true; return J.despues(1200, () => J.terminar({ ganador: quien, texto: goles[0] + " a " + goles[1] })); }
     saque(1 - quien);
   }
