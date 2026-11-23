@@ -25,9 +25,11 @@ let privado = {};
 const fPrivado = path.join(__dirname, '..', 'privado.json');
 if (fs.existsSync(fPrivado)) privado = JSON.parse(fs.readFileSync(fPrivado, 'utf8'));
 
+// Lo público de config.js (p. ej. el Client ID de Spotify) se conserva.
+const publico = fs.readFileSync(path.join(origen, 'config.js'), 'utf8');
 fs.writeFileSync(
   path.join(destino, 'config.js'),
-  '/* Generado al fabricar la app. */\nwindow.SALON_SERVIDOR = ' + JSON.stringify(servidor) + ';\n' +
+  publico + '\n/* Generado al fabricar la app. */\nwindow.SALON_SERVIDOR = ' + JSON.stringify(servidor) + ';\n' +
     (privado.ciudad ? 'window.SALON_CIUDAD = ' + JSON.stringify(privado.ciudad) + ';\n' : '') +
     (privado.agenda ? 'window.SALON_AGENDA = ' + JSON.stringify(privado.agenda) + ';\n' : ''),
 );

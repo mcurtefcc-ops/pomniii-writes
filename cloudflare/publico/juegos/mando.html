@@ -191,6 +191,8 @@
     <input id="ajAgSrv" placeholder="https://…workers.dev" autocomplete="off" inputmode="url">
     <input id="ajAgCod" placeholder="Código del espacio" autocomplete="off" style="text-transform: uppercase; letter-spacing: .2em">
     <button class="ok" id="guardaAgenda">Conectar agenda</button></div>
+  <div class="bloque"><b>Spotify</b><p>Muestra en la tele la canción que suena y contrólala con el mando (Spotify Premium).</p>
+    <button class="ok" id="conectaSpotify">🎵 Conectar Spotify</button><button id="quitaSpotify">Desconectar Spotify</button></div>
   <div class="bloque"><b>Fotos</b><button id="borraFotos">Borrar las fotos de la tele</button></div>
   <button id="cerrarAjustes">Cerrar</button>
 </div>
@@ -393,7 +395,9 @@
     guardar("agSrv", srv); enviar({ tipo: "ajuste", clave: "agenda", valor: { servidor: srv, grupo: cod } });
     $("ajAgCod").value = ""; $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Agenda conectada en la tele";
   });
-  $("borraFotos").addEventListener("click", () => { enviar({ tipo: "ajuste", clave: "borrarFotos" }); $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Fotos borradas de la tele"; });
+  $("conectaSpotify").addEventListener("click", () => { location.href = "spotify.html"; });
+  $("quitaSpotify").addEventListener("click", () => { enviar({ tipo: "ajuste", clave: "spotifyFuera" }); $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Spotify desconectado de la tele"; });
+    $("borraFotos").addEventListener("click", () => { enviar({ tipo: "ajuste", clave: "borrarFotos" }); $("ajustes").classList.remove("visible"); $("envio").textContent = "✓ Fotos borradas de la tele"; });
 
   // ---------- Pantalla encendida ----------
   async function pedirPantallaEncendida() {

@@ -103,6 +103,17 @@
   #casaTiempo .ic { font-size: 9vh; line-height: 1; }
   #casaTiempo .t1 b { font-size: 9vh; font-family: "Playfair Display", serif; }
   #casaTiempo .t2 { display: flex; gap: 2vw; margin-top: 1.4vh; font-size: 2.4vh; text-transform: capitalize; }
+  #casaMusica { display: flex; gap: 1.6vw; align-items: center; margin-top: 3vh; padding: 1.6vh; width: 42vw; border-radius: 2vh; background: rgba(20,15,26,.72); border: 2px solid rgba(30,215,96,.35); }
+  #casaMusica[hidden] { display: none; }
+  #spCaratula { width: 15vh; height: 15vh; border-radius: 1.2vh; background: #1d1b24 center/cover; flex: none; box-shadow: 0 1vh 3vh rgba(0,0,0,.5); }
+  .sp-info { display: flex; flex-direction: column; gap: .4vh; min-width: 0; flex: 1; }
+  .sp-info small { color: #1ed760; font-size: 1.8vh; font-weight: 700; }
+  .sp-info b { font-size: 2.8vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sp-info span { color: var(--suave); font-size: 2vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sp-pista { height: .6vh; background: rgba(255,255,255,.15); border-radius: 1vh; margin-top: .8vh; overflow: hidden; }
+  .sp-pista i { display: block; height: 100%; width: 0; background: #1ed760; transition: width .5s linear; }
+  .sp-botones { display: flex; gap: .8vw; margin-top: .8vh; }
+  .sp-botones button { width: 6vh; height: 6vh; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08); font-size: 2.6vh; }
   .casa-der { position: absolute; right: 4vw; top: 7vh; width: 36vw; padding: 3vh 2vw; border-radius: 2.4vh; background: rgba(20,15,26,.72); border: 2px solid rgba(255,255,255,.08); backdrop-filter: blur(1vh); }
   .casa-der h2 { font-size: 3.6vh; margin-bottom: 2vh; }
   .casa-der .plan { display: grid; grid-template-columns: 7vh 1fr auto; gap: 1.2vw; align-items: center; padding: 1.4vh 0; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -193,6 +204,13 @@
     <div id="casaHora">--:--</div>
     <div id="casaFecha"></div>
     <div id="casaTiempo"></div>
+    <div id="casaMusica" hidden>
+      <div id="spCaratula"></div>
+      <div class="sp-info"><small>🎵 Sonando en Spotify</small><b id="spTitulo">…</b><span id="spArtista"></span>
+        <div class="sp-pista"><i id="spBarra"></i></div>
+        <div class="sp-botones"><button data-nav id="spAnt">⏮</button><button data-nav id="spPlay">⏯</button><button data-nav id="spSig">⏭</button></div>
+      </div>
+    </div>
   </div>
   <div class="casa-der">
     <h2>Próximos planes 💞</h2>

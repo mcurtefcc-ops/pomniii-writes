@@ -167,6 +167,54 @@
     } catch (e) { caja.innerHTML = "<p class='vacio'>No puedo leer la agenda ahora mismo.</p>"; }
   }
 
+  // ---------- Spotify: la canción que suena, con carátula y controles ----------
+  const SPOTIFY_ID = window.SALON_SPOTIFY_ID || ""; // Client ID público (inicio de sesión PKCE, sin secreto)
+  let sp = S.leer("spotify", null), sonando = null, spPedido = 0;
+  async function spLlave() {
+    if (!sp || !sp.refresh || !SPOTIFY_ID) return null;
+    if (sp.acceso && sp.caduca > Date.now()) return sp.acceso;
+    const r = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: sp.refresh, client_id: SPOTIFY_ID }) });
+    const t = await r.json();
+    if (!t.access_token) { if (t.error === "invalid_grant") { sp = null; S.guardar("spotify", null); } return null; }
+    sp.acceso = t.access_token; sp.caduca = Date.now() + (t.expires_in - 60) * 1000;
+    if (t.refresh_token) sp.refresh = t.refresh_token; // Spotify cambia la llave a veces: hay que guardar la nueva
+    S.guardar("spotify", sp);
+    return sp.acceso;
+  }
+  async function spApi(metodo, ruta) {
+    const llave = await spLlave(); if (!llave) return null;
+    const r = await fetch("https://api.spotify.com/v1/me/player" + ruta, { method: metodo, headers: { Authorization: "Bearer " + llave } });
+    if (r.status === 204 || r.status === 202) return {};
+    if (!r.ok) return null;
+    return r.json().catch(() => ({}));
+  }
+  async function spotify() {
+    const caja = $("casaMusica");
+    if (!caja) return;
+    if (!sp || !SPOTIFY_ID) { caja.hidden = true; return; }
+    caja.hidden = false;
+    try {
+      const d = await spApi("GET", "/currently-playing");
+      if (!d || !d.item) { sonando = null; $("spTitulo").textContent = "No suena nada"; $("spArtista").textContent = "Pon música en Spotify (en el móvil o aquí) y saldrá aquí"; $("spCaratula").style.backgroundImage = ""; $("spBarra").style.width = "0"; $("spPlay").textContent = "▶"; return; }
+      sonando = { pos: d.progress_ms, dur: d.item.duration_ms, play: d.is_playing, t: Date.now() };
+      $("spTitulo").textContent = d.item.name;
+      $("spArtista").textContent = (d.item.artists || []).map((a) => a.name).join(", ") + (d.item.album ? " · " + d.item.album.name : "");
+      const img = d.item.album && d.item.album.images && d.item.album.images[0];
+      $("spCaratula").style.backgroundImage = img ? "url('" + img.url + "')" : "";
+      $("spPlay").textContent = d.is_playing ? "⏸" : "▶";
+    } catch (e) {}
+  }
+  function barra() {
+    if (!sonando) return;
+    const pos = Math.min(sonando.dur, sonando.pos + (sonando.play ? Date.now() - sonando.t : 0));
+    $("spBarra").style.width = (100 * pos) / sonando.dur + "%";
+  }
+  async function spControl(que) {
+    if (que === "play") await spApi("PUT", sonando && sonando.play ? "/pause" : "/play");
+    else await spApi("POST", que === "siguiente" ? "/next" : "/previous");
+    setTimeout(spotify, 600);
+  }
+
   // ---------- Mensajes del móvil ----------
   C.recibir = function (ev) {
     if (ev.tipo === "foto") return nuevaFoto(ev.datos, ev.de);
@@ -176,6 +224,8 @@
         guardarAjuste("agendaServidor", String(ev.valor.servidor || "").trim()); guardarAjuste("agendaGrupo", ev.valor.grupo.trim());
         agenda(); S.aviso("Agenda conectada");
       } else if (ev.clave === "borrarFotos") { borrarFotos(); S.aviso("Fotos borradas de la tele"); }
+      else if (ev.clave === "spotify" && ev.valor && typeof ev.valor.refresh === "string") { sp = { refresh: ev.valor.refresh, acceso: ev.valor.acceso, caduca: ev.valor.caduca }; S.guardar("spotify", sp); spotify(); S.aviso("🎵 Spotify conectado"); }
+      else if (ev.clave === "spotifyFuera") { sp = null; S.guardar("spotify", null); spotify(); S.aviso("Spotify desconectado"); }
     }
   };
   C.ajustes = ajustes;
@@ -184,6 +234,8 @@
     reloj(); setInterval(reloj, 5000);
     tiempo(); setInterval(tiempo, 30 * 60000);
     agenda(); setInterval(agenda, 5 * 60000);
+    spotify(); setInterval(() => { if (S.pantallaActual() === "casa") spotify(); }, 5000); setInterval(barra, 500);
+    [["spAnt", "anterior"], ["spPlay", "play"], ["spSig", "siguiente"]].forEach(([id, q]) => $(id) && $(id).addEventListener("click", () => spControl(q)));
     await abrirBase(); await cargarFotos(); pintarFoto();
     setInterval(() => { if (fotos.length > 1 && S.pantallaActual() === "casa") { fotoActual = (fotoActual + 1) % fotos.length; pintarFoto(); } }, 12000);
   };

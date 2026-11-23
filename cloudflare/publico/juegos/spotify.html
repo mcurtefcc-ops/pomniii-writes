@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140f1b">
+<title>Conectar Spotify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  /* Conectar Spotify con la tele: se abre en el móvil desde «Ajustes de la tele». */
+  :root { color-scheme: dark; --fondo: #140f1b; --panel: #221a2c; --texto: #f6efe2; --suave: #a79db3; --verde: #1ed760; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; gap: 18px; font-family: Barlow, system-ui, sans-serif; background: var(--fondo); color: var(--texto); padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); max-width: 460px; margin: 0 auto; text-align: center; }
+  h1 { font-family: "Playfair Display", serif; font-size: 30px; }
+  p { color: var(--suave); line-height: 1.45; }
+  button { font: inherit; font-weight: 700; font-size: 19px; padding: 16px; border-radius: 99px; border: 0; background: var(--verde); color: #08140c; cursor: pointer; }
+  #estado { min-height: 24px; font-size: 17px; }
+  .ok { color: var(--verde); }
+  .mal { color: #ff8f7a; }
+</style>
+</head>
+<body>
+  <div style="font-size:56px">🎵</div>
+  <h1>Spotify en la tele</h1>
+  <p>Inicia sesión con tu Spotify (Premium) y la tele mostrará la canción que suena, con su carátula, y podrás pausar o pasar de canción con el mando.</p>
+  <button id="conectar">Conectar con Spotify</button>
+  <div id="estado"></div>
+  <p style="font-size:13px">La conexión se guarda solo en tu tele. Para desconectarla, en el móvil: Ajustes de la tele → Desconectar Spotify.</p>
+<script src="config.js"></script>
+<script>
+(function () {
+  "use strict";
+  const ID = window.SALON_SPOTIFY_ID || ""; // el Client ID no es secreto (PKCE)
+  const VUELTA = "https://pomniii-writes.mcurtefcc.workers.dev/juegos/spotify.html";
+  const PERMISOS = "user-read-currently-playing user-read-playback-state user-modify-playback-state";
+  const $ = (id) => document.getElementById(id);
+  const leer = (k) => { try { return localStorage.getItem("mando." + k); } catch (e) { return null; } };
+  const estado = (t, c) => { $("estado").textContent = t; $("estado").className = c || ""; };
+  const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  function azar(n) { const a = new Uint8Array(n); crypto.getRandomValues(a); return b64url(a.buffer).slice(0, n); }
+
+  if (!ID) { $("conectar").disabled = true; estado("Falta el Client ID de Spotify en el salón.", "mal"); }
+
+  // 1) Ir a Spotify a iniciar sesión (PKCE: sin contraseñas ni secretos en la web)
+  $("conectar").addEventListener("click", async () => {
+    const verif = azar(64);
+    const reto = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verif)));
+    const st = azar(16);
+    sessionStorage.setItem("sp.verif", verif); sessionStorage.setItem("sp.state", st);
+    location.href = "https://accounts.spotify.com/authorize?" + new URLSearchParams({ client_id: ID, response_type: "code", redirect_uri: VUELTA, scope: PERMISOS, code_challenge_method: "S256", code_challenge: reto, state: st });
+  });
+
+  // 2) Vuelta de Spotify: cambiar el código por la llave y mandarla a la tele
+  const q = new URLSearchParams(location.search);
+  if (q.get("error")) estado("Spotify no ha dado permiso (" + q.get("error") + ").", "mal");
+  if (q.get("code")) volver(q.get("code"), q.get("state"));
+  async function volver(code, st) {
+    history.replaceState(null, "", location.pathname);
+    if (st !== sessionStorage.getItem("sp.state")) return estado("La respuesta de Spotify no coincide. Prueba otra vez.", "mal");
+    estado("Conectando…");
+    try {
+      const r = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "authorization_code", code, redirect_uri: VUELTA, client_id: ID, code_verifier: sessionStorage.getItem("sp.verif") || "" }) });
+      const t = await r.json();
+      if (!t.refresh_token) throw new Error(t.error_description || t.error || "sin llave");
+      await mandarATele({ tipo: "ajuste", clave: "spotify", valor: { refresh: t.refresh_token, acceso: t.access_token, caduca: Date.now() + (t.expires_in - 60) * 1000 } });
+      estado("✓ ¡Spotify conectado a la tele! Ya puedes cerrar esta página.", "ok");
+      $("conectar").hidden = true;
+    } catch (e) { estado("No se ha podido conectar: " + e.message, "mal"); }
+  }
+  function mandarATele(d) {
+    return new Promise((ok, mal) => {
+      const sala = leer("sala"), id = leer("id"), nombre = leer("nombre") || "Móvil";
+      if (!sala || !id) return mal(new Error("antes conecta este móvil a la tele con el QR"));
+      const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/sala/" + sala + "/ws?rol=mando&id=" + encodeURIComponent(id) + "&nombre=" + encodeURIComponent(nombre));
+      const fin = setTimeout(() => mal(new Error("la tele no responde")), 10000);
+      ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } if (m.t === "hola") { if (!m.tele) { clearTimeout(fin); return mal(new Error("la tele no está abierta")); } ws.send(JSON.stringify(d)); setTimeout(() => { clearTimeout(fin); ws.close(); ok(); }, 600); } };
+      ws.onerror = () => { clearTimeout(fin); mal(new Error("sin conexión con la tele")); };
+    });
+  }
+})();
+</script>
+</body>
+</html>
